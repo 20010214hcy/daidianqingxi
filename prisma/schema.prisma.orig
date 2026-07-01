@@ -1,0 +1,180 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model article {
+  id          Int       @id @default(autoincrement())
+  title       String
+  content     String    @db.LongText
+  summary     String?
+  coverImage  String?
+  authorId    Int
+  category    String    @default("news")
+  status      String    @default("published")
+  viewCount   Int       @default(0)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  user        user      @relation(fields: [authorId], references: [id], map: "Article_authorId_fkey")
+
+  @@index([authorId], map: "Article_authorId_idx")
+  @@index([category], map: "Article_category_idx")
+  @@index([createdAt], map: "Article_createdAt_idx")
+  @@index([status], map: "Article_status_idx")
+}
+
+model certificate {
+  id        Int      @id @default(autoincrement())
+  image     String   @db.Text
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  title     String
+}
+
+model contactinfo {
+  id          Int      @id @default(autoincrement())
+  companyName String   @default("玺铭电力")
+  address     String   @default("北京市朝阳区工业大道123号科技大厦A座18层")
+  phone1      String   @default("400-888-8888")
+  phone2      String   @default("010-12345678")
+  email1      String   @default("contact@daidianqingxi.com")
+  email2      String   @default("service@daidianqingxi.com")
+  workHours1  String   @default("周一至周五：9:00 - 18:00")
+  workHours2  String   @default("周六：9:00 - 12:00")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+}
+
+model message {
+  id        Int       @id @default(autoincrement())
+  name      String
+  phone     String
+  email     String?
+  company   String?
+  subject   String?
+  content   String
+  status    String    @default("pending")
+  reply     String?   @db.LongText
+  repliedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+
+  @@index([createdAt], map: "Message_createdAt_idx")
+  @@index([status], map: "Message_status_idx")
+}
+
+model pricechangelog {
+  id            Int      @id @default(autoincrement())
+  action        String
+  previousState String
+  newState      String
+  operatorName  String   @default("管理员")
+  createdAt     DateTime @default(now())
+}
+
+model pricevisibility {
+  id        Int      @id @default(autoincrement())
+  visible   Boolean  @default(true)
+  updatedBy String   @default("管理员")
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model product {
+  id              Int             @id @default(autoincrement())
+  name            String
+  description     String?
+  price           Decimal         @default(0.00) @db.Decimal(10, 2)
+  categoryId      Int
+  image           String?
+  status          String          @default("published")
+  sortOrder       Int             @default(0)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime
+  productcategory productcategory @relation(fields: [categoryId], references: [id], map: "Product_categoryId_fkey")
+
+  @@index([categoryId], map: "Product_categoryId_idx")
+  @@index([createdAt], map: "Product_createdAt_idx")
+  @@index([sortOrder], map: "Product_sortOrder_idx")
+  @@index([status], map: "Product_status_idx")
+}
+
+model productcategory {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique(map: "ProductCategory_name_key")
+  sortOrder Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  product   product[]
+}
+
+model projectcase {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  content     String    @db.LongText
+  coverImage  String?
+  images      String?
+  clientName  String?
+  location    String?
+  startDate   DateTime?
+  endDate     DateTime?
+  authorId    Int
+  status      String    @default("published")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  user        user      @relation(fields: [authorId], references: [id], map: "ProjectCase_authorId_fkey")
+
+  @@index([authorId], map: "ProjectCase_authorId_idx")
+  @@index([createdAt], map: "ProjectCase_createdAt_idx")
+  @@index([status], map: "ProjectCase_status_idx")
+}
+
+model service {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  content     String   @db.LongText
+  coverImage  String?
+  icon        String?
+  price       String?
+  sortOrder   Int      @default(0)
+  authorId    Int
+  status      String   @default("published")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  user        user     @relation(fields: [authorId], references: [id], map: "Service_authorId_fkey")
+
+  @@index([authorId], map: "Service_authorId_fkey")
+}
+
+model sitesetting {
+  id         Int      @id @default(autoincrement())
+  siteName   String   @default("带电清洗")
+  siteSlogan String?  @default("专业工业清洗服务")
+  siteLogo   String?
+  siteIcon   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+}
+
+model user {
+  id          Int           @id @default(autoincrement())
+  username    String        @unique(map: "User_username_key")
+  password    String
+  email       String?
+  role        String        @default("editor")
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  avatar      String?
+  name        String?
+  article     article[]
+  projectcase projectcase[]
+  service     service[]
+}

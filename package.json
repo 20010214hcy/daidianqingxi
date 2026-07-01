@@ -1,0 +1,49 @@
+{
+  "name": "daidianqingxi-website",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@element-plus/nuxt": "^1.1.5",
+    "@nuxt/image": "^2.0.0",
+    "@nuxtjs/sitemap": "^8.0.15",
+    "@prisma/client": "^5.10.0",
+    "@types/dompurify": "^3.0.5",
+    "@types/three": "^0.184.1",
+    "@wangeditor/editor": "^5.1.23",
+    "@wangeditor/editor-for-vue": "^5.1.12",
+    "bcryptjs": "^3.0.3",
+    "cropperjs": "^2.1.1",
+    "dompurify": "^3.4.7",
+    "element-plus": "^2.13.7",
+    "jsonwebtoken": "^9.0.3",
+    "nuxt": "^3.10.0",
+    "sharp": "^0.34.5",
+    "three": "^0.184.0",
+    "vue": "^3.4.0",
+    "vue-router": "^4.2.5",
+    "xss": "^1.0.14",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@nuxtjs/tailwindcss": "^6.11.4",
+    "@types/jsonwebtoken": "^9.0.10",
+    "prisma": "^5.10.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.3.3"
+  }
+}

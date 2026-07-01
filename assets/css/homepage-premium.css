@@ -1,0 +1,302 @@
+/* ===== 玺铭电力 · 高端首页样式 ===== */
+/* 设计方向：工业精密 + 数据仪表感 */
+
+/* ---------- Hero 网格纹理 ---------- */
+.hero-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image:
+    linear-gradient(rgba(59, 130, 246, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.06) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: gridDrift 20s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes gridDrift {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(60px, 60px); }
+}
+
+/* Hero 扫描线效果 */
+.hero-section::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.6), transparent);
+  z-index: 2;
+  animation: scanLine 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes scanLine {
+  0%, 100% { top: 0; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  50% { top: 100%; }
+}
+
+/* ---------- 标题精密装饰 ---------- */
+.hero-title {
+  position: relative;
+  display: inline-block;
+}
+
+.hero-title::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+  border-radius: 2px;
+}
+
+/* ---------- 统计数字 · 仪表盘风格 ---------- */
+.about-stats {
+  position: relative;
+  padding: 24px 0;
+}
+
+.about-stats::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+}
+
+.about-stats::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+}
+
+.about-stat-item {
+  position: relative;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 20px 12px !important;
+}
+
+.about-stat-item::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 20%;
+  height: 60%;
+  width: 1px;
+  background: #e2e8f0;
+}
+
+.about-stat-item:last-child::after {
+  display: none;
+}
+
+.about-stat-number {
+  font-size: 2.2rem !important;
+  font-weight: 900 !important;
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-variant-numeric: tabular-nums;
+}
+
+.about-stat-label {
+  font-size: 0.75rem !important;
+  color: #475569 !important;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 600 !important;
+}
+
+/* ---------- 服务列表 · 精密线条 ---------- */
+.service-list-item {
+  position: relative;
+  border: none !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  border-radius: 0 !important;
+  padding: 20px 0 !important;
+}
+
+.service-list-item:last-child {
+  border-bottom: none !important;
+}
+
+.service-list-item.is-active {
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+.service-list-item.is-active::before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: #3b82f6;
+  border-radius: 2px;
+}
+
+.service-list-num {
+  font-variant-numeric: tabular-nums;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+}
+
+/* ---------- 案例卡片 · 技术感 ---------- */
+.case-card {
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: none !important;
+}
+
+.case-card:hover {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 1px #3b82f6, 0 16px 40px rgba(37, 99, 235, 0.1) !important;
+}
+
+.case-card-index {
+  font-variant-numeric: tabular-nums;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  font-size: 12px !important;
+  color: #475569 !important;
+}
+
+.case-card:hover .case-card-index {
+  color: #3b82f6 !important;
+}
+
+/* ---------- 新闻卡片 · 精密边框 ---------- */
+.news-headline {
+  border: 1px solid #e2e8f0;
+  box-shadow: none !important;
+}
+
+.news-headline:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px #3b82f6 !important;
+}
+
+.news-side-item {
+  border: 1px solid #f1f5f9;
+  box-shadow: none !important;
+}
+
+.news-side-item:hover {
+  border-color: #bfdbfe;
+}
+
+/* ---------- 合作伙伴 · 精密卡片 ---------- */
+.marquee-item {
+  background: transparent !important;
+  border: 1px solid #e2e8f0 !important;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  font-size: 13px !important;
+  letter-spacing: 2px !important;
+  color: #475569 !important;
+  font-weight: 500 !important;
+}
+
+.marquee-item:hover {
+  border-color: #3b82f6 !important;
+  color: #1e40af !important;
+  background: #eff6ff !important;
+}
+
+/* ---------- About 标签 · 精密风格 ---------- */
+.about-label {
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  font-size: 11px !important;
+  letter-spacing: 4px !important;
+  background: transparent !important;
+  border: 1px solid #3b82f6 !important;
+  color: #3b82f6 !important;
+  padding: 6px 16px !important;
+}
+
+/* ---------- CTA 按钮 · 琥珀色 ---------- */
+.about-cta {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+  border: none !important;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  font-size: 13px !important;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.about-cta:hover {
+  background: linear-gradient(135deg, #d97706, #b45309) !important;
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35) !important;
+}
+
+/* ---------- 特性卡片 · 精密风格 ---------- */
+.about-feature-item {
+  background: transparent !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 0 !important;
+  padding: 20px !important;
+  gap: 16px !important;
+}
+
+.about-feature-item:hover {
+  border-color: #3b82f6 !important;
+  box-shadow: none !important;
+}
+
+.about-feature-icon {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px !important;
+}
+
+.about-feature-title {
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  font-size: 13px !important;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ---------- Case 按钮 · 琥珀色 ---------- */
+.case-more-btn {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  font-size: 13px !important;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.case-more-btn:hover {
+  background: linear-gradient(135deg, #d97706, #b45309) !important;
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35) !important;
+}
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 768px) {
+  .hero-section::before {
+    background-size: 40px 40px;
+  }
+
+  .about-stat-item::after {
+    display: none;
+  }
+
+  .service-list-item.is-active::before {
+    display: none;
+  }
+}
