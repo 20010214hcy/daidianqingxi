@@ -42,7 +42,6 @@
               </div>
             </div>
           </div>
-          <!-- 统计数字 -->
           <div ref="statsRef" class="about-stats">
             <div v-for="(stat, i) in statItems" :key="i" class="about-stat-item">
               <p class="about-stat-number">{{ stat.formattedValue.value }}</p>
@@ -73,7 +72,6 @@ const features = [
   { title: '客户至上', desc: '定制化解决方案，99% 客户满意度' },
 ]
 
-// 统计数据
 const statsExperience = useCountUp(ref(20), { suffix: '+', triggerRef: statsRef, duration: 2000 })
 const statsCases = useCountUp(ref(500), { suffix: '+', triggerRef: statsRef, duration: 2200 })
 const statsClients = useCountUp(ref(200), { suffix: '+', triggerRef: statsRef, duration: 2000 })
@@ -103,10 +101,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.about-section {
-  padding: 100px 0;
-  background: #ffffff;
-}
+.about-section { padding: 100px 0; }
 
 .about-grid {
   display: flex;
@@ -114,39 +109,14 @@ onMounted(() => {
   gap: 64px;
 }
 
-.about-grid.about-visible .about-image-col {
-  animation: fadeInLeft 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
+.about-grid.about-visible .about-image-col { animation: fadeInLeft 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+.about-grid.about-visible .about-text-col { animation: fadeInRight 0.7s 0.15s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
 
-.about-grid.about-visible .about-text-col {
-  animation: fadeInRight 0.7s 0.15s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
+.about-image-col { flex: 0 0 44%; opacity: 0; transform: translateX(-20px); }
+.about-text-col { flex: 1; opacity: 0; transform: translateX(20px); }
 
-.about-image-col {
-  flex: 0 0 44%;
-  opacity: 0;
-  transform: translateX(-20px);
-}
-
-.about-text-col {
-  flex: 1;
-  opacity: 0;
-  transform: translateX(20px);
-}
-
-@keyframes fadeInLeft {
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes fadeInRight {
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
+@keyframes fadeInLeft { to { opacity: 1; transform: translateX(0); } }
+@keyframes fadeInRight { to { opacity: 1; transform: translateX(0); } }
 
 .about-image-wrapper {
   position: relative;
@@ -156,9 +126,7 @@ onMounted(() => {
   transition: box-shadow 0.4s ease;
 }
 
-.about-image-wrapper:hover {
-  box-shadow: 0 8px 40px rgba(37, 99, 235, 0.15);
-}
+.about-image-wrapper:hover { box-shadow: 0 8px 40px rgba(26, 115, 232, 0.15); }
 
 .about-image-accent {
   position: absolute;
@@ -166,16 +134,14 @@ onMounted(() => {
   left: -12px;
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  background: linear-gradient(135deg, #1a73e8, #4a90d9);
   border-radius: 16px;
   opacity: 0.12;
   z-index: 0;
   transition: transform 0.4s ease;
 }
 
-.about-image-wrapper:hover .about-image-accent {
-  transform: scale(1.15);
-}
+.about-image-wrapper:hover .about-image-accent { transform: scale(1.15); }
 
 .about-image {
   position: relative;
@@ -190,27 +156,18 @@ onMounted(() => {
   display: inline-block;
   font-size: 14px;
   font-weight: 600;
-  color: #2563eb;
-  letter-spacing: 3px;
-  text-transform: uppercase;
   margin-bottom: 16px;
-  padding: 4px 14px;
-  background: rgba(37, 99, 235, 0.06);
-  border-radius: 20px;
 }
 
 .about-heading {
   font-size: 32px;
   font-weight: 800;
-  color: #0f172a;
   line-height: 1.3;
   margin-bottom: 20px;
-  letter-spacing: -0.5px;
 }
 
 .about-desc {
   font-size: 16px;
-  color: #64748b;
   line-height: 1.8;
   margin-bottom: 32px;
   max-width: 560px;
@@ -227,16 +184,7 @@ onMounted(() => {
   display: flex;
   align-items: flex-start;
   gap: 14px;
-  padding: 16px;
-  background: #f8fafc;
-  border-radius: 12px;
-  border: 1px solid #f1f5f9;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.about-feature-item:hover {
-  border-color: #93c5fd;
-  box-shadow: 0 2px 12px rgba(59, 130, 246, 0.08);
 }
 
 .about-feature-icon {
@@ -245,29 +193,13 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #eff6ff, #dbeafe);
-  border-radius: 10px;
   flex-shrink: 0;
-  color: #2563eb;
 }
 
-.about-feature-icon svg {
-  width: 20px;
-  height: 20px;
-}
+.about-feature-icon svg { width: 20px; height: 20px; }
 
-.about-feature-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #334155;
-  margin-bottom: 2px;
-}
-
-.about-feature-desc {
-  font-size: 13px;
-  color: #475569;
-  line-height: 1.5;
-}
+.about-feature-title { font-size: 15px; font-weight: 600; color: #334155; margin-bottom: 2px; }
+.about-feature-desc { font-size: 13px; color: #475569; line-height: 1.5; }
 
 .about-stats {
   display: grid;
@@ -279,186 +211,62 @@ onMounted(() => {
 .about-stat-item {
   text-align: center;
   padding: 16px 8px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #eff6ff, #dbeafe);
-  border: 1px solid #bfdbfe;
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: transform 0.3s;
 }
 
-.about-stat-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.12);
-}
+.about-stat-item:hover { transform: translateY(-2px); }
 
-.about-stat-number {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: #1e40af;
-  line-height: 1.2;
-  margin-bottom: 2px;
-}
-
-.about-stat-label {
-  font-size: 0.8rem;
-  color: #3b82f6;
-  font-weight: 500;
-}
+.about-stat-number { font-size: 1.8rem; font-weight: 800; line-height: 1.2; margin-bottom: 2px; }
+.about-stat-label { font-size: 0.8rem; font-weight: 500; }
 
 .about-cta {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 12px 28px;
-  background: #2563eb;
-  color: #ffffff;
+  color: #fff;
   font-size: 15px;
   font-weight: 600;
-  border-radius: 8px;
   text-decoration: none;
-  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s ease;
 }
 
-.about-cta:hover {
-  background: #1d4ed8;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
-}
+.about-cta:hover { transform: translateY(-2px); }
+.about-cta-arrow { width: 18px; height: 18px; transition: transform 0.3s ease; }
+.about-cta:hover .about-cta-arrow { transform: translateX(4px); }
 
-.about-cta-arrow {
-  width: 18px;
-  height: 18px;
-  transition: transform 0.3s ease;
-}
-
-.about-cta:hover .about-cta-arrow {
-  transform: translateX(4px);
-}
-
-/* 响应式 */
 @media (max-width: 1024px) {
-  .about-section {
-    padding: 72px 0;
-  }
-
-  .about-grid {
-    gap: 40px;
-  }
-
-  .about-image-col {
-    flex: 0 0 42%;
-  }
-
-  .about-heading {
-    font-size: 26px;
-  }
+  .about-section { padding: 72px 0; }
+  .about-grid { gap: 40px; }
+  .about-image-col { flex: 0 0 42%; }
+  .about-heading { font-size: 26px; }
 }
 
 @media (max-width: 768px) {
-  .about-section {
-    padding: 56px 0;
-  }
-
-  .about-grid {
-    flex-direction: column;
-    gap: 36px;
-  }
-
-  .about-image-col {
-    flex: none;
-    width: 100%;
-    max-width: 420px;
-    margin: 0 auto;
-  }
-
-  .about-heading {
-    font-size: 24px;
-  }
-
-  .about-desc {
-    font-size: 15px;
-  }
-
-  .about-features {
-    gap: 12px;
-  }
-
-  .about-stats {
-    gap: 12px;
-    margin: 24px 0;
-  }
-
-  .about-stat-number {
-    font-size: 1.5rem;
-  }
-
-  .about-feature-item {
-    padding: 14px;
-    gap: 10px;
-  }
+  .about-section { padding: 56px 0; }
+  .about-grid { flex-direction: column; gap: 36px; }
+  .about-image-col { flex: none; width: 100%; max-width: 420px; margin: 0 auto; }
+  .about-heading { font-size: 24px; }
+  .about-desc { font-size: 15px; }
+  .about-features { gap: 12px; }
+  .about-stats { gap: 12px; margin: 24px 0; }
+  .about-stat-number { font-size: 1.5rem; }
+  .about-feature-item { padding: 14px; gap: 10px; }
 }
 
 @media (max-width: 480px) {
-  .about-section {
-    padding: 44px 0;
-  }
-
-  .about-grid {
-    gap: 28px;
-  }
-
-  .about-image-col {
-    max-width: 100%;
-  }
-
-  .about-label {
-    font-size: 13px;
-    letter-spacing: 2px;
-    padding: 4px 12px;
-  }
-
-  .about-heading {
-    font-size: 20px;
-  }
-
-  .about-desc {
-    font-size: 14px;
-    margin-bottom: 24px;
-  }
-
-  .about-features {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .about-stats {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin: 20px 0;
-  }
-
-  .about-stat-item {
-    padding: 12px 8px;
-  }
-
-  .about-stat-number {
-    font-size: 1.3rem;
-  }
-
-  .about-feature-icon {
-    width: 36px;
-    height: 36px;
-  }
-
-  .about-feature-icon svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .about-cta {
-    padding: 10px 24px;
-    font-size: 14px;
-    width: 100%;
-    justify-content: center;
-  }
+  .about-section { padding: 44px 0; }
+  .about-grid { gap: 28px; }
+  .about-image-col { max-width: 100%; }
+  .about-label { font-size: 13px; letter-spacing: 2px; padding: 4px 12px; }
+  .about-heading { font-size: 20px; }
+  .about-desc { font-size: 14px; margin-bottom: 24px; }
+  .about-features { grid-template-columns: 1fr; gap: 10px; }
+  .about-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 20px 0; }
+  .about-stat-item { padding: 12px 8px; }
+  .about-stat-number { font-size: 1.3rem; }
+  .about-feature-icon { width: 36px; height: 36px; }
+  .about-feature-icon svg { width: 18px; height: 18px; }
+  .about-cta { padding: 10px 24px; font-size: 14px; width: 100%; justify-content: center; }
 }
 </style>

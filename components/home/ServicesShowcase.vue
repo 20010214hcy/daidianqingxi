@@ -1,12 +1,11 @@
 <template>
-  <section class="py-20 bg-white services-section">
+  <section class="py-20 services-section">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-16">
         <h2 class="text-3xl font-bold text-slate-800 mb-4">我们的服务</h2>
         <p class="text-slate-600 text-lg max-w-2xl mx-auto">提供全方位的工业清洗解决方案</p>
       </div>
       <div v-if="services.length" class="service-showcase">
-        <!-- 左侧聚焦大图 -->
         <div class="service-focus">
           <Transition name="service-fade" mode="out-in">
             <div :key="activeServiceIndex" class="service-focus-inner">
@@ -30,7 +29,6 @@
             </div>
           </Transition>
         </div>
-        <!-- 右侧列表 -->
         <div class="service-list">
           <div v-for="(service, i) in services" :key="service.id"
             class="service-list-item"
@@ -55,10 +53,7 @@
 <script setup lang="ts">
 import type { Service } from '~/types'
 
-interface Props {
-  services: Service[]
-}
-
+interface Props { services: Service[] }
 const props = defineProps<Props>()
 
 const activeServiceIndex = ref(0)
@@ -66,7 +61,6 @@ let serviceTimer: ReturnType<typeof setInterval> | null = null
 
 const startServiceAutoplay = () => {
   if (props.services.length === 0) return
-
   serviceTimer = setInterval(() => {
     if (props.services.length > 0) {
       activeServiceIndex.value = (activeServiceIndex.value + 1) % props.services.length
@@ -75,23 +69,15 @@ const startServiceAutoplay = () => {
 }
 
 const pauseAutoplay = () => {
-  if (serviceTimer) {
-    clearInterval(serviceTimer)
-    serviceTimer = null
-  }
+  if (serviceTimer) { clearInterval(serviceTimer); serviceTimer = null }
 }
 
 const resumeAutoplay = () => {
   if (!serviceTimer) startServiceAutoplay()
 }
 
-onMounted(() => {
-  startServiceAutoplay()
-})
-
-onUnmounted(() => {
-  if (serviceTimer) clearInterval(serviceTimer)
-})
+onMounted(() => { startServiceAutoplay() })
+onUnmounted(() => { if (serviceTimer) clearInterval(serviceTimer) })
 </script>
 
 <style scoped>
@@ -108,11 +94,7 @@ onUnmounted(() => {
   aspect-ratio: 4 / 3;
 }
 
-.service-focus-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
+.service-focus-inner { position: relative; width: 100%; height: 100%; }
 
 .service-focus-img {
   width: 100%;
@@ -153,34 +135,21 @@ onUnmounted(() => {
   align-items: center;
   gap: 16px;
   padding: 20px 24px;
-  border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s;
-  border: 1px solid transparent;
 }
 
 .service-list-item:hover,
-.service-list-item.is-active {
-  background: #f0f9ff;
-  border-color: #bae6fd;
-}
+.service-list-item.is-active { background: #f0f9ff; }
 
 .service-list-num {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #cbd5e1;
   min-width: 36px;
   transition: color 0.3s;
 }
 
-.service-list-item.is-active .service-list-num {
-  color: #3b82f6;
-}
-
-.service-list-content {
-  flex: 1;
-  min-width: 0;
-}
+.service-list-content { flex: 1; min-width: 0; }
 
 .service-list-arrow {
   width: 20px;
@@ -194,31 +163,14 @@ onUnmounted(() => {
 .service-list-item.is-active .service-list-arrow {
   opacity: 1;
   transform: translateX(0);
-  color: #3b82f6;
 }
 
-.service-fade-enter-active,
-.service-fade-leave-active {
-  transition: opacity 0.5s ease;
-}
-
-.service-fade-enter-from,
-.service-fade-leave-to {
-  opacity: 0;
-}
+.service-fade-enter-active, .service-fade-leave-active { transition: opacity 0.5s ease; }
+.service-fade-enter-from, .service-fade-leave-to { opacity: 0; }
 
 @media (max-width: 768px) {
-  .service-showcase {
-    grid-template-columns: 1fr;
-    min-height: auto;
-  }
-
-  .service-focus {
-    aspect-ratio: 16 / 10;
-  }
-
-  .service-focus-overlay {
-    padding: 24px;
-  }
+  .service-showcase { grid-template-columns: 1fr; min-height: auto; }
+  .service-focus { aspect-ratio: 16 / 10; }
+  .service-focus-overlay { padding: 24px; }
 }
 </style>

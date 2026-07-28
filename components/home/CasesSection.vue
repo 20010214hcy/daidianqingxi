@@ -1,5 +1,5 @@
 <template>
-  <section class="py-20 bg-slate-50 cases-section">
+  <section class="py-20 cases-section">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-14">
         <span class="case-tag">工程案例</span>
@@ -37,11 +37,7 @@
 
 <script setup lang="ts">
 import type { Case } from '~/types'
-
-interface Props {
-  featuredCases: Case[]
-}
-
+interface Props { featuredCases: Case[] }
 defineProps<Props>()
 </script>
 
@@ -50,12 +46,8 @@ defineProps<Props>()
   display: inline-block;
   font-size: 14px;
   font-weight: 600;
-  color: #2563eb;
   letter-spacing: 3px;
-  text-transform: uppercase;
   padding: 4px 14px;
-  background: rgba(37, 99, 235, 0.06);
-  border-radius: 20px;
 }
 
 .case-grid {
@@ -67,17 +59,12 @@ defineProps<Props>()
 .case-card {
   display: block;
   background: #fff;
-  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease;
   text-decoration: none;
 }
 
-.case-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 16px 40px rgba(37, 99, 235, 0.15);
-}
+.case-card:hover { transform: translateY(-8px); }
 
 .case-card-img-wrap {
   position: relative;
@@ -92,9 +79,7 @@ defineProps<Props>()
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.case-card:hover .case-card-img {
-  transform: scale(1.08);
-}
+.case-card:hover .case-card-img { transform: scale(1.08); }
 
 .case-card-placeholder {
   width: 100%;
@@ -117,9 +102,7 @@ defineProps<Props>()
   transition: opacity 0.4s ease;
 }
 
-.case-card:hover .case-card-overlay {
-  opacity: 1;
-}
+.case-card:hover .case-card-overlay { opacity: 1; }
 
 .case-card-btn {
   padding: 10px 28px;
@@ -132,19 +115,14 @@ defineProps<Props>()
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.case-card:hover .case-card-btn {
-  transform: translateY(0);
-}
+.case-card:hover .case-card-btn { transform: translateY(0); }
 
-.case-card-body {
-  padding: 24px;
-}
+.case-card-body { padding: 24px; }
 
 .case-card-index {
   display: inline-block;
   font-size: 13px;
   font-weight: 700;
-  color: #3b82f6;
   margin-bottom: 8px;
   letter-spacing: 1px;
 }
@@ -152,19 +130,13 @@ defineProps<Props>()
 .case-card-title {
   font-size: 18px;
   font-weight: 700;
-  color: #1e293b;
   margin-bottom: 8px;
   line-height: 1.4;
   transition: color 0.3s;
 }
 
-.case-card:hover .case-card-title {
-  color: #2563eb;
-}
-
 .case-card-desc {
   font-size: 14px;
-  color: #475569;
   line-height: 1.6;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -176,40 +148,23 @@ defineProps<Props>()
   display: inline-flex;
   align-items: center;
   padding: 12px 32px;
-  background: #2563eb;
   color: #fff;
   font-size: 15px;
   font-weight: 600;
   border-radius: 8px;
   text-decoration: none;
-  transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
+  transition: all 0.3s;
 }
 
-.case-more-btn:hover {
-  background: #1d4ed8;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35);
-}
+.case-more-btn:hover { transform: translateY(-2px); }
 
 @media (max-width: 1024px) {
-  .case-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-  }
+  .case-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
 }
 
 @media (max-width: 640px) {
-  .case-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .case-card-body {
-    padding: 18px;
-  }
-
-  .case-card-title {
-    font-size: 16px;
-  }
+  .case-grid { grid-template-columns: 1fr; gap: 16px; }
+  .case-card-body { padding: 18px; }
+  .case-card-title { font-size: 16px; }
 }
 </style>
