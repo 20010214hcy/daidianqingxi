@@ -7,13 +7,27 @@ export default defineEventHandler(async (event) => {
     const page = Number(query.page) || 1
     const pageSize = Number(query.pageSize) || 10
     const status = (query.status as string) || 'published'
+    const businessUnit = query.businessUnit as string
 
-    // 如果 status 是 'all'，不应用状态筛选
-    const whereCondition = status === 'all' ? {} : { status }
+    // 构建查询条件
+    const where: any = {}
+    if (status !== 'all') {
+      where.status = status
+    }
+
+    // 如果指定了业务板块，根据slug过滤
+    if (businessUnit) {
+      const unit = await prisma.businessunit.findUnique({
+        where: { slug: businessUnit }
+      })
+      if (unit) {
+        where.businessUnitId = unit.id
+      }
+    }
 
     const [cases, total] = await Promise.all([
       prisma.projectcase.findMany({
-        where: whereCondition,
+        where,
         include: {
           user: {
             select: {
@@ -23,6 +37,13 @@ export default defineEventHandler(async (event) => {
               avatar: true,
             },
           },
+          businessunit: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            }
+          }
         },
         orderBy: {
           createdAt: 'desc',
@@ -30,7 +51,7 @@ export default defineEventHandler(async (event) => {
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
-      prisma.projectcase.count({ where: whereCondition }),
+      prisma.projectcase.count({ where }),
     ])
 
     const result = { cases, total }

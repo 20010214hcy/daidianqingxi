@@ -1,7 +1,6 @@
 import { prisma } from '~/server/utils/db'
 import { successResponse, errorResponse } from '~/server/utils/response'
 import { requirePermission } from '~/server/utils/auth'
-import { cache } from '~/server/utils/cache'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -29,7 +28,6 @@ export default defineEventHandler(async (event) => {
 
     await prisma.user.delete({ where: { id } })
 
-    cache.delete('users:list')
     return successResponse(null, '用户已删除')
   } catch (error: any) {
     if (error.statusCode) throw error

@@ -14,7 +14,7 @@
             </div>
           </div>
           <p class="text-slate-400 mb-4">
-            我们专注于电力设备带电清洗、工业设备清洗、高压清洗等服务，
+            我们专注于电力设备带电清洗、储能系统集成、工业设备清洗、高压清洗等服务，
             拥有专业的技术团队和丰富的工程经验，为客户提供安全、高效、
             优质的清洗解决方案。
           </p>
@@ -94,6 +94,9 @@
 
       <div class="border-t border-slate-800 mt-8 pt-8 text-center text-slate-500">
         <p>&copy; {{ new Date().getFullYear() }} {{ contact.companyName || '带电清洗' }}. All rights reserved.</p>
+        <p class="mt-2">
+          <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer" class="hover:text-slate-400 transition-colors">豫ICP备2026028995号</a>
+        </p>
       </div>
     </div>
 </footer>

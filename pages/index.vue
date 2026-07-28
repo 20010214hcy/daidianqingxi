@@ -28,12 +28,13 @@ definePageMeta({
 })
 
 useHead({
-  title: '玺铭电力 — 专业工业清洗解决方案',
+  title: "带电清洗与储能系统集成解决方案",
   meta: [
-    { name: 'description', content: '玺铭电力设备清洗有限公司，专业提供电力设备带电清洗、工业设备清洗、化学清洗等服务。20年行业经验，服务覆盖全国，安全高效值得信赖。' },
-    { property: 'og:title', content: '玺铭电力 — 专业工业清洗解决方案' },
+    { name: 'description', content: '玺铭电力设备清洗有限公司，专业提供电力设备带电清洗、工业设备清洗、化学清洗、储能系统集成等服务。20年行业经验，服务覆盖全国，安全高效值得信赖。' },
+    { property: 'og:title", content: "河南玺铭电力科技有限公司 - 带电清洗与储能系统集成解决方案' },
     { property: 'og:description', content: '玺铭电力设备清洗有限公司，专业提供电力设备带电清洗、工业设备清洗、化学清洗等服务。' },
     { property: 'og:type', content: 'website' },
+    { name: 'keywords', content: '带电清洗,电力设备清洗,工业清洗,高压清洗,玺铭电力,带电清洗公司,电力设备维护,储能系统,储能设备,储能集成服务' },
   ]
 })
 

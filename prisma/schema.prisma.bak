@@ -7,21 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 业务板块表
-model businessunit {
-  id             Int              @id @default(autoincrement())
-  name           String           @unique(map: "BusinessUnit_name_key")
-  slug           String           @unique(map: "BusinessUnit_slug_key")
-  description    String?          @db.Text
-  logo           String?
-  sortOrder      Int              @default(0)
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  productcategory productcategory[]
-  service        service[]
-  projectcase    projectcase[]
-}
-
 model article {
   id          Int       @id @default(autoincrement())
   title       String
@@ -121,62 +106,52 @@ model product {
 }
 
 model productcategory {
-  id            Int          @id @default(autoincrement())
-  name          String       @unique(map: "ProductCategory_name_key")
-  sortOrder     Int          @default(0)
-  businessUnitId Int?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime
-  businessunit  businessunit? @relation(fields: [businessUnitId], references: [id])
-  product       product[]
-
-  @@index([businessUnitId], map: "ProductCategory_businessUnitId_idx")
+  id        Int       @id @default(autoincrement())
+  name      String    @unique(map: "ProductCategory_name_key")
+  sortOrder Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  product   product[]
 }
 
 model projectcase {
-  id            Int           @id @default(autoincrement())
-  title         String
-  description   String?
-  content       String        @db.LongText
-  coverImage    String?
-  images        String?
-  clientName    String?
-  location      String?
-  startDate     DateTime?
-  endDate       DateTime?
-  authorId      Int
-  businessUnitId Int?
-  status        String        @default("published")
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime
-  user          user          @relation(fields: [authorId], references: [id], map: "ProjectCase_authorId_fkey")
-  businessunit  businessunit? @relation(fields: [businessUnitId], references: [id])
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  content     String    @db.LongText
+  coverImage  String?
+  images      String?
+  clientName  String?
+  location    String?
+  startDate   DateTime?
+  endDate     DateTime?
+  authorId    Int
+  status      String    @default("published")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  user        user      @relation(fields: [authorId], references: [id], map: "ProjectCase_authorId_fkey")
 
   @@index([authorId], map: "ProjectCase_authorId_idx")
-  @@index([businessUnitId], map: "ProjectCase_businessUnitId_idx")
   @@index([createdAt], map: "ProjectCase_createdAt_idx")
   @@index([status], map: "ProjectCase_status_idx")
 }
 
 model service {
-  id            Int           @id @default(autoincrement())
-  title         String
-  description   String?
-  content       String        @db.LongText
-  coverImage    String?
-  icon          String?
-  price         String?
-  sortOrder     Int           @default(0)
-  authorId      Int
-  businessUnitId Int?
-  status        String        @default("published")
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime
-  user          user          @relation(fields: [authorId], references: [id], map: "Service_authorId_fkey")
-  businessunit  businessunit? @relation(fields: [businessUnitId], references: [id])
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  content     String   @db.LongText
+  coverImage  String?
+  icon        String?
+  price       String?
+  sortOrder   Int      @default(0)
+  authorId    Int
+  status      String   @default("published")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  user        user     @relation(fields: [authorId], references: [id], map: "Service_authorId_fkey")
 
   @@index([authorId], map: "Service_authorId_fkey")
-  @@index([businessUnitId], map: "Service_businessUnitId_idx")
 }
 
 model sitesetting {

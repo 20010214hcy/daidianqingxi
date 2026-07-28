@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
 
-    const { name, sortOrder } = body
+    const { name, sortOrder, businessUnitId } = body
 
     if (!name || !name.trim()) {
       return errorResponse('分类名称不能为空', 400)
@@ -24,6 +24,7 @@ export default defineEventHandler(async (event) => {
         updatedAt: new Date(),
         name: name.trim(),
         sortOrder: sortOrder !== undefined ? Number(sortOrder) : 0,
+        businessUnitId: businessUnitId ? Number(businessUnitId) : null,
       },
     })
 

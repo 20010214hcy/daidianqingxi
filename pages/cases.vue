@@ -1,13 +1,32 @@
 <template>
   <div>
     <!-- Page Header -->
-    <PageHeader title="工程案例" subtitle="查看我们成功完成的清洗项目" />
+    <PageHeader title="服务案例" subtitle="查看我们成功完成的项目案例" />
+
+    <!-- 二级导航 -->
+    <section class="py-4 bg-white border-b border-slate-200 sticky top-20 z-40">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <UnitTabs v-model="activeUnit" />
+      </div>
+    </section>
 
     <!-- Cases List -->
     <section class="py-20 bg-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div ref="gridRef" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <NuxtLink v-for="caseItem in cases" :key="caseItem.id" :to="`/cases/${caseItem.id}`" class="card overflow-hidden group block">
+        <div v-if="loading" class="flex justify-center items-center py-20">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+
+        <div v-else-if="cases.length === 0" class="flex flex-col items-center justify-center py-20 text-slate-400">
+          <svg class="w-20 h-20 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+          <p class="text-lg">暂无案例</p>
+          <p class="text-sm mt-1">成功案例即将上线</p>
+        </div>
+
+        <div v-else ref="gridRef" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <NuxtLink v-for="caseItem in cases" :key="caseItem.id" :to="`/cases/${caseItem.id}`" class="card overflow-hidden group block stagger-reveal-item">
             <div class="h-56 relative overflow-hidden">
               <img v-if="caseItem.coverImage"
                 :src="caseItem.coverImage"
@@ -38,14 +57,6 @@
           </NuxtLink>
         </div>
       </div>
-
-      <div v-if="cases.length === 0" class="flex flex-col items-center justify-center py-20 text-slate-400">
-        <svg class="w-20 h-20 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-        </svg>
-        <p class="text-lg">暂无案例</p>
-        <p class="text-sm mt-1">成功案例即将上线</p>
-      </div>
     </section>
 
   </div>
@@ -57,20 +68,31 @@ definePageMeta({
 })
 
 useHead({
-  title: '工程案例 - 玺铭电力',
+  title: "服务案例",
   meta: [
-    { name: 'description', content: '查看玺铭电力成功完成的电力设备清洗项目案例，涵盖变电站、发电厂、工厂配电室等各类场景。' },
-    { property: 'og:title', content: '工程案例 - 玺铭电力' },
-    { property: 'og:description', content: '变电站、发电厂、工厂配电室等各类电力设备清洗成功案例。' },
+    { name: 'description', content: '查看玺铭电力成功完成的项目案例，涵盖带电清洗、储能系统等各类场景。' },
+    { property: 'og:title", content: "服务案例 - 河南玺铭电力科技有限公司' },
+    { property: 'og:description', content: '带电清洗、储能系统等各类项目成功案例。' },
+    { name: 'keywords', content: '带电清洗案例,电力清洗项目,储能系统案例,工业清洗工程,变电站清洗,成功案例' },
   ]
 })
 
 import type { Case } from '~/types'
 
 const { formatDate } = useFormatDate()
+const route = useRoute()
+const router = useRouter()
+
+// 业务板块切换
+const activeUnit = ref(route.query.unit as string || 'daidianqingxi')
+
+watch(activeUnit, (val) => {
+  router.replace({ query: { unit: val } })
+})
 
 // SSR 数据获取
-const { data: casesData } = useFetch('/api/cases', {
+const { data: casesData, pending: loading } = useFetch('/api/cases', {
+  query: computed(() => ({ businessUnit: activeUnit.value })),
   transform: (res: any) => res?.success ? (res.data?.list || res.data || []) : []
 })
 const cases = computed<Case[]>(() => casesData.value || [])
@@ -81,7 +103,6 @@ const { refresh: refreshStagger } = useStaggerReveal(gridRef, { delay: 100 })
 
 // 客户端加载完成后触发 stagger 动画
 onMounted(() => {
-  // 等待数据加载完成后触发动画
   watch(cases, (newVal) => {
     if (newVal && newVal.length > 0) {
       nextTick(() => refreshStagger())

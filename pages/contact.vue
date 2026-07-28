@@ -178,11 +178,12 @@ definePageMeta({ layout: 'default' })
 import type { ContactInfo } from '~/types'
 
 useHead({
-  title: '联系我们 - 玺铭电力',
+  title: "联系我们",
   meta: [
     { name: 'description', content: '联系玺铭电力 — 全国服务热线，专业电力设备清洗服务，期待与您合作。' },
-    { property: 'og:title', content: '联系我们 - 玺铭电力' },
+    { property: 'og:title", content: "联系我们 - 河南玺铭电力科技有限公司' },
     { property: 'og:description', content: '全国服务热线，专业电力设备清洗服务，期待与您合作。' },
+    { name: 'keywords', content: '玺铭电力联系方式,带电清洗咨询,电力清洗服务热线,工业清洗合作' },
   ]
 })
 

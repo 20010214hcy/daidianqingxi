@@ -8,6 +8,30 @@
       </el-button>
     </div>
 
+    <!-- 业务板块筛选 -->
+    <el-card class="mb-4">
+      <div class="flex flex-wrap items-center gap-4">
+        <el-select
+          v-model="filterBusinessUnit"
+          placeholder="筛选业务板块"
+          class="w-48"
+          clearable
+          @change="fetchServices"
+        >
+          <el-option label="全部板块" :value="null" />
+          <el-option
+            v-for="unit in businessUnits"
+            :key="unit.id"
+            :label="unit.name"
+            :value="unit.id"
+          />
+        </el-select>
+        <span class="text-sm text-slate-500">
+          共 {{ services.length }} 个服务
+        </span>
+      </div>
+    </el-card>
+
     <el-card>
       <div class="desktop-table">
         <el-table :data="services" style="width: 100%" stripe>
@@ -25,7 +49,15 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column prop="title" label="服务名称" />
+          <el-table-column prop="title" label="服务名称" min-width="180" />
+          <el-table-column label="所属板块" width="150">
+            <template #default="{ row }">
+              <el-tag v-if="row.businessunit" size="small" type="primary">
+                {{ row.businessunit.name }}
+              </el-tag>
+              <span v-else class="text-slate-400 text-sm">未分配</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="sortOrder" label="排序" width="100" />
           <el-table-column prop="status" label="状态" width="100">
             <template #default="{ row }">
@@ -49,7 +81,9 @@
             <div v-else class="mobile-card-image-placeholder">📷</div>
             <div class="mobile-card-info">
               <h4 class="mobile-card-title">{{ item.title }}</h4>
-              <p class="mobile-card-subtitle">{{ item.description || '暂无描述' }}</p>
+              <p class="mobile-card-subtitle">
+                {{ item.businessunit?.name || '未分配板块' }} · {{ item.description || '暂无描述' }}
+              </p>
             </div>
             <el-tag :type="item.status === 'published' ? 'success' : 'warning'" size="small">
               {{ item.status === 'published' ? '已发布' : '草稿' }}
@@ -73,6 +107,17 @@
       <el-form :model="serviceForm" label-width="100px">
         <el-form-item label="服务名称" required>
           <el-input v-model="serviceForm.title" placeholder="请输入服务名称" />
+        </el-form-item>
+        <el-form-item label="所属板块">
+          <el-select v-model="serviceForm.businessUnitId" placeholder="请选择业务板块" class="w-full" clearable>
+            <el-option label="不指定" :value="null" />
+            <el-option
+              v-for="unit in businessUnits"
+              :key="unit.id"
+              :label="unit.name"
+              :value="unit.id"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="图标">
           <el-input v-model="serviceForm.icon" placeholder="请输入图标，如: ⚡、🔧、💧" />
@@ -118,8 +163,10 @@ useHead({ title: '服务管理 - 后台管理' })
 definePageMeta({ layout: 'admin' })
 
 const services = ref([])
+const businessUnits = ref([])
 const showAddModal = ref(false)
 const editingService = ref(null)
+const filterBusinessUnit = ref(null)
 
 const serviceForm = ref({
   title: '',
@@ -128,12 +175,29 @@ const serviceForm = ref({
   icon: '',
   sortOrder: 1,
   status: 'published',
-  content: ''
+  content: '',
+  businessUnitId: null
 })
+
+const fetchBusinessUnits = async () => {
+  try {
+    const res = await $fetch('/api/business-units')
+    if (res?.success) {
+      businessUnits.value = res.data || []
+    }
+  } catch (error) {
+    console.error('获取业务板块列表失败:', error)
+  }
+}
 
 const fetchServices = async () => {
   try {
-    const response = await $fetch('/api/services')
+    const params = {}
+    if (filterBusinessUnit.value) {
+      const unit = businessUnits.value.find(u => u.id === filterBusinessUnit.value)
+      if (unit) params.businessUnit = unit.slug
+    }
+    const response = await $fetch('/api/services', { params })
     if (response?.success) {
       services.value = response.data || []
     }
@@ -151,7 +215,8 @@ const editService = (service) => {
     icon: service.icon || '',
     sortOrder: service.sortOrder || 1,
     status: service.status,
-    content: service.content
+    content: service.content,
+    businessUnitId: service.businessUnitId || null
   }
   showAddModal.value = true
 }
@@ -206,7 +271,7 @@ const handleSubmit = async () => {
     editingService.value = null
     serviceForm.value = {
       title: '', description: '', coverImage: '', icon: '',
-      sortOrder: 1, status: 'published', content: ''
+      sortOrder: 1, status: 'published', content: '', businessUnitId: null
     }
     await fetchServices()
   } catch (error) {
@@ -215,8 +280,9 @@ const handleSubmit = async () => {
   }
 }
 
-onMounted(() => {
-  fetchServices()
+onMounted(async () => {
+  await fetchBusinessUnits()
+  await fetchServices()
 })
 </script>
 

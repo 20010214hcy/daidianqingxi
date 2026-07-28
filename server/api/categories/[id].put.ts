@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
       return errorResponse('分类ID不能为空', 400)
     }
 
-    const { name, sortOrder } = body
+    const { name, sortOrder, businessUnitId } = body
 
     if (name !== undefined) {
       const existing = await prisma.productcategory.findFirst({
@@ -28,6 +28,7 @@ export default defineEventHandler(async (event) => {
     const updateData: any = {}
     if (name !== undefined) updateData.name = name.trim()
     if (sortOrder !== undefined) updateData.sortOrder = Number(sortOrder)
+    if (businessUnitId !== undefined) updateData.businessUnitId = businessUnitId ? Number(businessUnitId) : null
 
     const category = await prisma.productcategory.update({
       where: { id },

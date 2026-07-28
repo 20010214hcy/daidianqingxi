@@ -110,9 +110,10 @@
 definePageMeta({ layout: 'default' })
 
 useHead({
-  title: '关于我们 - 玺铭电力',
+  title: "关于我们",
   meta: [
     { name: 'description', content: '了解玺铭电力设备清洗有限公司，专注电力设备带电清洗领域，20年行业经验，500+成功案例。' },
+    { name: 'keywords', content: '玺铭电力,带电清洗,电力设备清洗,工业清洗公司,电力清洗服务商,带电清洗技术' },
   ]
 })
 

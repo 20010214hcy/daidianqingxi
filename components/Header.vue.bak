@@ -71,8 +71,8 @@ const route = useRoute()
 const navItems = [
   { to: '/', label: '首页' },
   { to: '/products', label: '产品' },
-  { to: '/solutions', label: '技术方案' },
-  { to: '/cases', label: '服务案例' },
+  { to: '/services', label: '服务项目' },
+  { to: '/cases', label: '工程案例' },
   { to: '/news', label: '新闻资讯' },
   { to: '/contact', label: '联系我们' },
 ]

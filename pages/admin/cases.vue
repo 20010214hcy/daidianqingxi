@@ -8,6 +8,30 @@
       </el-button>
     </div>
 
+    <!-- 业务板块筛选 -->
+    <el-card class="mb-4">
+      <div class="flex flex-wrap items-center gap-4">
+        <el-select
+          v-model="filterBusinessUnit"
+          placeholder="筛选业务板块"
+          class="w-48"
+          clearable
+          @change="fetchCases"
+        >
+          <el-option label="全部板块" :value="null" />
+          <el-option
+            v-for="unit in businessUnits"
+            :key="unit.id"
+            :label="unit.name"
+            :value="unit.id"
+          />
+        </el-select>
+        <span class="text-sm text-slate-500">
+          共 {{ cases.length }} 个案例
+        </span>
+      </div>
+    </el-card>
+
     <el-card>
       <div class="desktop-table">
         <el-table :data="cases" style="width: 100%" stripe>
@@ -18,8 +42,16 @@
             </template>
           </el-table-column>
           <el-table-column prop="title" label="项目名称" min-width="200" />
-          <el-table-column prop="location" label="地点" />
-          <el-table-column prop="clientName" label="客户名称" />
+          <el-table-column label="所属板块" width="150">
+            <template #default="{ row }">
+              <el-tag v-if="row.businessunit" size="small" type="primary">
+                {{ row.businessunit.name }}
+              </el-tag>
+              <span v-else class="text-slate-400 text-sm">未分配</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="location" label="地点" width="120" />
+          <el-table-column prop="clientName" label="客户名称" width="150" />
           <el-table-column prop="status" label="状态" width="100">
             <template #default="{ row }">
               <el-tag :type="row.status === 'published' ? 'success' : 'warning'">
@@ -42,7 +74,9 @@
             <div v-else class="mobile-card-image-placeholder">无封面</div>
             <div class="mobile-card-info">
               <h4 class="mobile-card-title">{{ item.title }}</h4>
-              <p class="mobile-card-subtitle">{{ item.location || '未知地点' }}</p>
+              <p class="mobile-card-subtitle">
+                {{ item.businessunit?.name || '未分配板块' }} · {{ item.location || '未知地点' }}
+              </p>
             </div>
             <el-tag :type="item.status === 'published' ? 'success' : 'warning'" size="small">
               {{ item.status === 'published' ? '已发布' : '草稿' }}
@@ -67,6 +101,17 @@
       <el-form :model="caseForm" :rules="rules" ref="caseFormRef" label-width="100px">
         <el-form-item label="项目名称" prop="title">
           <el-input v-model="caseForm.title" placeholder="请输入项目名称" />
+        </el-form-item>
+        <el-form-item label="所属板块">
+          <el-select v-model="caseForm.businessUnitId" placeholder="请选择业务板块" class="w-full" clearable>
+            <el-option label="不指定" :value="null" />
+            <el-option
+              v-for="unit in businessUnits"
+              :key="unit.id"
+              :label="unit.name"
+              :value="unit.id"
+            />
+          </el-select>
         </el-form-item>
         <el-row :gutter="20">
           <el-col :span="12">
@@ -109,16 +154,18 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Edit, Delete } from '@element-plus/icons-vue'
+import { Plus } from '@element-plus/icons-vue'
 
 useHead({ title: '案例管理 - 后台管理' })
 definePageMeta({ layout: 'admin' })
 
 const cases = ref([])
+const businessUnits = ref([])
 const dialogVisible = ref(false)
 const isEdit = ref(false)
 const editingCase = ref(null)
 const caseFormRef = ref(null)
+const filterBusinessUnit = ref(null)
 
 const caseForm = reactive({
   title: '',
@@ -127,7 +174,8 @@ const caseForm = reactive({
   location: '',
   status: 'published',
   coverImage: '',
-  content: ''
+  content: '',
+  businessUnitId: null
 })
 
 const rules = {
@@ -135,9 +183,25 @@ const rules = {
   content: [{ required: true, message: '请输入内容', trigger: 'blur' }]
 }
 
+const fetchBusinessUnits = async () => {
+  try {
+    const res = await $fetch('/api/business-units')
+    if (res?.success) {
+      businessUnits.value = res.data || []
+    }
+  } catch (error) {
+    console.error('获取业务板块列表失败:', error)
+  }
+}
+
 const fetchCases = async () => {
   try {
-    const response = await $fetch('/api/cases?status=all')
+    const params = { status: 'all' }
+    if (filterBusinessUnit.value) {
+      const unit = businessUnits.value.find(u => u.id === filterBusinessUnit.value)
+      if (unit) params.businessUnit = unit.slug
+    }
+    const response = await $fetch('/api/cases', { params })
     if (response?.success) {
       cases.value = response.data?.list || response.data || []
     }
@@ -151,7 +215,7 @@ const handleAdd = () => {
   editingCase.value = null
   Object.assign(caseForm, {
     title: '', description: '', clientName: '', location: '',
-    status: 'published', coverImage: '', content: ''
+    status: 'published', coverImage: '', content: '', businessUnitId: null
   })
   dialogVisible.value = true
 }
@@ -166,7 +230,8 @@ const handleEdit = (item) => {
     location: item.location || '',
     status: item.status,
     coverImage: item.coverImage || '',
-    content: item.content
+    content: item.content,
+    businessUnitId: item.businessUnitId || null
   })
   dialogVisible.value = true
 }
@@ -216,8 +281,9 @@ const handleSubmit = async () => {
   })
 }
 
-onMounted(() => {
-  fetchCases()
+onMounted(async () => {
+  await fetchBusinessUnits()
+  await fetchCases()
 })
 </script>
 

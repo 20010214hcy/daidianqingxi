@@ -7,22 +7,7 @@
       </div>
     </section>
 
-    <!-- 二级导航（业务板块）- 滚动后隐藏 -->
-    <section
-      ref="unitTabsRef"
-      class="py-4 bg-white border-b border-slate-200 transition-all duration-300"
-      :class="scrolledPast ? 'max-h-0 overflow-hidden opacity-0 py-0 border-b-0' : 'max-h-20 opacity-100'"
-    >
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <UnitTabs v-model="activeUnit" />
-      </div>
-    </section>
-
-    <!-- 分类筛选 - 滚动后吸顶替代业务板块 -->
-    <section
-      class="py-4 bg-white border-b border-slate-200 sticky top-20 z-40 transition-shadow duration-300"
-      :class="scrolledPast ? 'shadow-sm' : ''"
-    >
+    <section class="py-8 bg-white border-b border-slate-200 sticky top-20 z-40">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-wrap items-center justify-center gap-3">
           <button
@@ -67,7 +52,7 @@
             </p>
           </div>
 
-          <div class="product-grid-fade" :key="currentPage + activeUnit">
+          <div class="product-grid-fade" :key="currentPage">
             <div ref="gridRef" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               <div
                 v-for="product in products"
@@ -124,6 +109,14 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <div v-if="!loading && products.length === 0" class="col-span-full flex flex-col items-center justify-center py-20 text-slate-400">
+            <svg class="w-20 h-20 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+            </svg>
+            <p class="text-lg">暂无产品</p>
+            <p class="text-sm mt-1">请稍后查看或联系管理员</p>
           </div>
 
           <div v-if="totalPages > 1" class="pagination-wrapper">
@@ -198,41 +191,26 @@ definePageMeta({
 })
 
 useHead({
-  title: "产品中心",
+  title: '产品中心 - 玺铭电力',
   meta: [
     { name: 'description', content: '玺铭电力产品中心，涵盖高压清洗设备、智能控制系统、安全防护装备及多系列专业工业清洗产品。' },
-    { property: 'og:title", content: "产品中心 - 河南玺铭电力科技有限公司' },
+    { property: 'og:title', content: '产品中心 - 玺铭电力' },
     { property: 'og:description', content: '高压清洗设备、智能控制系统、安全防护装备及多系列专业工业清洗产品。' },
-    { name: 'keywords', content: '高压清洗设备,智能控制系统,安全防护装备,工业清洗产品,带电清洗设备,清洗药剂,检测仪器' },
   ]
 })
 
 import type { Product, ProductCategory } from '~/types'
 
 const PAGE_SIZE = 12
-const route = useRoute()
-const router = useRouter()
-
-// 业务板块切换
-const activeUnit = ref(route.query.unit as string || 'daidianqingxi')
-
-watch(activeUnit, (val) => {
-  router.replace({ query: { unit: val } })
-  activeCategory.value = null
-  currentPage.value = 1
-})
 
 const activeCategory = ref<number | null>(null)
 const currentPage = ref(1)
 const gridRef = ref<HTMLElement | null>(null)
-const unitTabsRef = ref<HTMLElement | null>(null)
-const scrolledPast = ref(false)
 
 const { refresh: refreshStagger } = useStaggerReveal(gridRef, { delay: 60 })
 
 // SSR 数据获取 - 分类
 const { data: categoriesData } = useFetch('/api/categories', {
-  query: computed(() => ({ businessUnit: activeUnit.value })),
   transform: (res: any) => res?.success ? (res.data || []) : []
 })
 const categories = computed<ProductCategory[]>(() => categoriesData.value || [])
@@ -243,11 +221,10 @@ const { data: priceData } = useFetch('/api/price-visibility', {
 })
 const showPrice = computed(() => priceData.value !== false)
 
-// SSR 数据获取 - 产品列表
+// SSR 数据获取 - 产品列表（响应式参数，变化时自动重新获取）
 const productParams = computed(() => ({
   page: currentPage.value,
   pageSize: PAGE_SIZE,
-  businessUnit: activeUnit.value,
   ...(activeCategory.value !== null ? { categoryId: activeCategory.value } : {})
 }))
 const { data: productsResponse, pending: loading } = useFetch('/api/products', {
@@ -273,18 +250,6 @@ onMounted(() => {
   watch(products, () => {
     nextTick(() => refreshStagger())
   }, { immediate: true })
-
-  // 监听业务板块是否滚出视口
-  if (unitTabsRef.value) {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        scrolledPast.value = !entry.isIntersecting
-      },
-      { threshold: 0 }
-    )
-    observer.observe(unitTabsRef.value)
-    onUnmounted(() => observer.disconnect())
-  }
 })
 
 const visiblePages = computed(() => {
@@ -464,6 +429,9 @@ const formatPrice = (price: number | string | null | undefined) => {
   }
   section.py-16 {
     padding: 40px 0;
+  }
+  section.py-8 {
+    padding: 20px 0;
   }
   h2.text-3xl {
     font-size: 22px;

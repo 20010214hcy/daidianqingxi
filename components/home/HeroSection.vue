@@ -9,7 +9,7 @@
         <span class="hero-decoration-line"></span>
       </div>
       <h1 class="hero-title animate-fade-in">玺铭电力</h1>
-      <p class="hero-subtitle animate-fade-in animate-delay-1">专注电力设备带电清洗 · 安全高效 · 稳压保供</p>
+      <p class="hero-subtitle animate-fade-in animate-delay-1">专注电力设备带电清洗 · 储能系统集成 · 安全高效 · 稳压保供</p>
       <!-- 数据亮点 -->
       <div class="animate-fade-in animate-delay-2 hero-stats">
         <div class="hero-stat-item">

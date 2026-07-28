@@ -163,9 +163,10 @@ import type { Article } from '~/types'
 definePageMeta({ layout: 'default' })
 
 useHead({
-  title: '新闻资讯 - 玺铭电力',
+  title: "新闻资讯",
   meta: [
     { name: 'description', content: '玺铭电力新闻资讯，涵盖行业动态、公司新闻、技术分享，了解电力清洗行业前沿信息。' },
+    { name: 'keywords', content: '电力行业新闻,带电清洗资讯,工业清洗技术,电力设备维护,清洗行业动态' },
   ]
 })
 

@@ -54,19 +54,20 @@ export default defineNuxtConfig({
     pageTransition: { name: 'page', mode: 'out-in' },
     keepalive: false,
     head: {
-      title: '带电清洗 - 专业工业清洗服务',
+      titleTemplate: (title) => title ? title + " - 河南玺铭电力科技有限公司" : "河南玺铭电力科技有限公司 - 带电清洗与储能系统集成服务商",
       // 移除 Google Fonts，使用系统字体
       link: [
         // Canonical URL（使用模板会在运行时替换）
-        { rel: 'canonical', href: 'https://www.daidianqingxi.com' },
+        { rel: 'canonical', href: 'https://www.ximingpower.com' },
       ],
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: '专业带电清洗服务，电力设备清洗，工业清洗工程' },
+        { name: 'description', content: "专业带电清洗服务、储能系统集成，电力设备清洗，工业清洗工程" },
+        { name: 'keywords', content: "带电清洗,电力设备清洗,工业清洗,高压清洗,玺铭电力,化学清洗,储能系统,储能设备,储能集成" },
         // Open Graph
         { property: 'og:image', content: '/images/og-cover.svg' },
-        { property: 'og:site_name', content: '玺铭电力' },
+        { property: "og:site_name", content: "河南玺铭电力科技有限公司" },
         { property: 'og:locale', content: 'zh_CN' },
         // 性能提示
         { 'http-equiv': 'x-dns-prefetch-control', content: 'on' },
@@ -114,7 +115,7 @@ export default defineNuxtConfig({
 
   // Sitemap 配置
   sitemap: {
-    hostname: 'https://www.daidianqingxi.com',
+    hostname: 'https://www.ximingpower.com',
     gzip: true,
     exclude: ['/admin/**', '/api/**', '/login'],
     routes: [

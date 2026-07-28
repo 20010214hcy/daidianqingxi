@@ -1,7 +1,6 @@
 import { prisma } from '~/server/utils/db'
 import { successResponse, errorResponse } from '~/server/utils/response'
 import { requirePermission, hashPassword, isValidRole } from '~/server/utils/auth'
-import { cache } from '~/server/utils/cache'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -62,7 +61,6 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    cache.delete('users:list')
     return successResponse(user, '用户更新成功')
   } catch (error: any) {
     if (error.statusCode) throw error
