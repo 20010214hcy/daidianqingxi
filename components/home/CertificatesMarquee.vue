@@ -1,18 +1,32 @@
 <template>
-  <section class="py-20 bg-gradient-to-b from-slate-50 to-white overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-      <div class="text-center">
-        <span class="inline-block bg-primary-100 text-primary-700 text-sm font-semibold px-4 py-1.5 rounded-full mb-4">资质荣誉</span>
-        <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">专业资质 · 值得信赖</h2>
-        <p class="text-slate-600 text-lg max-w-2xl mx-auto">多年行业深耕，获得多项专业资质认证，为客户提供安全可靠的服务保障</p>
+  <section class="certs-section">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <span class="certs-tag">资质荣誉</span>
+        <h2 class="certs-heading">专业资质 · 值得信赖</h2>
+        <p class="certs-desc">多年行业深耕，获得多项专业资质认证，为客户提供安全可靠的服务保障</p>
       </div>
-    </div>
 
-    <div v-if="certificates.length <= 4" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <div v-for="cert in certificates" :key="cert.id" class="cert-card group">
-          <div class="cert-image-wrapper">
-            <img v-if="cert.image" :src="cert.image" :alt="cert.title" class="cert-image" loading="lazy" />
+      <div v-if="certificates.length" class="certs-grid">
+        <div
+          v-for="(cert, index) in certificates"
+          :key="cert.id"
+          class="cert-card"
+          @click="openLightbox(index)"
+        >
+          <div class="cert-img-wrap">
+            <img
+              v-if="cert.image"
+              :src="cert.image"
+              :alt="cert.title"
+              class="cert-img"
+              loading="lazy"
+            />
+            <div class="cert-zoom-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+              </svg>
+            </div>
           </div>
           <div class="cert-info">
             <h3 class="cert-title">{{ cert.title }}</h3>
@@ -21,22 +35,46 @@
       </div>
     </div>
 
-    <template v-else>
-      <div class="marquee-wrapper" @mouseenter="pauseAnimation" @mouseleave="resumeAnimation">
-        <div class="marquee-track" :class="{ paused: isPaused }" :style="{ animationDuration: animDuration + 's' }">
-          <div v-for="(cert, index) in duplicatedCerts" :key="index" class="marquee-item">
-            <div class="cert-card">
-              <div class="cert-image-wrapper">
-                <img v-if="cert.image" :src="cert.image" :alt="cert.title" class="cert-image" loading="lazy" />
-              </div>
-              <div class="cert-info">
-                <h3 class="cert-title">{{ cert.title }}</h3>
-              </div>
+    <!-- 灯箱弹窗 -->
+    <Teleport to="body">
+      <Transition name="lightbox">
+        <div v-if="lightboxOpen" class="lightbox-overlay" @click.self="closeLightbox">
+          <button class="lightbox-close" @click="closeLightbox" aria-label="关闭">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+
+          <button v-if="certificates.length > 1" class="lightbox-nav lightbox-prev" @click="prevCert" aria-label="上一张">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+
+          <div class="lightbox-content">
+            <div class="lightbox-img-wrap">
+              <img
+                v-if="currentCert?.image"
+                :src="currentCert.image"
+                :alt="currentCert.title"
+                class="lightbox-img"
+              />
+            </div>
+            <div class="lightbox-info">
+              <h3 class="lightbox-title">{{ currentCert?.title }}</h3>
+              <p v-if="currentCert?.description" class="lightbox-desc">{{ currentCert.description }}</p>
+              <span class="lightbox-counter">{{ currentIndex + 1 }} / {{ certificates.length }}</span>
             </div>
           </div>
+
+          <button v-if="certificates.length > 1" class="lightbox-nav lightbox-next" @click="nextCert" aria-label="下一张">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
         </div>
-      </div>
-    </template>
+      </Transition>
+    </Teleport>
   </section>
 </template>
 
@@ -45,85 +83,291 @@ interface Certificate {
   id: number
   title: string
   image: string
+  description?: string
   sortOrder: number
 }
 
 const props = defineProps<{ certificates: Certificate[] }>()
 
-const isPaused = ref(false)
+const lightboxOpen = ref(false)
+const currentIndex = ref(0)
 
-const duplicatedCerts = computed(() => {
-  const certs = props.certificates || []
-  if (certs.length <= 4) return certs
-  return [...certs, ...certs, ...certs]
+const currentCert = computed(() => props.certificates[currentIndex.value])
+
+const openLightbox = (index: number) => {
+  currentIndex.value = index
+  lightboxOpen.value = true
+  document.body.style.overflow = 'hidden'
+}
+
+const closeLightbox = () => {
+  lightboxOpen.value = false
+  document.body.style.overflow = ''
+}
+
+const prevCert = () => {
+  currentIndex.value = currentIndex.value === 0
+    ? props.certificates.length - 1
+    : currentIndex.value - 1
+}
+
+const nextCert = () => {
+  currentIndex.value = (currentIndex.value + 1) % props.certificates.length
+}
+
+// 键盘左右切换 + ESC关闭
+onMounted(() => {
+  const handleKeydown = (e: KeyboardEvent) => {
+    if (!lightboxOpen.value) return
+    if (e.key === 'Escape') closeLightbox()
+    if (e.key === 'ArrowLeft') prevCert()
+    if (e.key === 'ArrowRight') nextCert()
+  }
+  window.addEventListener('keydown', handleKeydown)
+  onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
 })
-
-const animDuration = computed(() => {
-  const count = props.certificates?.length || 0
-  return Math.min(60, Math.max(20, count * 5))
-})
-
-const pauseAnimation = () => { isPaused.value = true }
-const resumeAnimation = () => { isPaused.value = false }
 </script>
 
 <style scoped>
-.cert-card {
-  background: white;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  border: 1px solid #e5e7eb;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+.certs-section {
+  padding: 80px 0;
+  background: #f5f7fa;
 }
+
+.certs-tag {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a73e8;
+  letter-spacing: 2px;
+  background: #e8f0fe;
+  padding: 6px 16px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+}
+
+.certs-heading {
+  font-size: 36px;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin-bottom: 12px;
+}
+
+.certs-desc {
+  font-size: 16px;
+  color: #6b7280;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+/* 网格 */
+.certs-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+/* 证书卡片 */
+.cert-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .cert-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  border-color: #1a73e8;
+  box-shadow: 0 12px 32px rgba(26, 115, 232, 0.12);
 }
-.cert-image-wrapper {
+
+.cert-img-wrap {
+  position: relative;
   width: 100%;
-  height: 180px;
+  height: 200px;
   overflow: hidden;
   background: #f9fafb;
 }
-.cert-image {
+
+.cert-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.4s ease;
 }
+
+.cert-card:hover .cert-img {
+  transform: scale(1.05);
+}
+
+/* 放大图标 */
+.cert-zoom-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(26, 115, 232, 0.15);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.cert-card:hover .cert-zoom-icon {
+  opacity: 1;
+}
+
+.cert-zoom-icon svg {
+  width: 40px;
+  height: 40px;
+  color: #fff;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
 .cert-info {
   padding: 14px 16px;
   text-align: center;
 }
+
 .cert-title {
   font-size: 14px;
   font-weight: 600;
   color: #374151;
   line-height: 1.5;
 }
-.marquee-wrapper {
-  overflow: hidden;
-  width: 100%;
-}
-.marquee-track {
+
+/* ========== 灯箱 ========== */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.9);
   display: flex;
-  animation: scroll-left linear infinite;
-  width: max-content;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
 }
-.marquee-track.paused {
-  animation-play-state: paused;
+
+.lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  z-index: 10;
 }
-.marquee-item {
-  flex-shrink: 0;
-  margin: 0 10px;
-  width: 220px;
+
+.lightbox-close:hover { background: rgba(255, 255, 255, 0.2); }
+.lightbox-close svg { width: 24px; height: 24px; color: #fff; }
+
+.lightbox-content {
+  max-width: 800px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-@keyframes scroll-left {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-33.33%); }
+
+.lightbox-img-wrap {
+  max-height: 70vh;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #fff;
 }
-@media (max-width: 640px) {
-  .marquee-item { width: 160px; margin: 0 8px; }
-  .cert-image-wrapper { height: 140px; }
+
+.lightbox-img {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  display: block;
+}
+
+.lightbox-info {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.lightbox-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.lightbox-desc {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  max-width: 500px;
+}
+
+.lightbox-counter {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 2px;
+}
+
+/* 导航箭头 */
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  z-index: 10;
+}
+
+.lightbox-nav:hover { background: rgba(255, 255, 255, 0.2); }
+.lightbox-nav svg { width: 24px; height: 24px; color: #fff; }
+.lightbox-prev { left: 20px; }
+.lightbox-next { right: 20px; }
+
+/* 灯箱动画 */
+.lightbox-enter-active { transition: opacity 0.3s ease; }
+.lightbox-leave-active { transition: opacity 0.2s ease; }
+.lightbox-enter-from, .lightbox-leave-to { opacity: 0; }
+
+/* 响应式 */
+@media (max-width: 1024px) {
+  .certs-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+}
+
+@media (max-width: 768px) {
+  .certs-section { padding: 60px 0; }
+  .certs-heading { font-size: 28px; }
+  .certs-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .cert-img-wrap { height: 160px; }
+  .lightbox-overlay { padding: 20px; }
+  .lightbox-nav { width: 40px; height: 40px; }
+  .lightbox-prev { left: 10px; }
+  .lightbox-next { right: 10px; }
+}
+
+@media (max-width: 480px) {
+  .certs-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .cert-img-wrap { height: 140px; }
+  .cert-info { padding: 10px 12px; }
+  .cert-title { font-size: 13px; }
+  .lightbox-title { font-size: 16px; }
 }
 </style>
