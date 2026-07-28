@@ -115,7 +115,6 @@ const nextCert = () => {
   currentIndex.value = (currentIndex.value + 1) % props.certificates.length
 }
 
-// 键盘左右切换 + ESC关闭
 onMounted(() => {
   const handleKeydown = (e: KeyboardEvent) => {
     if (!lightboxOpen.value) return
@@ -161,11 +160,12 @@ onMounted(() => {
   line-height: 1.7;
 }
 
-/* 网格 */
+/* 网格 - 等高自适应 */
 .certs-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
+  align-items: start;
 }
 
 /* 证书卡片 */
@@ -184,23 +184,30 @@ onMounted(() => {
   box-shadow: 0 12px 32px rgba(26, 115, 232, 0.12);
 }
 
+/* 图片容器 - 不固定高度 */
 .cert-img-wrap {
   position: relative;
   width: 100%;
-  height: 200px;
-  overflow: hidden;
+  padding: 16px;
   background: #f9fafb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
 }
 
+/* 图片自适应，不裁切 */
 .cert-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  max-width: 100%;
+  max-height: 240px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
   transition: transform 0.4s ease;
 }
 
 .cert-card:hover .cert-img {
-  transform: scale(1.05);
+  transform: scale(1.03);
 }
 
 /* 放大图标 */
@@ -210,9 +217,10 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(26, 115, 232, 0.15);
+  background: rgba(26, 115, 232, 0.12);
   opacity: 0;
   transition: opacity 0.3s ease;
+  margin: 0;
 }
 
 .cert-card:hover .cert-zoom-icon {
@@ -220,8 +228,8 @@ onMounted(() => {
 }
 
 .cert-zoom-icon svg {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   color: #fff;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
 }
@@ -229,6 +237,7 @@ onMounted(() => {
 .cert-info {
   padding: 14px 16px;
   text-align: center;
+  border-top: 1px solid #f1f5f9;
 }
 
 .cert-title {
@@ -243,7 +252,7 @@ onMounted(() => {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.92);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -283,6 +292,9 @@ onMounted(() => {
   overflow: hidden;
   border-radius: 8px;
   background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .lightbox-img {
@@ -342,7 +354,6 @@ onMounted(() => {
 .lightbox-prev { left: 20px; }
 .lightbox-next { right: 20px; }
 
-/* 灯箱动画 */
 .lightbox-enter-active { transition: opacity 0.3s ease; }
 .lightbox-leave-active { transition: opacity 0.2s ease; }
 .lightbox-enter-from, .lightbox-leave-to { opacity: 0; }
@@ -356,7 +367,8 @@ onMounted(() => {
   .certs-section { padding: 60px 0; }
   .certs-heading { font-size: 28px; }
   .certs-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
-  .cert-img-wrap { height: 160px; }
+  .cert-img { max-height: 200px; }
+  .cert-img-wrap { min-height: 140px; padding: 12px; }
   .lightbox-overlay { padding: 20px; }
   .lightbox-nav { width: 40px; height: 40px; }
   .lightbox-prev { left: 10px; }
@@ -365,7 +377,8 @@ onMounted(() => {
 
 @media (max-width: 480px) {
   .certs-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  .cert-img-wrap { height: 140px; }
+  .cert-img { max-height: 160px; }
+  .cert-img-wrap { min-height: 120px; padding: 10px; }
   .cert-info { padding: 10px 12px; }
   .cert-title { font-size: 13px; }
   .lightbox-title { font-size: 16px; }
