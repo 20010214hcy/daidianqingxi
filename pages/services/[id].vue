@@ -24,7 +24,7 @@
         <div v-if="service.coverImage" class="mb-12">
           <img :src="service.coverImage" :alt="service.title" class="w-full rounded-lg shadow-lg" />
         </div>
-        <div class="tiptap-content" v-html="sanitizedContent"></div>
+        <div class="prose-content" v-html="sanitizedContent"></div>
 
         <!-- 服务特点 -->
         <div v-if="service.price" class="mt-12 p-8 bg-slate-50 rounded-2xl">

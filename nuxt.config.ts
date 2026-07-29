@@ -3,7 +3,7 @@ export default defineNuxtConfig({
 
   modules: ['@nuxtjs/tailwindcss', '@element-plus/nuxt', '@nuxt/image', '@nuxtjs/sitemap'],
 
-  css: ['~/assets/css/main.css', '~/assets/css/tiptap-render.css'],
+  css: ['~/assets/css/main.css', '~/assets/css/tiptap-render.css', '~/assets/css/prose.css'],
 
   // 图片优化
   image: {

@@ -74,7 +74,7 @@
         </div>
 
         <!-- 富文本内容 -->
-        <div v-if="caseItem.content" class="tiptap-content" v-html="sanitizedContent"></div>
+        <div v-if="caseItem.content" class="prose-content" v-html="sanitizedContent"></div>
 
         <!-- CTA -->
         <div class="mt-12 text-center">
