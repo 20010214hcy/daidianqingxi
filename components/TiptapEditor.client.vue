@@ -53,6 +53,9 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'change'])
 const imageInput = ref<HTMLInputElement>()
 
+// 防止循环更新的标志
+let isUpdatingFromProp = false
+
 const editor = useEditor({
   content: props.modelValue,
   extensions: [
@@ -64,17 +67,25 @@ const editor = useEditor({
     Underline,
   ],
   onUpdate: ({ editor }) => {
+    // 如果是从 prop 触发的更新，不回传
+    if (isUpdatingFromProp) return
     const html = editor.getHTML()
     emit('update:modelValue', html)
     emit('change', html)
   },
 })
 
-// 同步外部值
+// 只在外部值真正变化时同步到编辑器
 watch(() => props.modelValue, (val) => {
-  if (editor.value && val !== editor.value.getHTML()) {
-    editor.value.commands.setContent(val, false)
-  }
+  if (!editor.value) return
+  const currentHTML = editor.value.getHTML()
+  // 避免不必要的 setContent 调用
+  if (val === currentHTML) return
+  // 设置标志，防止 onUpdate 再次触发 emit
+  isUpdatingFromProp = true
+  editor.value.commands.setContent(val, false)
+  // 下一个 tick 重置标志
+  nextTick(() => { isUpdatingFromProp = false })
 })
 
 // 工具栏配置
@@ -228,7 +239,7 @@ onBeforeUnmount(() => editor.value?.destroy())
 </script>
 
 <style>
-/* Tiptap 编辑器样式 - 非 scoped 以便渲染内容也生效 */
+/* Tiptap 编辑器样式 */
 .tiptap-editor {
   border: 1px solid #dcdfe6;
   border-radius: 4px;
@@ -264,7 +275,6 @@ onBeforeUnmount(() => editor.value?.destroy())
 .tiptap-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .tiptap-btn svg { width: 16px; height: 16px; }
 
-/* 分隔线 */
 .tiptap-btn[title=""] {
   width: 1px;
   height: 20px;
@@ -276,7 +286,6 @@ onBeforeUnmount(() => editor.value?.destroy())
 
 .tiptap-btn[title=""]:hover { background: #dcdfe6; }
 
-/* 编辑区域 */
 .tiptap-content {
   min-height: 400px;
   max-height: 600px;
@@ -292,7 +301,6 @@ onBeforeUnmount(() => editor.value?.destroy())
   color: #303133;
 }
 
-/* Placeholder */
 .tiptap-content .tiptap p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
@@ -301,7 +309,6 @@ onBeforeUnmount(() => editor.value?.destroy())
   height: 0;
 }
 
-/* 内容样式 */
 .tiptap-content .tiptap h1 { font-size: 28px; font-weight: 700; margin: 24px 0 12px; color: #1a1a2e; }
 .tiptap-content .tiptap h2 { font-size: 22px; font-weight: 700; margin: 20px 0 10px; color: #1a1a2e; }
 .tiptap-content .tiptap h3 { font-size: 18px; font-weight: 700; margin: 16px 0 8px; color: #1a1a2e; }
@@ -310,11 +317,10 @@ onBeforeUnmount(() => editor.value?.destroy())
 .tiptap-content .tiptap ol { list-style: decimal; padding-left: 24px; margin: 8px 0; }
 .tiptap-content .tiptap blockquote {
   border-left: 4px solid #409eff;
-  padding-left: 16px;
+  padding: 12px 16px;
   margin: 12px 0;
   color: #606266;
   background: #f5f7fa;
-  padding: 12px 16px;
   border-radius: 0 4px 4px 0;
 }
 .tiptap-content .tiptap img {
@@ -326,6 +332,5 @@ onBeforeUnmount(() => editor.value?.destroy())
 .tiptap-content .tiptap a { color: #409eff; text-decoration: underline; }
 .tiptap-content .tiptap a:hover { color: #66b1ff; }
 
-/* 渲染页面也能用的样式 */
 .w-e-text-container { display: none; }
 </style>
