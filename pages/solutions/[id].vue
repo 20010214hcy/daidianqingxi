@@ -24,7 +24,7 @@
         <div v-if="service.coverImage" class="mb-12">
           <img :src="service.coverImage" :alt="service.title" class="w-full rounded-lg shadow-lg" />
         </div>
-        <div class="w-e-text-container" v-html="sanitizedContent"></div>
+        <div class="tiptap-content" v-html="sanitizedContent"></div>
 
         <!-- 服务特点 -->
         <div v-if="service.price" class="mt-12 p-8 bg-slate-50 rounded-2xl">
@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import "@wangeditor/editor/dist/css/style.css"
+
 import DOMPurify from "dompurify"
 
 definePageMeta({ layout: 'default' })

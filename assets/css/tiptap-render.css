@@ -1,0 +1,27 @@
+/* Tiptap 渲染内容样式 - 用于详情页 v-html 展示 */
+.tiptap-content h1 { font-size: 28px; font-weight: 700; margin: 24px 0 12px; color: #1a1a2e; }
+.tiptap-content h2 { font-size: 22px; font-weight: 700; margin: 20px 0 10px; color: #1a1a2e; }
+.tiptap-content h3 { font-size: 18px; font-weight: 700; margin: 16px 0 8px; color: #1a1a2e; }
+.tiptap-content p { margin: 8px 0; line-height: 1.8; color: #303133; }
+.tiptap-content ul { list-style: disc; padding-left: 24px; margin: 8px 0; }
+.tiptap-content ol { list-style: decimal; padding-left: 24px; margin: 8px 0; }
+.tiptap-content blockquote {
+  border-left: 4px solid #1a73e8;
+  padding: 12px 16px;
+  margin: 12px 0;
+  color: #606266;
+  background: #f5f7fa;
+  border-radius: 0 4px 4px 0;
+}
+.tiptap-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 12px 0;
+}
+.tiptap-content a { color: #1a73e8; text-decoration: underline; }
+.tiptap-content a:hover { color: #4a90d9; }
+.tiptap-content strong { font-weight: 700; }
+.tiptap-content em { font-style: italic; }
+.tiptap-content u { text-decoration: underline; }
+.tiptap-content s { text-decoration: line-through; }

@@ -159,7 +159,7 @@
         </el-form-item>
 
         <el-form-item label="内容" prop="content">
-          <WangEditor
+          <TiptapEditor
             v-model="articleForm.content"
           />
         </el-form-item>

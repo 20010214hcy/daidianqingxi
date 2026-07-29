@@ -74,7 +74,7 @@
         </div>
 
         <!-- 富文本内容 -->
-        <div v-if="caseItem.content" class="w-e-text-container" v-html="sanitizedContent"></div>
+        <div v-if="caseItem.content" class="tiptap-content" v-html="sanitizedContent"></div>
 
         <!-- CTA -->
         <div class="mt-12 text-center">
@@ -91,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import "@wangeditor/editor/dist/css/style.css"
+
 import DOMPurify from "dompurify"
 
 definePageMeta({ layout: 'default' })
