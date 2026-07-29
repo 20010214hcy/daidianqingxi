@@ -4,7 +4,6 @@
       v-model="content"
       :init="editorConfig"
       :disabled="disabled"
-      @onSelectionChange="handleChange"
     />
   </div>
 </template>
@@ -16,7 +15,6 @@ import Editor from '@tinymce/tinymce-vue'
 import 'tinymce/tinymce'
 import 'tinymce/themes/silver'
 import 'tinymce/icons/default'
-import 'tinymce/models/dom'
 
 // 插件
 import 'tinymce/plugins/advlist'
@@ -49,37 +47,46 @@ const emit = defineEmits(['update:modelValue', 'change'])
 
 const content = computed({
   get: () => props.modelValue,
-  set: (val) => {
-    emit('update:modelValue', val)
-  },
+  set: (val) => emit('update:modelValue', val),
 })
 
-const handleChange = () => {
-  emit('change', content.value)
-}
-
-// 图片上传处理
+// 图片上传 - 使用 file_picker_callback 绕开 TinyMCE 自带弹窗
 const handleImageUpload = (blobInfo: any): Promise<string> => {
   return new Promise((resolve, reject) => {
     const formData = new FormData()
     formData.append('file', blobInfo.blob(), blobInfo.filename())
-
-    $fetch('/api/upload', {
-      method: 'POST',
-      body: formData,
-    })
+    $fetch('/api/upload', { method: 'POST', body: formData })
       .then((res: any) => {
         const url = res?.data?.url || res?.url
-        if (url) {
-          resolve(url)
-        } else {
-          reject('上传失败：未获取到URL')
-        }
+        url ? resolve(url) : reject('上传失败')
       })
-      .catch((err) => {
-        reject('图片上传失败: ' + err.message)
-      })
+      .catch((err) => reject('图片上传失败: ' + err.message))
   })
+}
+
+// 自定义图片选择器 - 用原生 input 代替 TinyMCE 弹窗
+const filePickerCallback = (callback: any, _value: any, _meta: any) => {
+  const input = document.createElement('input')
+  input.setAttribute('type', 'file')
+  input.setAttribute('accept', 'image/*')
+  input.style.display = 'none'
+  document.body.appendChild(input)
+
+  input.onchange = () => {
+    const file = input.files?.[0]
+    if (!file) return
+    const formData = new FormData()
+    formData.append('file', file)
+    $fetch('/api/upload', { method: 'POST', body: formData })
+      .then((res: any) => {
+        const url = res?.data?.url || res?.url
+        if (url) callback(url, { alt: file.name })
+      })
+      .catch(() => {})
+      .finally(() => document.body.removeChild(input))
+  }
+
+  input.click()
 }
 
 const editorConfig = {
@@ -123,12 +130,13 @@ const editorConfig = {
   ],
   toolbar_sticky: true,
   toolbar_sticky_offset: 0,
-  z_index: 99999,
-  ui_container: "body",
   // 图片上传
   images_upload_handler: handleImageUpload,
   automatic_uploads: true,
-  // 粘贴处理
+  // 关键：用自定义文件选择器，不弹 TinyMCE 自带对话框
+  file_picker_types: 'image',
+  file_picker_callback: filePickerCallback,
+  // 粘贴
   paste_data_images: true,
   // 表格
   table_default_styles: { 'border-collapse': 'collapse', width: '100%' },
@@ -147,7 +155,7 @@ const editorConfig = {
     { text: 'SQL', value: 'sql' },
     { text: 'Bash', value: 'bash' },
   ],
-  // 样式选择
+  // 样式
   style_formats: [
     { title: '标题 1', format: 'h1' },
     { title: '标题 2', format: 'h2' },
@@ -158,21 +166,12 @@ const editorConfig = {
   autosave_interval: '30s',
   autosave_prefix: 'tinymce-autosave-{path}{query}-{id}-',
   autosave_restore_when_empty: false,
-  // 快捷键
-  setup: (editor: any) => {
-    editor.on('init', () => {
-      // 初始化完成
-    })
-  },
 }
 </script>
 
 <style scoped>
-.rich-editor {
-  width: 100%;
-}
+.rich-editor { width: 100%; }
 
-/* 覆盖 TinyMCE 默认样式，适配 Element Plus */
 :deep(.tox-tinymce) {
   border: 1px solid #dcdfe6;
   border-radius: 4px;
@@ -180,10 +179,6 @@ const editorConfig = {
 
 :deep(.tox .tox-toolbar) {
   background: #fafafa;
-}
-
-:deep(.tox .tox-toolbar__group) {
-  border: none;
 }
 
 :deep(.tox .tox-tbtn) {
