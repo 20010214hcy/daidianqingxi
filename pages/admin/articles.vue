@@ -159,7 +159,7 @@
         </el-form-item>
 
         <el-form-item label="内容" prop="content">
-          <TiptapEditor
+          <RichEditor
             v-model="articleForm.content"
           />
         </el-form-item>
