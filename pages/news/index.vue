@@ -194,8 +194,10 @@ const queryParams = computed(() => ({
   pageSize: PAGE_SIZE,
   ...(activeCategory.value ? { category: activeCategory.value } : {})
 }))
-const { data: newsResponse, pending: loading } = useFetch('/api/articles', {
+const { data: newsResponse, pending: loading, refresh: refreshNews } = useFetch('/api/articles', {
   params: queryParams,
+  dedupe: 'cancel',
+  initialCache: false,
   transform: (res: any) => {
     if (res?.success && res.data) {
       return { list: res.data.list || [], totalPages: res.data.pagination?.totalPages || 1 }
