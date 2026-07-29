@@ -1,5 +1,5 @@
 /* ===== 富文本内容全局排版样式 =====
- * 所有详情页共用，匹配 TinyMCE 输出的 HTML 结构
+ * 匹配 TinyMCE 输出的所有 HTML 结构
  * 使用方式：<article class="prose-content" v-html="content" />
  */
 
@@ -11,21 +11,19 @@
   overflow-wrap: break-word;
 }
 
-/* 段落 */
+/* ===== 段落 ===== */
 .prose-content p {
   margin: 1.25em 0;
   line-height: 1.9;
 }
 
-/* TinyMCE 对齐 */
-.prose-content p[style*="text-align: center"],
-.prose-content [style*="text-align:center"] { text-align: center; }
-.prose-content p[style*="text-align: right"],
-.prose-content [style*="text-align:right"] { text-align: right; }
-.prose-content p[style*="text-align: justify"],
-.prose-content [style*="text-align:justify"] { text-align: justify; }
+/* 空段落保留间距 */
+.prose-content p:empty {
+  margin: 0.5em 0;
+  min-height: 1.9em;
+}
 
-/* 标题 */
+/* ===== 标题 ===== */
 .prose-content h1,
 .prose-content h2,
 .prose-content h3,
@@ -44,45 +42,99 @@
 .prose-content h3 { font-size: 1.25em; }
 .prose-content h4 { font-size: 1.125em; }
 
-/* 图片 */
+/* ===== 图片 - 统一处理所有情况 ===== */
+
+/* 基础样式：所有图片都居中、圆角、有阴影 */
 .prose-content img {
   max-width: 100% !important;
   height: auto !important;
-  border-radius: 12px;
-  margin: 1.5em 0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   display: block;
+  margin: 1.5em auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
-/* TinyMCE 图片对齐 */
-.prose-content img.alignleft,
-.prose-content figure.alignleft {
-  float: left;
-  margin: 1em 1.5em 1em 0;
+/* 图片在段落里时，去掉段落的上下间距，图片自己控制 */
+.prose-content p > img:only-child {
+  margin: 1.5em auto;
 }
 
-.prose-content img.alignright,
-.prose-content figure.alignright {
-  float: right;
-  margin: 1em 0 1em 1.5em;
-}
-
-.prose-content img.aligncenter,
-.prose-content figure.aligncenter {
+.prose-content p > img:only-child,
+.prose-content p > img:first-child:last-child {
+  /* 确保独占一行的图片居中 */
   margin-left: auto;
   margin-right: auto;
 }
 
-/* 图片说明 */
+/* figure 包裹的图片 */
+.prose-content figure {
+  margin: 1.5em 0;
+  text-align: center;
+}
+
+.prose-content figure img {
+  margin: 0 auto;
+}
+
 .prose-content figcaption {
   text-align: center;
   font-size: 0.875em;
   color: #64748b;
-  margin-top: -0.75em;
-  margin-bottom: 1.5em;
+  margin-top: 0.75em;
+  font-style: italic;
 }
 
-/* 链接 */
+/* TinyMCE 图片左对齐 */
+.prose-content img.alignleft,
+.prose-content figure.alignleft,
+.prose-content .alignleft {
+  float: left;
+  margin: 0.5em 1.5em 1em 0;
+}
+
+/* TinyMCE 图片右对齐 */
+.prose-content img.alignright,
+.prose-content figure.alignright,
+.prose-content .alignright {
+  float: right;
+  margin: 0.5em 0 1em 1.5em;
+}
+
+/* TinyMCE 图片居中 */
+.prose-content img.aligncenter,
+.prose-content figure.aligncenter,
+.prose-content .aligncenter {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  float: none;
+}
+
+/* 图片有内联 style="display:block;margin-left:auto;margin-right:auto" 时也居中 */
+.prose-content img[style*="margin-left: auto"],
+.prose-content img[style*="margin-left:auto"] {
+  display: block;
+  float: none;
+}
+
+/* 图片有内联 style="float:left" 时 */
+.prose-content img[style*="float: left"],
+.prose-content img[style*="float:left"] {
+  margin: 0.5em 1.5em 1em 0;
+}
+
+/* 图片有内联 style="float:right" 时 */
+.prose-content img[style*="float: right"],
+.prose-content img[style*="float:right"] {
+  margin: 0.5em 0 1em 1.5em;
+}
+
+/* 包含在段落里的图片，去掉段落的 margin */
+.prose-content p:has(> img:only-child) {
+  margin: 0;
+}
+
+/* ===== 链接 ===== */
 .prose-content a {
   color: #1a73e8;
   text-decoration: underline;
@@ -95,7 +147,7 @@
   text-decoration-color: #1a73e8;
 }
 
-/* 列表 */
+/* ===== 列表 ===== */
 .prose-content ul,
 .prose-content ol {
   padding-left: 1.5em;
@@ -119,7 +171,7 @@
   margin: 0.25em 0;
 }
 
-/* 引用 */
+/* ===== 引用 ===== */
 .prose-content blockquote {
   border-left: 4px solid #1a73e8;
   background: #f8fafc;
@@ -134,7 +186,7 @@
   margin: 0.5em 0;
 }
 
-/* 分割线 */
+/* ===== 分割线 ===== */
 .prose-content hr {
   border: none;
   height: 1px;
@@ -142,7 +194,7 @@
   margin: 2.5em 0;
 }
 
-/* 行内代码 */
+/* ===== 行内代码 ===== */
 .prose-content code {
   background: #f1f5f9;
   padding: 0.15em 0.4em;
@@ -152,7 +204,7 @@
   font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
 }
 
-/* 代码块 */
+/* ===== 代码块 ===== */
 .prose-content pre {
   background: #0f172a;
   color: #e2e8f0;
@@ -172,7 +224,7 @@
   border-radius: 0;
 }
 
-/* 表格 */
+/* ===== 表格 ===== */
 .prose-content table {
   width: 100%;
   border-collapse: collapse;
@@ -197,28 +249,31 @@
   background: #f8fafc;
 }
 
-/* 强调 */
+/* ===== 强调 ===== */
 .prose-content strong, .prose-content b { font-weight: 700; }
 .prose-content em, .prose-content i { font-style: italic; }
 .prose-content u { text-decoration: underline; }
 .prose-content s, .prose-content strike, .prose-content del { text-decoration: line-through; }
+.prose-content sub { vertical-align: sub; font-size: 0.75em; }
+.prose-content sup { vertical-align: super; font-size: 0.75em; }
 
-/* 视频/媒体 */
+/* ===== 视频/媒体 ===== */
 .prose-content video,
 .prose-content iframe {
   max-width: 100%;
   border-radius: 12px;
   margin: 1.5em 0;
+  display: block;
 }
 
-/* 清除浮动 */
+/* ===== 清除浮动 ===== */
 .prose-content::after {
   content: "";
   display: table;
   clear: both;
 }
 
-/* 响应式 */
+/* ===== 响应式 ===== */
 @media (max-width: 768px) {
   .prose-content {
     font-size: 16px;
@@ -228,9 +283,16 @@
   .prose-content h2 { font-size: 1.25em; }
   .prose-content blockquote { padding: 0.75em 1em; }
   .prose-content pre { padding: 1em; font-size: 0.8em; }
+
+  /* 移动端图片取消浮动，全部居中 */
+  .prose-content img,
+  .prose-content figure,
   .prose-content img.alignleft,
-  .prose-content img.alignright {
-    float: none;
-    margin: 1.5em auto;
+  .prose-content img.alignright,
+  .prose-content figure.alignleft,
+  .prose-content figure.alignright {
+    float: none !important;
+    margin: 1.5em auto !important;
+    display: block;
   }
 }
