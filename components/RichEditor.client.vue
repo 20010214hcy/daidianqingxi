@@ -4,24 +4,24 @@
       v-model="content"
       :init="editorConfig"
       :disabled="disabled"
+      @init="onEditorInit"
     />
+    <!-- 隐藏的文件上传 input -->
+    <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="onFileSelected" />
   </div>
 </template>
 
 <script setup lang="ts">
 import Editor from '@tinymce/tinymce-vue'
 
-// TinyMCE 核心
 import 'tinymce/tinymce'
 import 'tinymce/themes/silver'
 import 'tinymce/icons/default'
 
-// 插件
 import 'tinymce/plugins/advlist'
 import 'tinymce/plugins/autolink'
 import 'tinymce/plugins/lists'
 import 'tinymce/plugins/link'
-import 'tinymce/plugins/image'
 import 'tinymce/plugins/charmap'
 import 'tinymce/plugins/preview'
 import 'tinymce/plugins/anchor'
@@ -34,7 +34,6 @@ import 'tinymce/plugins/insertdatetime'
 import 'tinymce/plugins/media'
 import 'tinymce/plugins/table'
 import 'tinymce/plugins/wordcount'
-import 'tinymce/plugins/emoticons'
 import 'tinymce/plugins/autosave'
 
 const props = defineProps({
@@ -50,43 +49,39 @@ const content = computed({
   set: (val) => emit('update:modelValue', val),
 })
 
-// 图片上传 - 使用 file_picker_callback 绕开 TinyMCE 自带弹窗
-const handleImageUpload = (blobInfo: any): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const formData = new FormData()
-    formData.append('file', blobInfo.blob(), blobInfo.filename())
-    $fetch('/api/upload', { method: 'POST', body: formData })
-      .then((res: any) => {
-        const url = res?.data?.url || res?.url
-        url ? resolve(url) : reject('上传失败')
-      })
-      .catch((err) => reject('图片上传失败: ' + err.message))
-  })
+const fileInput = ref<HTMLInputElement>()
+let editorInstance: any = null
+
+// 编辑器初始化完成后注册自定义按钮
+const onEditorInit = (_event: any, editor: any) => {
+  editorInstance = editor
 }
 
-// 自定义图片选择器 - 用原生 input 代替 TinyMCE 弹窗
-const filePickerCallback = (callback: any, _value: any, _meta: any) => {
-  const input = document.createElement('input')
-  input.setAttribute('type', 'file')
-  input.setAttribute('accept', 'image/*')
-  input.style.display = 'none'
-  document.body.appendChild(input)
+// 选择文件后上传并插入
+const onFileSelected = async () => {
+  const file = fileInput.value?.files?.[0]
+  if (!file || !editorInstance) return
 
-  input.onchange = () => {
-    const file = input.files?.[0]
-    if (!file) return
-    const formData = new FormData()
-    formData.append('file', file)
-    $fetch('/api/upload', { method: 'POST', body: formData })
-      .then((res: any) => {
-        const url = res?.data?.url || res?.url
-        if (url) callback(url, { alt: file.name })
-      })
-      .catch(() => {})
-      .finally(() => document.body.removeChild(input))
+  const formData = new FormData()
+  formData.append('file', file)
+
+  try {
+    const res: any = await $fetch('/api/upload', { method: 'POST', body: formData })
+    const url = res?.data?.url || res?.url
+    if (url) {
+      editorInstance.insertContent(`<img src="${url}" alt="${file.name}" style="max-width:100%;" />`)
+    }
+  } catch (err) {
+    console.error('图片上传失败:', err)
   }
 
-  input.click()
+  // 清空 input
+  if (fileInput.value) fileInput.value.value = ''
+}
+
+// 点击自定义图片按钮
+const triggerUpload = () => {
+  fileInput.value?.click()
 }
 
 const editorConfig = {
@@ -123,28 +118,27 @@ const editorConfig = {
     }
     a { color: #1a73e8; }
   `,
-  plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblock code codesample fullscreen insertdatetime media table wordcount emoticons autosave',
-  toolbar: [
-    'undo redo | styles | bold italic underline strikethrough | forecolor backcolor',
-    'alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media | table blockquote codesample | emoticons | fullscreen code',
-  ],
+  // 注意：不包含 image 插件！
+  plugins: 'advlist autolink lists link charmap preview anchor searchreplace visualblock code codesample fullscreen insertdatetime media table wordcount autosave',
+  toolbar: 'undo redo | styles | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link customimage media | table blockquote codesample | fullscreen code',
+  // 注册自定义图片按钮
+  setup: (editor: any) => {
+    editor.ui.registry.addButton('customimage', {
+      icon: 'image',
+      tooltip: '插入图片',
+      onAction: () => {
+        triggerUpload()
+      },
+    })
+  },
   toolbar_sticky: true,
   toolbar_sticky_offset: 0,
-  // 图片上传
-  images_upload_handler: handleImageUpload,
   automatic_uploads: true,
-  // 关键：用自定义文件选择器，不弹 TinyMCE 自带对话框
-  file_picker_types: 'image',
-  file_picker_callback: filePickerCallback,
-  // 粘贴
   paste_data_images: true,
-  // 表格
   table_default_styles: { 'border-collapse': 'collapse', width: '100%' },
   table_responsive_width: true,
-  // 链接
   link_default_target: '_blank',
   link_assume_external_targets: true,
-  // 代码块
   codesample_languages: [
     { text: 'HTML/XML', value: 'markup' },
     { text: 'JavaScript', value: 'javascript' },
@@ -155,14 +149,12 @@ const editorConfig = {
     { text: 'SQL', value: 'sql' },
     { text: 'Bash', value: 'bash' },
   ],
-  // 样式
   style_formats: [
     { title: '标题 1', format: 'h1' },
     { title: '标题 2', format: 'h2' },
     { title: '标题 3', format: 'h3' },
     { title: '正文', format: 'p' },
   ],
-  // 自动保存
   autosave_interval: '30s',
   autosave_prefix: 'tinymce-autosave-{path}{query}-{id}-',
   autosave_restore_when_empty: false,
