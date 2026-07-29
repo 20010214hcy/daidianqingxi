@@ -13,7 +13,7 @@
         </el-form-item>
 
         <el-row :gutter="20">
-          <el-col :span="12">
+          <el-col :span="8">
             <el-form-item label="分类" prop="category">
               <el-select v-model="form.category" placeholder="请选择分类" class="w-full">
                 <el-option label="行业动态" value="news" />
@@ -22,12 +22,24 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <el-col :span="8">
             <el-form-item label="状态" prop="status">
               <el-select v-model="form.status" placeholder="请选择状态" class="w-full">
                 <el-option label="发布" value="published" />
                 <el-option label="草稿" value="draft" />
               </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="发布日期">
+              <el-date-picker
+                v-model="form.publishedAt"
+                type="datetime"
+                placeholder="选择发布日期"
+                format="YYYY-MM-DD HH:mm"
+                value-format="YYYY-MM-DDTHH:mm:ss.000Z"
+                class="w-full"
+              />
             </el-form-item>
           </el-col>
         </el-row>
@@ -77,6 +89,7 @@ const form = reactive({
   summary: '',
   coverImage: '',
   content: '',
+  publishedAt: null as string | null,
 })
 
 const rules: FormRules = {
@@ -98,6 +111,7 @@ const loadArticle = async () => {
         summary: res.data.summary || '',
         coverImage: res.data.coverImage || '',
         content: res.data.content || '',
+        publishedAt: res.data.publishedAt || null,
       })
     }
   } catch (err) {
@@ -108,13 +122,9 @@ const loadArticle = async () => {
   }
 }
 
-onMounted(() => {
-  loadArticle()
-})
+onMounted(() => loadArticle())
 
-const goBack = () => {
-  router.push('/admin/articles')
-}
+const goBack = () => router.push('/admin/articles')
 
 const handleSubmit = async () => {
   if (!formRef.value) return
@@ -124,24 +134,23 @@ const handleSubmit = async () => {
     await formRef.value.validate()
     const authorId = user.value?.id ?? 1
 
+    const payload = {
+      ...form,
+      authorId,
+      // 如果没选日期，不传 publishedAt，让后端用默认值
+      publishedAt: form.publishedAt || undefined,
+    }
+
     if (isEdit) {
-      await $fetch(`/api/articles/${articleId}`, {
-        method: 'PUT',
-        body: { ...form, authorId },
-      })
+      await $fetch(`/api/articles/${articleId}`, { method: 'PUT', body: payload })
     } else {
-      await $fetch('/api/articles', {
-        method: 'POST',
-        body: { ...form, authorId },
-      })
+      await $fetch('/api/articles', { method: 'POST', body: payload })
     }
 
     ElMessage.success('保存成功')
     goBack()
   } catch (err) {
-    if (err !== false) {
-      ElMessage.error('保存文章失败')
-    }
+    if (err !== false) ElMessage.error('保存文章失败')
   } finally {
     submitting.value = false
   }

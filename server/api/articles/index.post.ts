@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
         category: category || 'news',
         status: status || 'published',
         authorId: Number(authorId),
-        publishedAt: status === "published" ? new Date() : null,
+        publishedAt: body.publishedAt ? new Date(body.publishedAt) : (status === "published" ? new Date() : null),
         updatedAt: new Date(),
       },
     })

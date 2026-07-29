@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
       return errorResponse('文章ID不能为空', 400)
     }
     
-    const { title, content, summary, coverImage, category, status } = body
+    const { title, content, summary, coverImage, category, status, publishedAt } = body
     
     const updateData: any = {}
     
@@ -20,7 +20,9 @@ export default defineEventHandler(async (event) => {
     if (summary !== undefined) updateData.summary = summary ? filterXss(summary) : summary
     if (coverImage !== undefined) updateData.coverImage = coverImage
     if (category !== undefined) updateData.category = category
-    if (status !== undefined) {
+    if (publishedAt !== undefined) {
+      updateData.publishedAt = publishedAt ? new Date(publishedAt) : null
+    } else if (status !== undefined) {
       updateData.status = status
       if (status === 'published') {
         updateData.publishedAt = new Date()
