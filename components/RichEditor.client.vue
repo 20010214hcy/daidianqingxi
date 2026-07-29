@@ -123,7 +123,8 @@ const editorConfig = {
   ],
   toolbar_sticky: true,
   toolbar_sticky_offset: 0,
-  z_index: 9999,
+  z_index: 99999,
+  ui_container: "body",
   // 图片上传
   images_upload_handler: handleImageUpload,
   automatic_uploads: true,
