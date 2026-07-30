@@ -1,11 +1,23 @@
 <template>
   <section class="cases-section" ref="sectionRef">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- 标题区 -->
+      <!-- 标题区 + 箭头 -->
       <div class="cases-header" :class="{ 'animate-in': visible }">
-        <span class="cases-tag">CASE STUDIES</span>
-        <h2 class="cases-title">我们的案例</h2>
-        <p class="cases-desc">丰富的项目经验，专业的技术团队，为客户提供可靠的解决方案</p>
+        <div class="cases-header-top">
+          <div>
+            <span class="cases-tag">CASE STUDIES</span>
+            <h2 class="cases-title">我们的案例</h2>
+            <p class="cases-desc">丰富的项目经验，专业的技术团队，为客户提供可靠的解决方案</p>
+          </div>
+          <div class="cases-nav">
+            <button class="swiper-btn swiper-btn-prev" ref="prevRef">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <button class="swiper-btn swiper-btn-next" ref="nextRef">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- 案例 Swiper -->
@@ -31,13 +43,6 @@
               </NuxtLink>
             </div>
           </div>
-        </div>
-        <!-- 导航箭头 -->
-        <div class="swiper-btn swiper-btn-prev" ref="prevRef">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg>
-        </div>
-        <div class="swiper-btn swiper-btn-next" ref="nextRef">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
         </div>
       </div>
 
@@ -72,21 +77,16 @@ const nextRef = ref<HTMLElement>()
 const visible = ref(false)
 
 onMounted(() => {
-  // 滚动入场动画
   if (sectionRef.value) {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          visible.value = true
-          observer.disconnect()
-        }
+        if (entry.isIntersecting) { visible.value = true; observer.disconnect() }
       },
       { threshold: 0.1 }
     )
     observer.observe(sectionRef.value)
   }
 
-  // 初始化 Swiper
   if (swiperRef.value) {
     new Swiper(swiperRef.value, {
       modules: [Navigation, Autoplay],
@@ -113,13 +113,19 @@ onMounted(() => {
 
 /* 标题区 */
 .cases-header {
-  text-align: center;
-  margin-bottom: 50px;
+  margin-bottom: 40px;
   opacity: 0;
   transform: translateY(30px);
   transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .cases-header.animate-in { opacity: 1; transform: translateY(0); }
+
+.cases-header-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
 
 .cases-tag {
   display: inline-block;
@@ -135,29 +141,60 @@ onMounted(() => {
   font-size: 36px;
   font-weight: 800;
   color: #1a1a2e;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .cases-desc {
   font-size: 16px;
   color: #6b7280;
   max-width: 500px;
-  margin: 0 auto;
 }
 
-/* Swiper 区域 */
+/* 导航按钮 */
+.cases-nav {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.swiper-btn {
+  width: 44px;
+  height: 44px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.swiper-btn:hover {
+  background: #1a73e8;
+  border-color: #1a73e8;
+  box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+}
+
+.swiper-btn:hover svg { color: #fff; }
+
+.swiper-btn svg {
+  width: 18px;
+  height: 18px;
+  color: #64748b;
+  transition: color 0.3s;
+}
+
+/* Swiper */
 .cases-swiper-wrap {
-  position: relative;
   opacity: 0;
   transform: translateY(40px);
   transition: all 0.8s 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .cases-swiper-wrap.animate-in { opacity: 1; transform: translateY(0); }
 
-.cases-swiper {
-  overflow: visible;
-  padding: 10px 0 20px;
-}
+.cases-swiper { overflow: visible; padding: 10px 0 20px; }
 
 /* 案例卡片 */
 .case-card {
@@ -175,7 +212,6 @@ onMounted(() => {
   box-shadow: 0 16px 40px rgba(26, 115, 232, 0.12);
 }
 
-/* 图片区域 */
 .case-img-box {
   position: relative;
   aspect-ratio: 16 / 10;
@@ -197,7 +233,6 @@ onMounted(() => {
   background: linear-gradient(135deg, #e0e7ef, #cbd5e1);
 }
 
-/* 遮罩 */
 .case-mask {
   position: absolute;
   inset: 0;
@@ -209,14 +244,13 @@ onMounted(() => {
   background: linear-gradient(180deg, transparent 20%, rgba(26, 115, 232, 0.08) 100%);
 }
 
-/* 序号 */
 .case-num {
   position: absolute;
   top: 16px;
   left: 16px;
   font-size: 12px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9);
   background: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(4px);
   padding: 4px 10px;
@@ -224,10 +258,7 @@ onMounted(() => {
   letter-spacing: 1px;
 }
 
-/* 文字区域 */
-.case-text {
-  padding: 22px 24px 26px;
-}
+.case-text { padding: 22px 24px 26px; }
 
 .case-title {
   font-size: 17px;
@@ -268,43 +299,6 @@ onMounted(() => {
   transform: translateX(0);
 }
 
-/* 导航箭头 */
-.swiper-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 48px;
-  height: 48px;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 10;
-  transition: all 0.3s;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.swiper-btn:hover {
-  background: #1a73e8;
-  border-color: #1a73e8;
-  box-shadow: 0 4px 16px rgba(26, 115, 232, 0.3);
-}
-
-.swiper-btn:hover svg { color: #fff; }
-
-.swiper-btn svg {
-  width: 20px;
-  height: 20px;
-  color: #64748b;
-  transition: color 0.3s;
-}
-
-.swiper-btn-prev { left: -24px; }
-.swiper-btn-next { right: -24px; }
-
 /* 底部 */
 .cases-footer {
   text-align: center;
@@ -339,12 +333,12 @@ onMounted(() => {
 @media (max-width: 1024px) {
   .cases-section { padding: 80px 0; }
   .cases-title { font-size: 30px; }
-  .swiper-btn { display: none; }
 }
 
 @media (max-width: 640px) {
   .cases-section { padding: 60px 0; }
   .cases-title { font-size: 26px; }
+  .cases-header-top { flex-direction: column; align-items: flex-start; }
   .case-text { padding: 18px 20px 22px; }
   .case-title { font-size: 16px; }
 }
