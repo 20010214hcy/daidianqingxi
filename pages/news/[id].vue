@@ -8,7 +8,7 @@
 
     <!-- 标题区 -->
     <section class="bg-white border-b border-slate-100">
-      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8">
         <!-- 面包屑 -->
         <nav class="flex items-center gap-2 text-sm text-slate-400 mb-5">
           <NuxtLink to="/" class="hover:text-blue-600 transition-colors">首页</NuxtLink>
@@ -41,7 +41,7 @@
 
     <!-- 内容区 -->
     <section v-if="article.id" class="py-8">
-      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex gap-8">
 
           <!-- 左侧：正文卡片 -->
