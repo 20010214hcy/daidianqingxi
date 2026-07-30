@@ -32,6 +32,7 @@
     "jsonwebtoken": "^9.0.3",
     "nuxt": "^3.10.0",
     "sharp": "^0.34.5",
+    "swiper": "^14.0.7",
     "three": "^0.184.0",
     "tinymce": "^6.8.6",
     "tinymce-i18n": "^26.7.13",
