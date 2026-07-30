@@ -7,7 +7,7 @@
     ]"
   >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
+      <div class="flex justify-between items-center h-20">
         <NuxtLink to="/" class="flex items-center space-x-2">
           <div v-if="siteSetting.siteLogo" class="h-10 flex items-center justify-center">
             <img :src="siteSetting.siteLogo" alt="Logo" class="w-full h-full object-contain" />
