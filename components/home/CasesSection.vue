@@ -3,9 +3,9 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- 标题区 -->
       <div class="cases-header" :class="{ 'animate-in': visible }">
-        <span class="cases-tag">CASE STUDIES</span>
+        <span class="section-tag">工程案例</span>
         <h2 class="cases-title">我们的案例</h2>
-        <p class="cases-desc">丰富的项目经验，专业的技术团队，为客户提供可靠的解决方案</p>
+        <p class="section-desc">丰富的项目经验，专业的技术团队，为客户提供可靠的解决方案</p>
       </div>
 
       <!-- 轮播区 + 两侧箭头 -->
