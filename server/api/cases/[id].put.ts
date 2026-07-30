@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     }
     
     const updateData: any = {}
-    const fields = ['title', 'description', 'coverImage', 'images', 'clientName', 'location', 'status']
+    const fields = ['title', 'description', 'coverImage', 'images', 'clientName', 'location', 'status', 'businessUnitId']
     
     fields.forEach(field => {
       if (body[field] !== undefined) {

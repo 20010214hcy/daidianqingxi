@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
     
-    const { title, description, content, coverImage, images, clientName, location, startDate, endDate, status, authorId } = body
+    const { title, description, content, coverImage, images, clientName, location, startDate, endDate, status, authorId, businessUnitId } = body
     
     if (!title || !content || !authorId) {
       return errorResponse('标题、内容和作者ID不能为空', 400)
@@ -25,6 +25,7 @@ export default defineEventHandler(async (event) => {
         endDate: endDate ? new Date(endDate) : null,
         status: status || 'published',
         authorId: Number(authorId),
+        businessUnitId: businessUnitId ? Number(businessUnitId) : null,
         updatedAt: new Date(),
       },
     })
