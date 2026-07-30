@@ -14,8 +14,8 @@
           </div>
         </div>
         <div class="about-text-col">
-          <span class="about-label">关于我们</span>
-          <h2 class="about-heading">玺铭电力 — 专业电力设备运维服务商</h2>
+          <span class="section-tag">关于我们</span>
+          <h2 class="section-title">玺铭电力 — 专业电力设备运维服务商</h2>
           <p class="about-desc">
             专注电力设备带电清洗与储能系统集成领域，以安全、高效、可靠的技术服务，
             为变电站、配电室、工业厂房等各类电力设施提供全生命周期运维保障，同时为客户提供专业的储能系统集成解决方案。
@@ -88,10 +88,7 @@ onMounted(() => {
   if (aboutRef.value) {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          aboutVisible.value = true
-          observer.disconnect()
-        }
+        if (entry.isIntersecting) { aboutVisible.value = true; observer.disconnect() }
       },
       { threshold: 0.15 }
     )
@@ -152,22 +149,9 @@ onMounted(() => {
   display: block;
 }
 
-.about-label {
-  display: inline-block;
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 16px;
-}
-
-.about-heading {
-  font-size: 32px;
-  font-weight: 800;
-  line-height: 1.3;
-  margin-bottom: 20px;
-}
-
 .about-desc {
   font-size: 16px;
+  color: #6b7280;
   line-height: 1.8;
   margin-bottom: 32px;
   max-width: 560px;
@@ -184,7 +168,17 @@ onMounted(() => {
   display: flex;
   align-items: flex-start;
   gap: 14px;
+  padding: 18px;
+  background: #f5f7fa;
+  border: 1px solid transparent;
+  border-radius: 12px;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.about-feature-item:hover {
+  border-color: #1a73e8;
+  background: #fff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
 .about-feature-icon {
@@ -193,7 +187,10 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #e8f0fe;
+  border-radius: 10px;
   flex-shrink: 0;
+  color: #1a73e8;
 }
 
 .about-feature-icon svg { width: 20px; height: 20px; }
@@ -216,22 +213,34 @@ onMounted(() => {
 
 .about-stat-item:hover { transform: translateY(-2px); }
 
-.about-stat-number { font-size: 1.8rem; font-weight: 800; line-height: 1.2; margin-bottom: 2px; }
-.about-stat-label { font-size: 0.8rem; font-weight: 500; }
+.about-stat-number {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #0c2340, #1a73e8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
+
+.about-stat-label { font-size: 0.8rem; color: #6b7280; font-weight: 500; }
 
 .about-cta {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 12px 28px;
+  background: #1a73e8;
   color: #fff;
   font-size: 15px;
   font-weight: 600;
+  border-radius: 8px;
   text-decoration: none;
   transition: all 0.3s ease;
 }
 
-.about-cta:hover { transform: translateY(-2px); }
+.about-cta:hover { background: #1557b0; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26, 115, 232, 0.3); }
 .about-cta-arrow { width: 18px; height: 18px; transition: transform 0.3s ease; }
 .about-cta:hover .about-cta-arrow { transform: translateX(4px); }
 
@@ -239,14 +248,12 @@ onMounted(() => {
   .about-section { padding: 72px 0; }
   .about-grid { gap: 40px; }
   .about-image-col { flex: 0 0 42%; }
-  .about-heading { font-size: 26px; }
 }
 
 @media (max-width: 768px) {
   .about-section { padding: 56px 0; }
   .about-grid { flex-direction: column; gap: 36px; }
   .about-image-col { flex: none; width: 100%; max-width: 420px; margin: 0 auto; }
-  .about-heading { font-size: 24px; }
   .about-desc { font-size: 15px; }
   .about-features { gap: 12px; }
   .about-stats { gap: 12px; margin: 24px 0; }
@@ -258,8 +265,6 @@ onMounted(() => {
   .about-section { padding: 44px 0; }
   .about-grid { gap: 28px; }
   .about-image-col { max-width: 100%; }
-  .about-label { font-size: 13px; letter-spacing: 2px; padding: 4px 12px; }
-  .about-heading { font-size: 20px; }
   .about-desc { font-size: 14px; margin-bottom: 24px; }
   .about-features { grid-template-columns: 1fr; gap: 10px; }
   .about-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 20px 0; }

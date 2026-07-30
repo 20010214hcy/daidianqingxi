@@ -1,9 +1,10 @@
 <template>
   <section class="py-16 bg-white overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
-      <div class="text-center">
-        <h2 class="text-3xl font-bold text-slate-800 mb-4">合作伙伴</h2>
-        <p class="text-slate-600 text-lg">值得信赖的合作伙伴</p>
+      <div class="text-center section-header-center">
+        <span class="section-tag">合作伙伴</span>
+        <h2 class="section-title">值得信赖的合作伙伴</h2>
+        
       </div>
     </div>
     <div class="marquee-container">

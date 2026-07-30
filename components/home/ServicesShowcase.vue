@@ -1,9 +1,10 @@
 <template>
   <section class="py-20 services-section">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-16">
-        <h2 class="text-3xl font-bold text-slate-800 mb-4">我们的服务</h2>
-        <p class="text-slate-600 text-lg max-w-2xl mx-auto">提供全方位的工业清洗解决方案</p>
+      <div class="text-center mb-16 section-header-center">
+        <span class="section-tag">服务展示</span>
+        <h2 class="section-title">我们的服务</h2>
+        <p class="section-desc">提供全方位的工业清洗解决方案</p>
       </div>
       <div v-if="services.length" class="service-showcase">
         <div class="service-focus">

@@ -3,8 +3,9 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between mb-12">
         <div>
-          <h2 class="text-3xl font-bold text-slate-800 mb-2">新闻动态</h2>
-          <p class="text-slate-500">了解行业资讯与公司动态</p>
+          <span class="section-tag">新闻资讯</span>
+          <h2 class="section-title">新闻动态</h2>
+          <p class="section-desc">了解行业资讯与公司动态</p>
         </div>
         <NuxtLink to="/news" class="text-blue-600 font-medium hover:text-blue-700 transition-colors hidden md:inline-flex items-center">
           查看全部

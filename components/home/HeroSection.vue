@@ -4,7 +4,7 @@
     <div class="hero-content">
       <div class="animate-fade-in hero-decoration">
         <span class="hero-decoration-line"></span>
-        <span class="hero-decoration-text">XIMING ELECTRIC</span>
+        <span class="hero-decoration-text">玺铭电力</span>
         <span class="hero-decoration-line"></span>
       </div>
       <h1 class="hero-title animate-fade-in">玺铭电力</h1>

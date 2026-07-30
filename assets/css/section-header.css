@@ -1,0 +1,49 @@
+/* ===== 首页板块标题统一样式 =====
+ * 使用方式：
+ * <span class="section-tag">标签</span>
+ * <h2 class="section-title">标题</h2>
+ * <p class="section-desc">描述</p>
+ */
+
+.section-tag {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a73e8;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-size: 34px;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+
+.section-desc {
+  font-size: 16px;
+  color: #6b7280;
+  max-width: 560px;
+  line-height: 1.7;
+}
+
+/* 居中布局（用于大部分板块） */
+.section-header-center {
+  text-align: center;
+}
+
+.section-header-center .section-desc {
+  margin: 0 auto;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .section-title { font-size: 28px; }
+  .section-desc { font-size: 15px; }
+}
+
+@media (max-width: 480px) {
+  .section-title { font-size: 24px; }
+}
