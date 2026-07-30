@@ -1,27 +1,18 @@
 <template>
   <section class="cases-section" ref="sectionRef">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- 标题区 + 箭头 -->
+      <!-- 标题区 -->
       <div class="cases-header" :class="{ 'animate-in': visible }">
-        <div class="cases-header-top">
-          <div>
-            <span class="cases-tag">CASE STUDIES</span>
-            <h2 class="cases-title">我们的案例</h2>
-            <p class="cases-desc">丰富的项目经验，专业的技术团队，为客户提供可靠的解决方案</p>
-          </div>
-          <div class="cases-nav">
-            <button class="swiper-btn swiper-btn-prev" ref="prevRef">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg>
-            </button>
-            <button class="swiper-btn swiper-btn-next" ref="nextRef">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
-            </button>
-          </div>
-        </div>
+        <span class="cases-tag">CASE STUDIES</span>
+        <h2 class="cases-title">我们的案例</h2>
+        <p class="cases-desc">丰富的项目经验，专业的技术团队，为客户提供可靠的解决方案</p>
       </div>
 
-      <!-- 案例 Swiper -->
+      <!-- 轮播区 + 两侧箭头 -->
       <div class="cases-swiper-wrap" :class="{ 'animate-in': visible }">
+        <button class="swiper-btn swiper-btn-prev" ref="prevRef">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg>
+        </button>
         <div class="swiper cases-swiper" ref="swiperRef">
           <div class="swiper-wrapper">
             <div v-for="(item, i) in featuredCases" :key="item.id" class="swiper-slide">
@@ -44,6 +35,9 @@
             </div>
           </div>
         </div>
+        <button class="swiper-btn swiper-btn-next" ref="nextRef">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
       </div>
 
       <!-- 查看全部 -->
@@ -113,19 +107,13 @@ onMounted(() => {
 
 /* 标题区 */
 .cases-header {
-  margin-bottom: 40px;
+  text-align: center;
+  margin-bottom: 50px;
   opacity: 0;
   transform: translateY(30px);
   transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .cases-header.animate-in { opacity: 1; transform: translateY(0); }
-
-.cases-header-top {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 20px;
-}
 
 .cases-tag {
   display: inline-block;
@@ -148,16 +136,26 @@ onMounted(() => {
   font-size: 16px;
   color: #6b7280;
   max-width: 500px;
+  margin: 0 auto;
 }
 
-/* 导航按钮 */
-.cases-nav {
-  display: flex;
-  gap: 10px;
-  flex-shrink: 0;
+/* 轮播区域 - 箭头在两侧 */
+.cases-swiper-wrap {
+  position: relative;
+  padding: 0 60px;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+.cases-swiper-wrap.animate-in { opacity: 1; transform: translateY(0); }
 
+.cases-swiper { overflow: hidden; padding: 10px 0 20px; }
+
+/* 箭头 - 垂直居中在轮播区两侧 */
 .swiper-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
   width: 44px;
   height: 44px;
   background: #fff;
@@ -167,8 +165,9 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  z-index: 10;
   transition: all 0.3s;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .swiper-btn:hover {
@@ -186,15 +185,8 @@ onMounted(() => {
   transition: color 0.3s;
 }
 
-/* Swiper */
-.cases-swiper-wrap {
-  opacity: 0;
-  transform: translateY(40px);
-  transition: all 0.8s 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.cases-swiper-wrap.animate-in { opacity: 1; transform: translateY(0); }
-
-.cases-swiper { overflow: visible; padding: 10px 0 20px; }
+.swiper-btn-prev { left: 0; }
+.swiper-btn-next { right: 0; }
 
 /* 案例卡片 */
 .case-card {
@@ -335,10 +327,17 @@ onMounted(() => {
   .cases-title { font-size: 30px; }
 }
 
+@media (max-width: 768px) {
+  .cases-swiper-wrap { padding: 0 40px; }
+  .swiper-btn { width: 36px; height: 36px; }
+  .swiper-btn svg { width: 16px; height: 16px; }
+}
+
 @media (max-width: 640px) {
   .cases-section { padding: 60px 0; }
   .cases-title { font-size: 26px; }
-  .cases-header-top { flex-direction: column; align-items: flex-start; }
+  .cases-swiper-wrap { padding: 0; }
+  .swiper-btn { display: none; }
   .case-text { padding: 18px 20px 22px; }
   .case-title { font-size: 16px; }
 }
