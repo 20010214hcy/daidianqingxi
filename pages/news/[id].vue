@@ -10,7 +10,7 @@
     <section class="bg-white border-b border-slate-100">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8">
         <!-- 面包屑 -->
-        <nav class="flex items-center gap-2 text-sm text-slate-400 mb-5">
+        <nav class="flex items-center gap-2 text-sm text-slate-500 mb-5">
           <NuxtLink to="/" class="hover:text-blue-600 transition-colors">首页</NuxtLink>
           <svg class="w-3.5 h-3.5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
           <NuxtLink to="/news" class="hover:text-blue-600 transition-colors">新闻资讯</NuxtLink>
@@ -122,10 +122,10 @@
               </div>
 
               <!-- 联系 CTA -->
-              <div class="bg-slate-900 rounded-2xl p-6 text-white">
+              <div class="bg-blue-50 rounded-2xl p-6 border border-blue-100">
                 <h4 class="font-bold mb-2">需要专业服务？</h4>
-                <p class="text-sm text-slate-400 mb-5">联系我们获取免费方案和报价</p>
-                <NuxtLink to="/contact" class="block w-full text-center px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-500 transition-colors">
+                <p class="text-sm text-slate-500 mb-5">联系我们获取免费方案和报价</p>
+                <NuxtLink to="/contact" class="block w-full text-center px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors">
                   免费咨询
                 </NuxtLink>
               </div>
