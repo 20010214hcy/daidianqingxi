@@ -1,11 +1,25 @@
 <template>
   <div>
-    <!-- Page Header -->
-    <PageHeader title="新闻资讯" subtitle="了解行业动态与公司最新消息" />
+    <!-- Banner 区 -->
+    <section class="news-banner">
+      <div class="news-banner-bg">
+        <div class="news-banner-overlay" />
+      </div>
+      <div class="news-banner-content">
+        <nav class="breadcrumb">
+          <NuxtLink to="/" class="breadcrumb-link">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </NuxtLink>
+          <span class="breadcrumb-sep">/</span>
+          <span class="breadcrumb-current">新闻中心</span>
+        </nav>
+        <h1 class="news-banner-title">新闻中心</h1>
+      </div>
+    </section>
 
     <!-- 分类筛选 -->
-    <section class="sticky top-16 z-30 bg-white border-b border-slate-100">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section class="sticky top-20 z-30 bg-white border-b border-slate-100">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center gap-2 py-4 overflow-x-auto">
           <button v-for="cat in categories" :key="cat.value"
             @click="switchCategory(cat.value)"
@@ -19,137 +33,59 @@
       </div>
     </section>
 
-    <!-- 时间轴 -->
-    <section class="py-16 bg-white">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- 新闻列表 -->
+    <section class="news-list-section">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
         <!-- 骨架屏 -->
-        <div v-if="loading" class="space-y-10">
-          <div v-for="n in 4" :key="n" class="flex gap-8">
-            <div class="flex-shrink-0 w-20 pt-2">
-              <div class="h-4 w-16 bg-slate-200 rounded animate-pulse ml-auto" />
-            </div>
-            <div class="flex-shrink-0 relative">
-              <div class="w-3 h-3 bg-slate-200 rounded-full animate-pulse" />
-            </div>
-            <div class="flex-1 border border-slate-200 rounded-2xl overflow-hidden">
-              <div class="flex gap-6 p-6">
-                <div class="w-48 h-32 bg-slate-200 rounded-xl animate-pulse flex-shrink-0" />
-                <div class="flex-1 space-y-3">
-                  <div class="h-5 w-16 bg-slate-200 rounded animate-pulse" />
-                  <div class="h-6 w-3/4 bg-slate-200 rounded animate-pulse" />
-                  <div class="h-4 w-full bg-slate-200 rounded animate-pulse" />
-                  <div class="h-4 w-2/3 bg-slate-200 rounded animate-pulse" />
-                </div>
-              </div>
+        <div v-if="loading" class="news-list">
+          <div v-for="n in 4" :key="n" class="news-item-skeleton">
+            <div class="skeleton-img animate-pulse" />
+            <div class="skeleton-body">
+              <div class="h-5 w-3/4 bg-slate-200 rounded animate-pulse mb-3" />
+              <div class="h-4 w-20 bg-slate-200 rounded animate-pulse mb-4" />
+              <div class="h-4 w-full bg-slate-200 rounded animate-pulse mb-2" />
+              <div class="h-4 w-2/3 bg-slate-200 rounded animate-pulse" />
             </div>
           </div>
         </div>
 
-        <!-- 时间轴内容 -->
-        <div v-else-if="newsList.length" class="relative">
-          <!-- 时间轴线 -->
-          <div class="absolute left-[88px] top-0 bottom-0 w-px bg-gradient-to-b from-primary-200 via-slate-200 to-transparent hidden md:block" />
-
-          <div class="space-y-8">
-            <template v-for="(group, groupIdx) in groupedNews" :key="group.date">
-              <!-- 日期标签 -->
-              <div class="hidden md:flex items-center gap-6 mb-2" :class="groupIdx > 0 && 'mt-2'">
-                <div class="flex-shrink-0 w-20 text-right">
-                  <span class="text-sm font-bold text-slate-400">{{ group.dateShort }}</span>
-                </div>
-                <div class="flex-shrink-0 w-3 flex justify-center">
-                  <div class="w-2.5 h-2.5 rounded-full bg-primary-400 ring-4 ring-white" />
-                </div>
-                <div class="flex-1 border-b border-slate-100" />
-              </div>
-
-              <!-- 该日期下的文章 -->
-              <NuxtLink v-for="news in group.items" :key="news.id" :to="`/news/${news.id}`"
-                class="group flex gap-6 md:gap-8 items-start">
-                <!-- 日期（桌面端占位） -->
-                <div class="hidden md:block flex-shrink-0 w-20 pt-5">
-                  <span class="text-xs text-slate-400 block text-right">
-                    {{ formatShortDate(news.publishedAt || news.createdAt) }}
-                  </span>
-                </div>
-
-                <!-- 节点 -->
-                <div class="hidden md:flex flex-shrink-0 w-3 justify-center pt-6">
-                  <div class="w-2 h-2 rounded-full bg-slate-300 group-hover:bg-primary-500 group-hover:scale-125 transition-all duration-200" />
-                </div>
-
-                <!-- 卡片 -->
-                <div class="flex-1 bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-lg hover:border-slate-300 hover:-translate-y-0.5 transition-[transform,box-shadow,border-color] duration-300 will-change-transform">
-                  <div class="flex flex-col sm:flex-row gap-0 sm:gap-6">
-                    <!-- 图片 -->
-                    <div class="sm:w-52 flex-shrink-0 overflow-hidden">
-                      <div class="aspect-[16/10] sm:aspect-auto sm:h-full">
-                        <img v-if="news.coverImage" :src="news.coverImage" :alt="news.title"
-                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                        <div v-else class="w-full h-full min-h-[140px] bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-                          <svg class="w-10 h-10 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
-                            <path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v6H7V8z"/>
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- 内容 -->
-                    <div class="flex-1 py-5 pr-6 sm:pr-6 pl-6 sm:pl-0">
-                      <!-- 移动端日期 -->
-                      <span class="md:hidden text-xs text-slate-400 mb-2 block">
-                        {{ formatDate(news.publishedAt || news.createdAt) }}
-                      </span>
-                      <div class="flex items-center gap-3 mb-2.5">
-                        <span class="text-xs font-semibold text-primary-600 bg-primary-50 px-2.5 py-0.5 rounded-full">
-                          {{ getCategoryLabel(news.category) }}
-                        </span>
-                      </div>
-                      <h2 class="text-lg font-bold text-slate-800 mb-2 line-clamp-2 group-hover:text-primary-600 transition-colors">
-                        {{ news.title }}
-                      </h2>
-                      <p v-if="news.summary" class="text-sm text-slate-500 leading-relaxed line-clamp-2 mb-3">
-                        {{ news.summary }}
-                      </p>
-                      <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 group-hover:gap-2.5 transition-all">
-                        阅读全文
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                          <path d="M5 12h14M12 5l7 7-7 7"/>
-                        </svg>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </NuxtLink>
-            </template>
-          </div>
+        <!-- 新闻列表 -->
+        <div v-else-if="newsList.length" class="news-list">
+          <NuxtLink v-for="item in newsList" :key="item.id"
+            :to="`/news/${item.id}`" class="news-item group">
+            <div class="news-item-img">
+              <img v-if="item.coverImage" :src="item.coverImage" :alt="item.title" />
+              <div v-else class="news-item-img-placeholder" />
+            </div>
+            <div class="news-item-body">
+              <h3 class="news-item-title">{{ item.title }}</h3>
+              <div class="news-item-date">{{ formatDate(item.publishedAt || item.createdAt) }}</div>
+              <p class="news-item-summary">{{ item.summary }}</p>
+              <span class="news-item-link">
+                查看更多
+                <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+              </span>
+            </div>
+          </NuxtLink>
         </div>
 
         <!-- 空状态 -->
-        <div v-else class="text-center py-20 text-slate-400">
-          <svg class="w-14 h-14 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-            <path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v6H7V8z"/>
-          </svg>
-          <p class="text-lg font-semibold text-slate-600 mb-1">暂无新闻</p>
-          <span class="text-sm">敬请期待最新资讯</span>
+        <div v-else class="text-center py-20">
+          <p class="text-slate-400 text-lg">暂无相关新闻</p>
         </div>
 
         <!-- 分页 -->
-        <div v-if="totalPages > 1" class="flex justify-center items-center gap-2 mt-16">
-          <button @click="changePage(currentPage - 1)" :disabled="currentPage <= 1"
-            class="w-10 h-10 flex items-center justify-center border border-slate-200 rounded-xl text-slate-500 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg>
+        <div v-if="totalPages > 1" class="news-pagination">
+          <button :disabled="currentPage <= 1" @click="changePage(currentPage - 1)" class="page-btn">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg>
           </button>
           <button v-for="page in displayPages" :key="page" @click="changePage(page)"
-            class="w-10 h-10 flex items-center justify-center border rounded-xl text-sm font-medium transition-all"
-            :class="page === currentPage
-              ? 'bg-slate-900 text-white border-slate-900'
-              : 'border-slate-200 text-slate-500 hover:bg-slate-50 hover:border-slate-300'">
+            class="page-btn" :class="{ 'page-btn-active': page === currentPage }">
             {{ page }}
           </button>
-          <button @click="changePage(currentPage + 1)" :disabled="currentPage >= totalPages"
-            class="w-10 h-10 flex items-center justify-center border border-slate-200 rounded-xl text-slate-500 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+          <button :disabled="currentPage >= totalPages" @click="changePage(currentPage + 1)" class="page-btn">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
           </button>
         </div>
       </div>
@@ -162,19 +98,7 @@ import type { Article } from '~/types'
 
 definePageMeta({ layout: 'default' })
 
-useHead({
-  title: "新闻资讯",
-  meta: [
-    { name: 'description', content: '玺铭电力新闻资讯，涵盖行业动态、公司新闻、技术分享，了解电力清洗行业前沿信息。' },
-    { name: 'keywords', content: '电力行业新闻,带电清洗资讯,工业清洗技术,电力设备维护,清洗行业动态' },
-  ]
-})
-
 const { formatDate } = useFormatDate()
-
-const activeCategory = ref('')
-const currentPage = ref(1)
-const PAGE_SIZE = 8
 
 const categories = [
   { label: '全部', value: '' },
@@ -183,18 +107,18 @@ const categories = [
   { label: '技术分享', value: 'tech' },
 ]
 
-const getCategoryLabel = (category: string) => {
-  const labels: Record<string, string> = { 'news': '行业动态', 'company': '公司新闻', 'tech': '技术分享' }
-  return labels[category] || category
-}
+const activeCategory = ref('')
+const currentPage = ref(1)
+const pageSize = 10
 
-// SSR 数据获取
 const queryParams = computed(() => ({
   page: currentPage.value,
-  pageSize: PAGE_SIZE,
+  pageSize,
+  status: 'published',
   ...(activeCategory.value ? { category: activeCategory.value } : {})
 }))
-const { data: newsResponse, pending: loading, refresh: refreshNews } = useFetch('/api/articles', {
+
+const { data: newsResponse, pending: loading } = useFetch('/api/articles', {
   params: queryParams,
   dedupe: 'cancel',
   initialCache: false,
@@ -205,37 +129,9 @@ const { data: newsResponse, pending: loading, refresh: refreshNews } = useFetch(
     return { list: [], totalPages: 1 }
   }
 })
+
 const newsList = computed<Article[]>(() => newsResponse.value?.list || [])
 const totalPages = computed(() => newsResponse.value?.totalPages || 1)
-
-// 按日期分组
-const groupedNews = computed(() => {
-  const groups: { date: string; dateShort: string; items: Article[] }[] = []
-  const map = new Map<string, Article[]>()
-
-  for (const item of newsList.value) {
-    const d = new Date(item.publishedAt || item.createdAt)
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-    if (!map.has(key)) map.set(key, [])
-    map.get(key)!.push(item)
-  }
-
-  for (const [date, items] of map) {
-    const d = new Date(date)
-    groups.push({
-      date,
-      dateShort: `${d.getMonth() + 1}月${d.getDate()}日`,
-      items
-    })
-  }
-
-  return groups
-})
-
-const formatShortDate = (dateStr: string) => {
-  const d = new Date(dateStr)
-  return `${d.getMonth() + 1}/${d.getDate()}`
-}
 
 const displayPages = computed(() => {
   const pages: number[] = []
@@ -245,14 +141,282 @@ const displayPages = computed(() => {
   return pages
 })
 
-const switchCategory = (category: string) => {
-  activeCategory.value = category
+const switchCategory = (cat: string) => {
+  activeCategory.value = cat
   currentPage.value = 1
 }
 
 const changePage = (page: number) => {
-  if (page < 1 || page > totalPages.value) return
   currentPage.value = page
-  window.scrollTo({ top: 300, behavior: 'smooth' })
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
+
+useHead({
+  title: '新闻资讯 - 玺铭电力',
+  meta: [
+    { name: 'description', content: '了解电力设备带电清洗行业动态、玺铭电力公司新闻和技术分享' },
+    { name: 'keywords', content: '电力行业新闻,带电清洗资讯,工业清洗技术,电力设备维护' }
+  ]
+})
 </script>
+
+<style scoped>
+/* Banner */
+.news-banner {
+  position: relative;
+  height: 320px;
+  overflow: hidden;
+}
+
+.news-banner-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #0c2340 0%, #1a3a5c 50%, #0c2340 100%);
+}
+
+.news-banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: url('/uploads/hero-bg.jpg') center/cover no-repeat;
+  opacity: 0.15;
+}
+
+.news-banner-content {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.breadcrumb-link {
+  color: rgba(255, 255, 255, 0.6);
+  transition: color 0.2s;
+}
+
+.breadcrumb-link:hover { color: #fff; }
+
+.breadcrumb-sep { color: rgba(255, 255, 255, 0.3); font-size: 14px; }
+
+.breadcrumb-current { color: rgba(255, 255, 255, 0.8); font-size: 14px; }
+
+.news-banner-title {
+  font-size: 40px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 2px;
+}
+
+/* 列表区域 */
+.news-list-section {
+  padding: 40px 0 80px;
+  background: #f5f7fa;
+  min-height: 60vh;
+}
+
+.news-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 新闻卡片 */
+.news-item {
+  display: flex;
+  gap: 28px;
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  padding: 24px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+.news-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(26, 115, 232, 0.1);
+}
+
+/* 图片 */
+.news-item-img {
+  width: 280px;
+  height: 180px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.news-item-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.news-item:hover .news-item-img img { transform: scale(1.06); }
+
+.news-item-img-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #e0e7ef, #cbd5e1);
+}
+
+/* 文字区域 */
+.news-item-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.news-item-title {
+  font-size: 19px;
+  font-weight: 700;
+  color: #1a1a2e;
+  line-height: 1.5;
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.3s;
+}
+
+.news-item:hover .news-item-title { color: #1a73e8; }
+
+.news-item-date {
+  font-size: 13px;
+  color: #9ca3af;
+  margin-bottom: 10px;
+}
+
+.news-item-summary {
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.8;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 14px;
+  flex: 1;
+}
+
+.news-item-link {
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a73e8;
+  letter-spacing: 0.5px;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: all 0.4s ease;
+}
+
+.news-item:hover .news-item-link {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* 骨架屏 */
+.news-item-skeleton {
+  display: flex;
+  gap: 28px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.skeleton-img {
+  width: 280px;
+  height: 180px;
+  border-radius: 12px;
+  background: #e2e8f0;
+  flex-shrink: 0;
+}
+
+.skeleton-body { flex: 1; padding-top: 4px; }
+
+/* 分页 */
+.news-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 48px;
+}
+
+.page-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #64748b;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.page-btn:hover:not(:disabled) {
+  border-color: #1a73e8;
+  color: #1a73e8;
+}
+
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.page-btn-active {
+  background: #1a73e8;
+  border-color: #1a73e8;
+  color: #fff;
+}
+
+.page-btn-active:hover { background: #1557b0; color: #fff; }
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .news-banner { height: 240px; }
+  .news-banner-title { font-size: 28px; }
+
+  .news-item {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .news-item-img {
+    width: 100%;
+    height: 200px;
+  }
+
+  .news-item-title { font-size: 17px; }
+  .news-item-link { opacity: 1; transform: translateX(0); }
+
+  .news-item-skeleton {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .skeleton-img { width: 100%; height: 200px; }
+}
+
+@media (max-width: 480px) {
+  .news-banner { height: 200px; }
+  .news-banner-title { font-size: 24px; }
+  .news-item-img { height: 160px; }
+}
+</style>
