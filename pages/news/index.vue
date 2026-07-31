@@ -123,7 +123,7 @@ const stripHtml = (html: string | undefined): string => {
     .replace(/&quot;/g, '"')       // &quot; 转 "
     .replace(/\s+/g, ' ')          // 多个空格合并
     .trim()
-  return text.length > 120 ? text.slice(0, 120) + '...' : text
+  return text.length > 200 ? text.slice(0, 200) + '...' : text
 }
 
 const queryParams = computed(() => ({
