@@ -9,22 +9,18 @@
     <!-- 标题区 -->
     <section class="bg-white border-b border-slate-100">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8">
-        <!-- 面包屑 -->
-        <nav class="flex items-center gap-2 text-sm text-slate-500 mb-5">
+        <nav class="flex items-center gap-2 text-sm text-slate-400 mb-5">
           <NuxtLink to="/" class="hover:text-blue-600 transition-colors">首页</NuxtLink>
           <svg class="w-3.5 h-3.5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
           <NuxtLink to="/news" class="hover:text-blue-600 transition-colors">新闻资讯</NuxtLink>
           <svg class="w-3.5 h-3.5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
           <span class="text-slate-500 truncate max-w-[300px]">{{ article.title || '...' }}</span>
         </nav>
-
         <div v-if="article.id">
           <span class="inline-block bg-blue-50 text-blue-600 text-xs font-semibold px-3 py-1 rounded-full mb-4">
             {{ getCategoryLabel(article.category) }}
           </span>
-          <h1 class="text-2xl md:text-3xl font-bold text-slate-900 leading-tight mb-4">
-            {{ article.title }}
-          </h1>
+          <h1 class="text-2xl md:text-3xl font-bold text-slate-900 leading-tight mb-4">{{ article.title }}</h1>
           <div class="flex items-center gap-4 text-sm text-slate-400">
             <span>{{ formatDate(article.publishedAt || article.createdAt) }}</span>
             <span class="w-1 h-1 rounded-full bg-slate-300" />
@@ -44,18 +40,56 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex gap-8">
 
-          <!-- 左侧：正文卡片 -->
+          <!-- 左侧：正文 -->
           <main class="flex-1 min-w-0">
             <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-              <!-- 封面图 -->
               <img v-if="article.coverImage" :src="article.coverImage" :alt="article.title"
                 class="w-full h-auto max-h-[480px] object-cover" />
-
-              <!-- 正文内容 -->
               <div class="px-8 md:px-12 py-10">
+                <article class="prose-content" v-html="sanitizedContent" />
+                <div class="mt-10 pt-6 border-t border-slate-100 flex items-center justify-between flex-wrap gap-4">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm text-slate-400">标签：</span>
+                    <span class="px-3 py-1 bg-slate-50 text-slate-600 text-xs rounded-full border border-slate-100">{{ getCategoryLabel(article.category) }}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm text-slate-400">分享：</span>
+                    <button @click="copyLink" class="share-btn" title="复制链接">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <NuxtLink v-if="prevArticle" :to="`/news/${prevArticle.id}`"
+                class="group flex items-center gap-3 p-5 bg-white rounded-xl border border-slate-100 hover:border-blue-200 hover:shadow-sm transition-all">
+                <svg class="w-4 h-4 text-slate-400 group-hover:text-blue-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                <div class="min-w-0">
+                  <span class="text-xs text-slate-400">上一篇</span>
+                  <p class="text-sm font-medium text-slate-700 truncate group-hover:text-blue-600">{{ prevArticle.title }}</p>
+                </div>
+              </NuxtLink>
+              <div v-else />
+              <NuxtLink v-if="nextArticle" :to="`/news/${nextArticle.id}`"
+                class="group flex items-center gap-3 p-5 bg-white rounded-xl border border-slate-100 hover:border-blue-200 hover:shadow-sm transition-all text-right justify-end">
+                <div class="min-w-0">
+                  <span class="text-xs text-slate-400">下一篇</span>
+                  <p class="text-sm font-medium text-slate-700 truncate group-hover:text-blue-600">{{ nextArticle.title }}</p>
+                </div>
+                <svg class="w-4 h-4 text-slate-400 group-hover:text-blue-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </NuxtLink>
+            </div>
+          </main>
+
+          <!-- 右侧：侧边栏 -->
+          <aside class="hidden lg:block w-72 flex-shrink-0">
+            <div class="sticky top-24 space-y-6">
+              <div v-if="relatedArticles.length" class="bg-white rounded-2xl border border-slate-100 p-5">
+                <h3 class="text-sm font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100">相关推荐</h3>
                 <div class="space-y-3">
-                  <NuxtLink v-for="item in relatedArticles" :key="item.id" :to="`/news/${item.id}`"
-                    class="group block">
+                  <NuxtLink v-for="item in relatedArticles" :key="item.id" :to="`/news/${item.id}`" class="group block">
                     <div class="flex gap-3">
                       <div v-if="item.coverImage" class="w-20 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100">
                         <img :src="item.coverImage" :alt="item.title" class="w-full h-full object-cover" />
@@ -68,22 +102,15 @@
                   </NuxtLink>
                 </div>
               </div>
-
-              <!-- 联系 CTA -->
               <div class="bg-blue-50 rounded-2xl p-6 border border-blue-100">
-                <h4 class="font-bold mb-2">需要专业服务？</h4>
+                <h4 class="font-bold text-slate-800 mb-2">需要专业服务？</h4>
                 <p class="text-sm text-slate-500 mb-5">联系我们获取免费方案和报价</p>
-                <NuxtLink to="/contact" class="block w-full text-center px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-                  免费咨询
-                </NuxtLink>
+                <NuxtLink to="/contact" class="block w-full text-center px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors">免费咨询</NuxtLink>
               </div>
-
-              <!-- 返回 -->
               <NuxtLink to="/news" class="flex items-center gap-2 text-sm text-slate-400 hover:text-blue-600 transition-colors px-1">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                 返回新闻列表
               </NuxtLink>
-
             </div>
           </aside>
 
@@ -143,11 +170,6 @@ const getCategoryLabel = (category: string) => {
 </script>
 
 <style scoped>
-.share-btn {
-  width: 32px; height: 32px;
-  display: inline-flex; align-items: center; justify-content: center;
-  border-radius: 8px; border: 1px solid #e5e7eb; background: #fff; color: #64748b;
-  cursor: pointer; transition: all 0.2s;
-}
+.share-btn { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid #e5e7eb; background: #fff; color: #64748b; cursor: pointer; transition: all 0.2s; }
 .share-btn:hover { border-color: #1a73e8; color: #1a73e8; }
 </style>
