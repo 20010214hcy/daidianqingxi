@@ -137,7 +137,7 @@ export default defineNuxtConfig({
     '/contact': { swr: 60 },
     '/services': { swr: 60 },
     '/cases': { swr: 60 },
-    '/news': { swr: 60 },
+    '/news': { swr: false },
     // API 缓存（开发环境禁用）
     '/api/**': { swr: false },
   },
