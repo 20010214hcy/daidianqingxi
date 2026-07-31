@@ -203,3 +203,13 @@ model user {
   projectcase projectcase[]
   service     service[]
 }
+
+model media {
+  id        Int      @id @default(autoincrement())
+  filename  String
+  url       String   @db.Text
+  alt       String?
+  size      Int?
+  mimeType  String?
+  createdAt DateTime @default(now())
+}

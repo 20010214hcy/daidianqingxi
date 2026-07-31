@@ -194,7 +194,7 @@ import {
   House, Document, Suitcase, Reading, ChatDotRound, Monitor, Trophy,
   Star, Message, Lock, Setting, User, Goods, Medal, Phone,
   Fold, Expand, Search, Refresh, FullScreen, Aim, ArrowDown, SwitchButton,
-  UserFilled
+  UserFilled, Picture
 } from '@element-plus/icons-vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 
@@ -320,6 +320,14 @@ const allMenuGroups = [
     permission: 'certificates' as const,
     items: [
       { path: '/admin/certificates', title: '资质证书', icon: Medal, permission: 'certificates' as const }
+    ]
+  },
+  {
+    title: '媒体资源',
+    icon: Picture,
+    permission: 'articles' as const,
+    items: [
+      { path: '/admin/media', title: '图片管理', icon: Picture, permission: 'articles' as const }
     ]
   },
   // 客户互动
