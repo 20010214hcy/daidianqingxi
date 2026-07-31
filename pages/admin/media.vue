@@ -23,20 +23,20 @@
     <!-- 图片网格 -->
     <el-card>
       <div v-loading="loading" class="media-grid">
-        <div v-for="item in mediaList" :key="item.id" class="media-item group" :class="{ 'is-selected': selectedIds.has(item.id) }" @click="toggleSelect(item)">
+        <div v-for="item in mediaList" :key="item.id" class="media-item group">
           <div class="media-img-wrap">
             <img :src="item.url" :alt="item.alt || item.filename" class="media-img" loading="lazy" />
             <div class="media-overlay">
+              <el-button size="small" type="primary" circle @click.stop="handleEdit(item)">
+                <el-icon><Edit /></el-icon>
+              </el-button>
               <el-button size="small" type="danger" circle @click.stop="handleDelete(item)">
                 <el-icon><Delete /></el-icon>
               </el-button>
             </div>
-            <div v-if="selectMode" class="media-check">
-              <el-icon v-if="selectedIds.has(item.id)" class="text-white"><Check /></el-icon>
-            </div>
           </div>
           <div class="media-info">
-            <p class="media-name">{{ item.filename }}</p>
+            <p class="media-name" @click.stop="handleEdit(item)" title="点击编辑">{{ item.filename }}</p>
             <p class="media-meta">{{ formatDate(item.createdAt) }}</p>
           </div>
         </div>
@@ -46,38 +46,63 @@
         <p class="text-slate-400">暂无图片，点击上方"上传图片"添加</p>
       </div>
 
-      <!-- 分页 -->
       <div v-if="totalPages > 1" class="flex justify-end mt-6">
         <el-pagination v-model:current-page="currentPage" :page-size="pageSize" :total="total" layout="prev, pager, next" @current-change="fetchMedia" />
       </div>
     </el-card>
 
     <!-- 上传弹窗 -->
-    <el-dialog v-model="showUploader" title="上传图片" width="600px">
-      <div class="upload-area">
-        <el-upload
-          action="/api/upload"
-          :on-success="handleUploadSuccess"
-          :on-error="handleUploadError"
-          :before-upload="beforeUpload"
-          accept="image/*"
-          :limit="20"
-          multiple
-          list-type="picture-card"
-          :on-exceed="() => ElMessage.warning('最多上传20张')"
-        >
-          <el-icon><Plus /></el-icon>
-        </el-upload>
-      </div>
+    <el-dialog v-model="showUploader" title="上传图片" width="700px">
+      <el-upload
+        action="/api/upload"
+        :on-success="handleUploadSuccess"
+        :on-error="handleUploadError"
+        :before-upload="beforeUpload"
+        accept="image/*"
+        :limit="20"
+        multiple
+        list-type="picture-card"
+        :on-exceed="() => ElMessage.warning('最多上传20张')"
+      >
+        <el-icon><Plus /></el-icon>
+      </el-upload>
       <template #footer>
         <el-button @click="showUploader = false">关闭</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 编辑弹窗 -->
+    <el-dialog v-model="showEditor" title="编辑图片信息" width="500px">
+      <el-form :model="editForm" label-width="80px">
+        <el-form-item label="预览">
+          <div class="w-48 h-32 rounded-lg overflow-hidden bg-slate-100">
+            <img :src="editForm.url" class="w-full h-full object-cover" />
+          </div>
+        </el-form-item>
+        <el-form-item label="文件名">
+          <el-input v-model="editForm.filename" placeholder="请输入文件名" />
+        </el-form-item>
+        <el-form-item label="描述">
+          <el-input v-model="editForm.alt" placeholder="图片描述（用于SEO）" />
+        </el-form-item>
+        <el-form-item label="链接">
+          <el-input :model-value="editForm.url" disabled>
+            <template #append>
+              <el-button @click="copyUrl">复制</el-button>
+            </template>
+          </el-input>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showEditor = false">取消</el-button>
+        <el-button type="primary" :loading="saving" @click="handleSave">保存</el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Plus, Search, Delete, Check } from '@element-plus/icons-vue'
+import { Plus, Search, Delete, Edit } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 definePageMeta({ layout: 'admin' })
@@ -92,10 +117,15 @@ const currentPage = ref(1)
 const pageSize = 24
 const searchQuery = ref('')
 const showUploader = ref(false)
+const showEditor = ref(false)
+const saving = ref(false)
 
-// 选择模式（供其他页面调用）
-const selectMode = ref(false)
-const selectedIds = ref(new Set<number>())
+const editForm = reactive({
+  id: 0,
+  filename: '',
+  alt: '',
+  url: '',
+})
 
 const fetchMedia = async () => {
   loading.value = true
@@ -129,19 +159,50 @@ const handleUploadSuccess = async (response: any, file: any) => {
   const url = response?.data?.url || response?.url
   if (!url) { ElMessage.error('上传失败'); return }
 
-  try {
-    await $fetch('/api/media', {
-      method: 'POST',
-      body: { filename: file.name, url, size: file.size, mimeType: file.raw?.type },
-    })
-    ElMessage.success('上传成功')
-    fetchMedia()
-  } catch (err) {
-    ElMessage.error('保存到媒体库失败')
-  }
+  // 上传成功后弹出编辑框，让用户修改名称
+  editForm.id = 0
+  editForm.filename = file.name
+  editForm.alt = ''
+  editForm.url = url
+  showUploader.value = false
+  showEditor.value = true
 }
 
 const handleUploadError = () => { ElMessage.error('上传失败') }
+
+const handleEdit = (item: any) => {
+  editForm.id = item.id
+  editForm.filename = item.filename
+  editForm.alt = item.alt || ''
+  editForm.url = item.url
+  showEditor.value = true
+}
+
+const handleSave = async () => {
+  saving.value = true
+  try {
+    if (editForm.id) {
+      // 更新已有图片
+      await $fetch(`/api/media/${editForm.id}`, {
+        method: 'PUT',
+        body: { filename: editForm.filename, alt: editForm.alt },
+      })
+    } else {
+      // 新上传的图片，保存到媒体库
+      await $fetch('/api/media', {
+        method: 'POST',
+        body: { filename: editForm.filename, url: editForm.url, alt: editForm.alt },
+      })
+    }
+    ElMessage.success('保存成功')
+    showEditor.value = false
+    fetchMedia()
+  } catch (err) {
+    ElMessage.error('保存失败')
+  } finally {
+    saving.value = false
+  }
+}
 
 const handleDelete = async (item: any) => {
   try {
@@ -154,17 +215,12 @@ const handleDelete = async (item: any) => {
   }
 }
 
-const toggleSelect = (item: any) => {
-  if (!selectMode.value) return
-  if (selectedIds.value.has(item.id)) {
-    selectedIds.value.delete(item.id)
-  } else {
-    selectedIds.value.add(item.id)
-  }
+const copyUrl = async () => {
+  try {
+    await navigator.clipboard.writeText(editForm.url)
+    ElMessage.success('链接已复制')
+  } catch {}
 }
-
-// 暴露给其他组件使用
-defineExpose({ selectMode, selectedIds, mediaList })
 </script>
 
 <style scoped>
@@ -178,19 +234,13 @@ defineExpose({ selectMode, selectedIds, mediaList })
   background: #fff;
   border-radius: 12px;
   overflow: hidden;
-  border: 2px solid transparent;
-  cursor: pointer;
+  border: 2px solid #f1f5f9;
   transition: all 0.3s;
 }
 
 .media-item:hover {
   border-color: #e5e7eb;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-}
-
-.media-item.is-selected {
-  border-color: #1a73e8;
-  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
 }
 
 .media-img-wrap {
@@ -215,28 +265,27 @@ defineExpose({ selectMode, selectedIds, mediaList })
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   opacity: 0;
   transition: opacity 0.3s;
 }
 
 .media-item:hover .media-overlay { opacity: 1; }
 
-.media-check {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 24px;
-  height: 24px;
-  background: #1a73e8;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.media-info { padding: 10px 12px; }
+
+.media-name {
+  font-size: 13px;
+  color: #334155;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s;
 }
 
-.media-info { padding: 10px 12px; }
-.media-name { font-size: 13px; color: #334155; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.media-meta { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+.media-name:hover { color: #1a73e8; }
 
-.upload-area :deep(.el-upload--picture-card) { width: 120px; height: 120px; }
+.media-meta { font-size: 11px; color: #94a3b8; margin-top: 2px; }
 </style>
