@@ -132,11 +132,11 @@ export default defineNuxtConfig({
   // 路由规则（缓存、重定向等）
   routeRules: {
     // 静态页面缓存
-    '/': { swr: 60 },
-    '/about': { swr: 60 },
-    '/contact': { swr: 60 },
-    '/services': { swr: 60 },
-    '/cases': { swr: 60 },
+    '/': { swr: false },
+    '/about': { swr: false },
+    '/contact': { swr: false },
+    '/services': { swr: false },
+    '/cases': { swr: false },
     '/news': { swr: false },
     // API 缓存（开发环境禁用）
     '/api/**': { swr: false },
