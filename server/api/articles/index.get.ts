@@ -38,9 +38,10 @@ export default defineEventHandler(async (event) => {
             },
           },
         },
-        orderBy: {
-          createdAt: 'desc',
-        },
+        orderBy: [
+          { publishedAt: 'desc' },
+          { createdAt: 'desc' },
+        ],
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
