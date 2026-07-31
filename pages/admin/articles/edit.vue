@@ -45,7 +45,7 @@
         </el-row>
 
         <el-form-item label="封面图">
-          <ImageCropper v-model="form.coverImage" />
+          <MediaPicker v-model="form.coverImage" />
         </el-form-item>
 
 
