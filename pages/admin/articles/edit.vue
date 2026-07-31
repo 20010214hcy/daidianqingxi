@@ -48,9 +48,6 @@
           <ImageCropper v-model="form.coverImage" />
         </el-form-item>
 
-        <el-form-item label="摘要">
-          <el-input v-model="form.summary" type="textarea" :rows="3" placeholder="请输入摘要" />
-        </el-form-item>
 
         <el-form-item label="内容" prop="content">
           <RichEditor v-model="form.content" :height="500" />
@@ -86,7 +83,6 @@ const form = reactive({
   title: '',
   category: 'news',
   status: 'published',
-  summary: '',
   coverImage: '',
   content: '',
   publishedAt: null as string | null,
@@ -108,7 +104,6 @@ const loadArticle = async () => {
         title: res.data.title || '',
         category: res.data.category || 'news',
         status: res.data.status || 'published',
-        summary: res.data.summary || '',
         coverImage: res.data.coverImage || '',
         content: res.data.content || '',
         publishedAt: res.data.publishedAt || null,

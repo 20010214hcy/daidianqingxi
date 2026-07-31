@@ -53,58 +53,6 @@
 
               <!-- 正文内容 -->
               <div class="px-8 md:px-12 py-10">
-                <!-- 摘要 -->
-                <p v-if="article.summary" class="text-base text-slate-500 leading-relaxed mb-8 pb-6 border-b border-slate-100">
-                  {{ article.summary }}
-                </p>
-
-                <article class="prose-content" v-html="sanitizedContent" />
-
-                <!-- 标签 + 分享 -->
-                <div class="mt-10 pt-6 border-t border-slate-100 flex items-center justify-between flex-wrap gap-4">
-                  <div class="flex items-center gap-2">
-                    <span class="text-sm text-slate-400">标签：</span>
-                    <span class="px-3 py-1 bg-slate-50 text-slate-600 text-xs rounded-full border border-slate-100">{{ getCategoryLabel(article.category) }}</span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <span class="text-sm text-slate-400">分享：</span>
-                    <button @click="copyLink" class="share-btn" title="复制链接">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 上一篇 / 下一篇 -->
-            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <NuxtLink v-if="prevArticle" :to="`/news/${prevArticle.id}`"
-                class="group flex items-center gap-3 p-5 bg-white rounded-xl border border-slate-100 hover:border-blue-200 hover:shadow-sm transition-all">
-                <svg class="w-4 h-4 text-slate-400 group-hover:text-blue-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                <div class="min-w-0">
-                  <span class="text-xs text-slate-400">上一篇</span>
-                  <p class="text-sm font-medium text-slate-700 truncate group-hover:text-blue-600">{{ prevArticle.title }}</p>
-                </div>
-              </NuxtLink>
-              <div v-else />
-              <NuxtLink v-if="nextArticle" :to="`/news/${nextArticle.id}`"
-                class="group flex items-center gap-3 p-5 bg-white rounded-xl border border-slate-100 hover:border-blue-200 hover:shadow-sm transition-all text-right justify-end">
-                <div class="min-w-0">
-                  <span class="text-xs text-slate-400">下一篇</span>
-                  <p class="text-sm font-medium text-slate-700 truncate group-hover:text-blue-600">{{ nextArticle.title }}</p>
-                </div>
-                <svg class="w-4 h-4 text-slate-400 group-hover:text-blue-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </NuxtLink>
-            </div>
-          </main>
-
-          <!-- 右侧：侧边栏 -->
-          <aside class="hidden lg:block w-72 flex-shrink-0">
-            <div class="sticky top-24 space-y-6">
-
-              <!-- 相关推荐 -->
-              <div v-if="relatedArticles.length" class="bg-white rounded-2xl border border-slate-100 p-5">
-                <h3 class="text-sm font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100">相关推荐</h3>
                 <div class="space-y-3">
                   <NuxtLink v-for="item in relatedArticles" :key="item.id" :to="`/news/${item.id}`"
                     class="group block">
@@ -185,7 +133,7 @@ const copyLink = async () => { try { await navigator.clipboard.writeText(window.
 
 useHead({
   title: computed(() => article.value.title ? `${article.value.title} - 玺铭电力` : '新闻详情 - 玺铭电力'),
-  meta: [{ name: 'description', content: computed(() => article.value.summary || article.value.title || '玺铭电力新闻详情') }]
+  meta: [{ name: 'description', content: computed(() => article.value.title || '玺铭电力新闻详情') }]
 })
 
 const getCategoryLabel = (category: string) => {
