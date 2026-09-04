@@ -25,8 +25,13 @@
           <p class="text-sm mt-1">成功案例即将上线</p>
         </div>
 
-        <div v-else ref="gridRef" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <NuxtLink v-for="caseItem in cases" :key="caseItem.id" :to="`/cases/${caseItem.id}`" class="card overflow-hidden group block stagger-reveal-item">
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <NuxtLink
+            v-for="caseItem in cases"
+            :key="caseItem.id"
+            :to="`/cases/${caseItem.id}`"
+            class="card overflow-hidden group block case-card"
+          >
             <div class="h-56 relative overflow-hidden">
               <img v-if="caseItem.coverImage"
                 :src="caseItem.coverImage"
@@ -58,7 +63,6 @@
         </div>
       </div>
     </section>
-
   </div>
 </template>
 
@@ -71,7 +75,7 @@ useHead({
   title: "服务案例",
   meta: [
     { name: 'description', content: '查看玺铭电力成功完成的项目案例，涵盖带电清洗、储能系统等各类场景。' },
-    { property: 'og:title", content: "服务案例 - 河南玺铭电力科技有限公司' },
+    { property: 'og:title', content: '服务案例 - 河南玺铭电力科技有限公司' },
     { property: 'og:description', content: '带电清洗、储能系统等各类项目成功案例。' },
     { name: 'keywords', content: '带电清洗案例,电力清洗项目,储能系统案例,工业清洗工程,变电站清洗,成功案例' },
   ]
@@ -96,19 +100,6 @@ const { data: casesData, pending: loading } = useFetch('/api/cases', {
   transform: (res: any) => res?.success ? (res.data?.list || res.data || []) : []
 })
 const cases = computed<Case[]>(() => casesData.value || [])
-
-const gridRef = ref<HTMLElement | null>(null)
-
-const { refresh: refreshStagger } = useStaggerReveal(gridRef, { delay: 100 })
-
-// 客户端加载完成后触发 stagger 动画
-onMounted(() => {
-  watch(cases, (newVal) => {
-    if (newVal && newVal.length > 0) {
-      nextTick(() => refreshStagger())
-    }
-  }, { immediate: true })
-})
 </script>
 
 <style scoped>
@@ -122,6 +113,31 @@ onMounted(() => {
   transform: translateY(-4px);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
 }
+
+/* 简单的入场动画 */
+.case-card {
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 为每个卡片添加延迟 */
+.case-card:nth-child(1) { animation-delay: 0s; }
+.case-card:nth-child(2) { animation-delay: 0.1s; }
+.case-card:nth-child(3) { animation-delay: 0.2s; }
+.case-card:nth-child(4) { animation-delay: 0.3s; }
+.case-card:nth-child(5) { animation-delay: 0.4s; }
+.case-card:nth-child(6) { animation-delay: 0.5s; }
+
 @media (max-width: 768px) {
   .card .h-56 {
     height: 200px;
@@ -136,12 +152,6 @@ onMounted(() => {
 @media (max-width: 640px) {
   section.py-20 {
     padding: 48px 0;
-  }
-  h1.text-4xl {
-    font-size: 28px;
-  }
-  p.text-xl {
-    font-size: 16px;
   }
   .card .p-6 {
     padding: 20px;

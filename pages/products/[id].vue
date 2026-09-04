@@ -27,7 +27,7 @@
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- 产品主图 -->
         <div v-if="product.image" class="mb-12">
-          <img :src="product.image" :alt="product.name" class="w-full rounded-lg shadow-lg" />
+          <img :src="product.image" :alt="product.name" class="w-full rounded-lg shadow-lg"  loading="lazy" />
         </div>
 
         <!-- 产品信息 -->

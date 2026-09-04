@@ -2,10 +2,11 @@ import { prisma } from '~/server/utils/db'
 import { successResponse, errorResponse } from '~/server/utils/response'
 import { verifyPassword, generateToken } from '~/server/utils/auth'
 
-// 简易内存限流：IP -> 失败记录
+// 渐进式速率限制：每次失败增加等待时间
 const loginAttempts = new Map<string, { count: number; firstAttempt: number }>()
-const MAX_ATTEMPTS = 5
-const WINDOW_MS = 5 * 60 * 1000 // 5 分钟
+const BASE_DELAY_MS = 2000  // 基础延迟2秒
+const MAX_DELAY_MS = 60000  // 最大延迟60秒
+const WINDOW_MS = 15 * 60 * 1000  // 15分钟窗口
 
 function getClientIP(event: any): string {
   return getHeader(event, 'x-forwarded-for')?.split(',')[0]?.trim()
@@ -14,30 +15,20 @@ function getClientIP(event: any): string {
     || 'unknown'
 }
 
-function checkRateLimit(ip: string): { blocked: boolean; remainingMs?: number } {
+function getRateLimit(ip: string): { blocked: boolean; delayMs: number } {
   const now = Date.now()
   const record = loginAttempts.get(ip)
-
-  if (!record) return { blocked: false }
-
-  // 窗口过期，重置
-  if (now - record.firstAttempt > WINDOW_MS) {
-    loginAttempts.delete(ip)
-    return { blocked: false }
+  if (!record || now - record.firstAttempt > WINDOW_MS) {
+    return { blocked: false, delayMs: 0 }
   }
-
-  if (record.count >= MAX_ATTEMPTS) {
-    const remainingMs = WINDOW_MS - (now - record.firstAttempt)
-    return { blocked: true, remainingMs }
-  }
-
-  return { blocked: false }
+  // 渐进式延迟：每次失败增加延迟
+  const delayMs = Math.min(BASE_DELAY_MS * Math.pow(2, record.count - 1), MAX_DELAY_MS)
+  return { blocked: false, delayMs }
 }
 
 function recordFailure(ip: string) {
   const now = Date.now()
   const record = loginAttempts.get(ip)
-
   if (!record || now - record.firstAttempt > WINDOW_MS) {
     loginAttempts.set(ip, { count: 1, firstAttempt: now })
   } else {
@@ -52,21 +43,20 @@ function clearAttempts(ip: string) {
 export default defineEventHandler(async (event) => {
   const ip = getClientIP(event)
 
-  // 检查限流
-  const rateLimit = checkRateLimit(ip)
-  if (rateLimit.blocked) {
-    const seconds = Math.ceil((rateLimit.remainingMs || 0) / 1000)
-    setResponseStatus(event, 429)
-    return errorResponse(`登录尝试过于频繁，请 ${seconds} 秒后再试`, 429)
+  // 渐进式速率限制
+  const rateLimit = getRateLimit(ip)
+  if (rateLimit.delayMs > 0) {
+    await new Promise(resolve => setTimeout(resolve, rateLimit.delayMs))
   }
 
   try {
     const body = await readBody(event)
-    const { username, password } = body
 
-    if (!username || !password) {
+    if (!body || !body.username || !body.password) {
       return errorResponse('用户名和密码不能为空', 400)
     }
+
+    const { username, password } = body
 
     const user = await prisma.user.findUnique({
       where: { username }
@@ -83,7 +73,6 @@ export default defineEventHandler(async (event) => {
       return errorResponse('用户名或密码错误', 401)
     }
 
-    // 登录成功，清除限流记录
     clearAttempts(ip)
 
     const token = generateToken({ userId: user.id, username: user.username, role: user.role })
@@ -99,26 +88,26 @@ export default defineEventHandler(async (event) => {
 
     const isProduction = process.env.NODE_ENV === 'production'
 
-    // auth_token: httpOnly 防 XSS 窃取
+    // auth_token: HttpOnly + Secure（防 XSS 和中间人攻击）
     setCookie(event, 'auth_token', token, {
       maxAge: 60 * 60 * 24 * 7,
       path: '/',
       sameSite: 'lax' as const,
       httpOnly: true,
-      secure: false,
+      secure: isProduction,
     })
 
-    // auth_user: 非 httpOnly（前端需要读取用户信息）
+    // auth_user: Secure（客户端可读，用于显示用户信息）
     setCookie(event, 'auth_user', encodeURIComponent(JSON.stringify(userData)), {
       maxAge: 60 * 60 * 24 * 7,
       path: '/',
       sameSite: 'lax' as const,
-      secure: false,
+      secure: isProduction,
     })
 
-    // token 只通过 httpOnly cookie 传递，不在响应体中返回（安全最佳实践）
     return successResponse({ user: userData }, '登录成功')
   } catch (err) {
+    console.error('[login] 登录失败:', err)
     return errorResponse('登录失败')
   }
 })

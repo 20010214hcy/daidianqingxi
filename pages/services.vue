@@ -81,7 +81,7 @@ useHead({
   title: "服务项目",
   meta: [
     { name: 'description', content: "玺铭电力服务项目，提供电力设备带电清洗、储能系统集成、化学清洗、工业设备维护等专业清洗解决方案。" },
-    { property: 'og:title", content: "服务项目 - 河南玺铭电力科技有限公司' },
+    { property: 'og:title', content: '服务项目 - 河南玺铭电力科技有限公司' },
     { property: 'og:description', content: '电力设备带电清洗、化学清洗、工业设备维护等专业清洗解决方案。' },
     { name: 'keywords', content: "带电清洗服务,化学清洗,工业设备维护,电力设备清洗,高压清洗,清洗解决方案,储能系统集成,储能设备安装,储能运维服务" },
   ]

@@ -14,7 +14,13 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    return successResponse(setting)
+    // 隐藏敏感信息
+    const safeSetting = {
+      ...setting,
+      smtpPass: setting.smtpPass ? '***' : null
+    }
+
+    return successResponse(safeSetting)
   } catch (error) {
     console.error('获取网站设置失败:', error)
     return errorResponse('获取网站设置失败')

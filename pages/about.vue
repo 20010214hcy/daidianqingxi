@@ -83,7 +83,7 @@
         <div v-if="certificates.length" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           <div v-for="cert in certificates" :key="cert.id"
             class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-            <img :src="cert.image" :alt="cert.title" class="w-full aspect-[3/4] object-cover" />
+            <img :src="cert.image" :alt="cert.title" class="w-full aspect-[3/4] object-cover"  loading="lazy" />
             <div class="p-4 text-center">
               <h3 class="font-bold text-slate-800">{{ cert.title }}</h3>
             </div>
@@ -114,6 +114,8 @@ useHead({
   meta: [
     { name: 'description', content: '了解玺铭电力设备清洗有限公司，专注电力设备带电清洗领域，20年行业经验，500+成功案例。' },
     { name: 'keywords', content: '玺铭电力,带电清洗,电力设备清洗,工业清洗公司,电力清洗服务商,带电清洗技术' },
+    { property: 'og:title', content: '关于我们 - 玺铭电力' },
+    { property: 'og:description', content: '专注电力设备带电清洗20余年，500+成功案例，全国覆盖。' },
   ]
 })
 

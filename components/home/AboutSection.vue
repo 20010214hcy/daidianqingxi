@@ -5,8 +5,7 @@
         <div class="about-image-col">
           <div class="about-image-wrapper">
             <div class="about-image-accent"></div>
-            <img
-              class="about-image"
+            <img               class="about-image"
               src="/uploads/51a3b015-95f2-4b29-8fb6-952e2341599e.webp"
               alt="玺铭电力 - 专业电力设备运维"
               loading="lazy"
@@ -42,12 +41,22 @@
               </div>
             </div>
           </div>
-          <div ref="statsRef" class="about-stats">
-            <div v-for="(stat, i) in statItems" :key="i" class="about-stat-item">
-              <p class="about-stat-number">{{ stat.formattedValue.value }}</p>
-              <p class="about-stat-label">{{ stat.label }}</p>
+          <ClientOnly>
+            <div ref="statsRef" class="about-stats">
+              <div v-for="(stat, i) in statItems" :key="i" class="about-stat-item">
+                <p class="about-stat-number">{{ stat.formattedValue.value }}</p>
+                <p class="about-stat-label">{{ stat.label }}</p>
+              </div>
             </div>
-          </div>
+            <template #fallback>
+              <div class="about-stats">
+                <div class="about-stat-item"><p class="about-stat-number">20+</p><p class="about-stat-label">年行业经验</p></div>
+                <div class="about-stat-item"><p class="about-stat-number">500+</p><p class="about-stat-label">成功案例</p></div>
+                <div class="about-stat-item"><p class="about-stat-number">200+</p><p class="about-stat-label">合作客户</p></div>
+                <div class="about-stat-item"><p class="about-stat-number">99%</p><p class="about-stat-label">客户满意度</p></div>
+              </div>
+            </template>
+          </ClientOnly>
           <NuxtLink to="/contact" class="about-cta">
             联系我们
             <svg class="about-cta-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

@@ -113,6 +113,14 @@
             placeholder="请输入回复内容"
           />
         </div>
+
+        <div v-if="currentMessage?.email" class="flex items-center gap-2">
+          <el-checkbox v-model="sendEmailNotification">发送邮件通知用户</el-checkbox>
+          <span class="text-xs text-slate-400">将发送回复到 {{ currentMessage?.email }}</span>
+        </div>
+        <div v-else class="text-sm text-slate-400">
+          该用户未留邮箱，无法发送邮件通知
+        </div>
       </div>
 
       <template #footer>
@@ -163,6 +171,7 @@ const showViewModal = ref(false)
 const currentMessage = ref<Message | null>(null)
 const replyContent = ref('')
 const replying = ref(false)
+const sendEmailNotification = ref(true)
 
 // 获取留言列表
 const fetchMessages = async () => {
@@ -234,7 +243,8 @@ const handleReply = async () => {
     })
 
     showViewModal.value = false
-    ElMessage.success('回复成功')
+    const emailSent = response?.data?.emailSent
+    ElMessage.success(emailSent ? '回复成功，已发送邮件通知用户' : '回复成功')
     await fetchMessages()
   } catch (error) {
     console.error('回复留言失败:', error)

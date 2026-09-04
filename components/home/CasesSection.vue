@@ -18,7 +18,7 @@
             <div v-for="(item, i) in featuredCases" :key="item.id" class="swiper-slide">
               <NuxtLink :to="`/cases/${item.id}`" class="case-card group">
                 <div class="case-img-box">
-                  <img v-if="item.coverImage" :src="item.coverImage" :alt="item.title" class="case-img" />
+                  <img v-if="item.coverImage" :src="item.coverImage" :alt="item.title" class="case-img"  loading="lazy" />
                   <div v-else class="case-img-placeholder" />
                   <div class="case-mask" />
                   <span class="case-num">{{ String(i + 1).padStart(2, '0') }}</span>

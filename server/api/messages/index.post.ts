@@ -1,9 +1,16 @@
 import { prisma } from '~/server/utils/db'
 import { successResponse, errorResponse } from '~/server/utils/response'
 import { filterText } from '~/server/utils/xss'
+import { checkRateLimit } from '~/server/utils/rateLimit'
 
 export default defineEventHandler(async (event) => {
   try {
+    // 速率限制：同一 IP 每小时最多 10 条留言
+    const ip = getRequestIP(event, { xForwardedFor: true }) || 'unknown'
+    if (!checkRateLimit(`msg:${ip}`, 10, 60 * 60 * 1000)) {
+      return errorResponse('提交过于频繁，请稍后再试', 429)
+    }
+
     const body = await readBody(event)
 
     const { name, phone, email, company, subject, content } = body

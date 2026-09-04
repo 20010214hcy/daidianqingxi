@@ -2,7 +2,7 @@
   <div class="media-picker">
     <!-- 当前图片预览 -->
     <div v-if="modelValue" class="media-picker-preview">
-      <img :src="modelValue" class="media-picker-img" />
+      <img :src="modelValue" class="media-picker-img"  loading="lazy" />
       <div class="media-picker-actions">
         <el-button size="small" @click="showLibrary = true">从媒体库选择</el-button>
         <el-upload action="/api/upload" :show-file-list="false" :on-success="handleUpload" :before-upload="beforeUpload" accept="image/*">
@@ -38,7 +38,7 @@
       <div v-if="urlInput" class="mt-4">
         <p class="text-sm text-slate-500 mb-2">预览：</p>
         <div class="w-full max-h-60 overflow-hidden rounded-lg bg-slate-50">
-          <img :src="urlInput" class="max-w-full max-h-60 object-contain mx-auto" @error="urlError = true" @load="urlError = false" />
+          <img :src="urlInput" class="max-w-full max-h-60 object-contain mx-auto" @error="urlError = true" @load="urlError = false"  loading="lazy" />
         </div>
         <p v-if="urlError" class="text-red-500 text-sm mt-2">图片加载失败，请检查链接</p>
       </div>

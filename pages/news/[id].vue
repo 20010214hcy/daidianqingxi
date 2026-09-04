@@ -39,12 +39,10 @@
     <section v-if="article.id" class="py-8">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex gap-8">
-
           <!-- 左侧：正文 -->
           <main class="flex-1 min-w-0">
             <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-              <img v-if="article.coverImage" :src="article.coverImage" :alt="article.title"
-                class="w-full h-auto max-h-[480px] object-cover" />
+              <img v-if="article.coverImage" :src="article.coverImage" :alt="article.title" class="w-full h-auto max-h-[480px] object-cover"  loading="lazy" />
               <div class="px-8 md:px-12 py-10">
                 <article class="prose-content" v-html="sanitizedContent" />
                 <div class="mt-10 pt-6 border-t border-slate-100 flex items-center justify-between flex-wrap gap-4">
@@ -63,8 +61,7 @@
             </div>
 
             <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <NuxtLink v-if="prevArticle" :to="`/news/${prevArticle.id}`"
-                class="group flex items-center gap-3 p-5 bg-white rounded-xl border border-slate-100 hover:border-blue-200 hover:shadow-sm transition-all">
+              <NuxtLink v-if="prevArticle" :to="`/news/${prevArticle.id}`" class="group flex items-center gap-3 p-5 bg-white rounded-xl border border-slate-100 hover:border-blue-200 hover:shadow-sm transition-all">
                 <svg class="w-4 h-4 text-slate-400 group-hover:text-blue-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                 <div class="min-w-0">
                   <span class="text-xs text-slate-400">上一篇</span>
@@ -72,8 +69,7 @@
                 </div>
               </NuxtLink>
               <div v-else />
-              <NuxtLink v-if="nextArticle" :to="`/news/${nextArticle.id}`"
-                class="group flex items-center gap-3 p-5 bg-white rounded-xl border border-slate-100 hover:border-blue-200 hover:shadow-sm transition-all text-right justify-end">
+              <NuxtLink v-if="nextArticle" :to="`/news/${nextArticle.id}`" class="group flex items-center gap-3 p-5 bg-white rounded-xl border border-slate-100 hover:border-blue-200 hover:shadow-sm transition-all text-right justify-end">
                 <div class="min-w-0">
                   <span class="text-xs text-slate-400">下一篇</span>
                   <p class="text-sm font-medium text-slate-700 truncate group-hover:text-blue-600">{{ nextArticle.title }}</p>
@@ -92,7 +88,7 @@
                   <NuxtLink v-for="item in relatedArticles" :key="item.id" :to="`/news/${item.id}`" class="group block">
                     <div class="flex gap-3">
                       <div v-if="item.coverImage" class="w-20 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100">
-                        <img :src="item.coverImage" :alt="item.title" class="w-full h-full object-cover" />
+                        <img :src="item.coverImage" :alt="item.title" class="w-full h-full object-cover"  loading="lazy" />
                       </div>
                       <div class="min-w-0">
                         <p class="text-sm text-slate-700 line-clamp-2 group-hover:text-blue-600 transition-colors leading-snug">{{ item.title }}</p>
@@ -113,10 +109,18 @@
               </NuxtLink>
             </div>
           </aside>
-
         </div>
       </div>
     </section>
+
+    <!-- 回到顶部按钮 -->
+    <button v-show="showBackToTop" @click="scrollToTop"
+      class="fixed bottom-8 right-8 z-50 w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
+      title="回到顶部">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+      </svg>
+    </button>
   </div>
 </template>
 
@@ -127,15 +131,39 @@ import type { Article } from '~/types'
 definePageMeta({ layout: 'default' })
 
 const route = useRoute()
-const articleId = Number(route.params.id)
+const articleId = computed(() => Number(route.params.id))
 const { formatDate } = useFormatDate()
 const { readProgress } = useReadingProgress()
 
-const { data: articleData } = useFetch(`/api/articles/${articleId}`, {
-  transform: (res: any) => res?.success ? res.data : {} as Article
-})
-const article = computed<Article>(() => articleData.value || {} as Article)
+// 回到顶部
+const showBackToTop = ref(false)
+const scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
+onMounted(() => {
+  window.addEventListener('scroll', () => {
+    showBackToTop.value = window.scrollY > 300
+  })
+})
+
+// 获取文章数据（响应路由变化）
+const article = ref<Article>({} as Article)
+const loading = ref(true)
+
+const fetchArticle = async () => {
+  loading.value = true
+  try {
+    const res = await $fetch(`/api/articles/${articleId.value}`) as any
+    article.value = res?.success ? res.data : {} as Article
+  } catch (e) {
+    console.error('获取文章失败:', e)
+  } finally {
+    loading.value = false
+  }
+}
+
+watch(articleId, fetchArticle, { immediate: true })
+
+// 获取文章列表（用于导航）
 const { data: navData } = useFetch('/api/articles', {
   params: { page: 1, pageSize: 100, status: 'published' },
   transform: (res: any) => {
@@ -144,12 +172,15 @@ const { data: navData } = useFetch('/api/articles', {
   }
 })
 
-const currentIndex = computed(() => (navData.value || []).findIndex((a: any) => a.id === articleId))
+const currentIndex = computed(() => (navData.value || []).findIndex((a: any) => a.id === articleId.value))
 const prevArticle = computed(() => currentIndex.value > 0 ? navData.value[currentIndex.value - 1] : null)
 const nextArticle = computed(() => currentIndex.value >= 0 && currentIndex.value < (navData.value?.length || 0) - 1 ? navData.value[currentIndex.value + 1] : null)
-const relatedArticles = computed(() => (navData.value || []).filter((a: any) => a.id !== articleId && a.category === article.value.category).slice(0, 5))
+const relatedArticles = computed(() => (navData.value || []).filter((a: any) => a.id !== articleId.value && a.category === article.value.category).slice(0, 5))
 
-onMounted(async () => { try { await $fetch(`/api/articles/${articleId}/view`, { method: 'POST' }) } catch {} })
+// 记录阅读次数
+onMounted(async () => {
+  try { await $fetch(`/api/articles/${articleId.value}/view`, { method: 'POST' }) } catch {}
+})
 
 const sanitizedContent = computed(() => {
   if (process.server) return article.value.content || ""

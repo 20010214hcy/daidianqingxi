@@ -28,11 +28,11 @@
     </section>
 
     <!-- Case Content -->
-    <section v-if="caseItem.id" class="py-16 bg-white">
+    <section v-if="caseItem.id && !loading" class="py-16 bg-white">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- 封面图 -->
         <div v-if="caseItem.coverImage" class="mb-12">
-          <img :src="caseItem.coverImage" :alt="caseItem.title" class="w-full rounded-lg shadow-lg" />
+          <img :src="caseItem.coverImage" :alt="caseItem.title" class="w-full rounded-lg shadow-lg"  loading="lazy" />
         </div>
 
         <!-- 项目信息 -->
@@ -91,33 +91,46 @@
 </template>
 
 <script setup lang="ts">
-
 import DOMPurify from "dompurify"
 
 definePageMeta({ layout: 'default' })
 
 const { formatDate } = useFormatDate()
 const route = useRoute()
-const caseId = Number(route.params.id)
+const caseId = computed(() => Number(route.params.id))
 const { readProgress } = useReadingProgress()
 
-// SSR 数据获取
-const { data: caseData } = useFetch(`/api/cases/${caseId}`, {
-  transform: (res: any) => {
-    if (!res?.success || !res.data) return {}
-    const data = res.data
-    // 解析 images 字段（可能是 JSON 字符串）
-    if (data.images && typeof data.images === 'string') {
-      try {
-        data.images = JSON.parse(data.images)
-      } catch {
-        data.images = data.images ? [data.images] : []
+// 获取案例数据（响应路由变化）
+const caseItem = ref<any>({})
+const loading = ref(true)
+
+const fetchCase = async () => {
+  loading.value = true
+  try {
+    const res = await $fetch(`/api/cases/${caseId.value}`) as any
+    if (res?.success && res.data) {
+      const data = res.data
+      // 解析 images 字段（可能是 JSON 字符串）
+      if (data.images && typeof data.images === 'string') {
+        try {
+          data.images = JSON.parse(data.images)
+        } catch {
+          data.images = data.images ? [data.images] : []
+        }
       }
+      caseItem.value = data
+    } else {
+      caseItem.value = {}
     }
-    return data
+  } catch (e) {
+    console.error('获取案例失败:', e)
+    caseItem.value = {}
+  } finally {
+    loading.value = false
   }
-})
-const caseItem = computed(() => caseData.value || {})
+}
+
+watch(caseId, fetchCase, { immediate: true })
 
 const sanitizedContent = computed(() => {
   if (process.server) return caseItem.value.content || ""

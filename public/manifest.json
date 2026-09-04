@@ -1,0 +1,19 @@
+{
+  "name": "河南玺铭电力科技有限公司",
+  "short_name": "玺铭电力",
+  "description": "专业电力设备带电清洗与储能系统集成服务商",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1e40af",
+  "lang": "zh-CN",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/uploads/c358dd67-4053-4094-9468-8e20aacfeb30.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["business", "utilities"]
+}

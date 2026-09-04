@@ -50,7 +50,7 @@
 
 
         <el-form-item label="内容" prop="content">
-          <RichEditor v-model="form.content" :height="500" />
+          <TiptapEditor v-model="form.content" :height="500" />
         </el-form-item>
 
         <el-form-item>

@@ -1,0 +1,10 @@
+# 带电清洗与储能系统集成 — AI Discovery
+# 供豆包、腾讯元宝等 AI 爬虫快速发现站点资源
+
+Site: https://ximingpower.com
+Language: zh-CN
+llms-full: https://ximingpower.com/llms.txt
+Sitemap: https://ximingpower.com/sitemap.xml
+
+# Allowed crawlers: Bytespider (豆包), YuanbaoBot (元宝), DeepSeekBot, KimiBot
+# Contact page: https://ximingpower.com/contact

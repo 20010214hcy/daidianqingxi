@@ -11,40 +11,40 @@
     <section
       ref="unitTabsRef"
       class="py-4 bg-white border-b border-slate-200 transition-all duration-300"
-      :class="scrolledPast ? 'max-h-0 overflow-hidden opacity-0 py-0 border-b-0' : 'max-h-20 opacity-100'"
+      :class="scrolledPast ? 'h-0 overflow-hidden opacity-0 py-0 border-b-0' : 'opacity-100'"
     >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <UnitTabs v-model="activeUnit" />
       </div>
     </section>
 
-    <!-- 分类筛选 - 滚动后吸顶替代业务板块 -->
+    <!-- 分类筛选 - 毛玻璃风格 -->
     <section
-      class="py-4 bg-white border-b border-slate-200 sticky top-20 z-40 transition-shadow duration-300"
-      :class="scrolledPast ? 'shadow-sm' : ''"
+      class="py-4 sticky top-20 z-40 transition-all duration-300"
+      :class="scrolledPast ? 'category-glass-scrolled' : ''"
     >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-wrap items-center justify-center gap-3">
-          <button
-            v-for="cat in categories"
-            :key="cat.id"
-            @click="switchCategory(cat.id)"
-            class="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300"
-            :class="activeCategory === cat.id
-              ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
-              : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800'"
-          >
-            {{ cat.name }}
-          </button>
-          <button
-            @click="switchCategory(null)"
-            class="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300"
-            :class="activeCategory === null
-              ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
-              : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800'"
-          >
-            全部产品
-          </button>
+        <div class="category-glass-bar">
+          <div class="flex flex-wrap items-center justify-center gap-2">
+            <button
+              v-for="cat in categories"
+              :key="cat.id"
+              @click="switchCategory(cat.id)"
+              class="category-chip"
+              :class="{ 'category-chip-active': activeCategory === cat.id }"
+            >
+              <span class="category-chip-dot" v-if="activeCategory === cat.id"></span>
+              {{ cat.name }}
+            </button>
+            <button
+              @click="switchCategory(null)"
+              class="category-chip"
+              :class="{ 'category-chip-active': activeCategory === null }"
+            >
+              <span class="category-chip-dot" v-if="activeCategory === null"></span>
+              全部产品
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -76,8 +76,7 @@
               >
                 <NuxtLink :to="`/products/${product.id}`" class="block">
                 <div class="product-image-wrapper relative overflow-hidden aspect-[4/3]">
-                  <img
-                    v-if="product.image"
+                  <img                     v-if="product.image"
                     :src="product.image"
                     :alt="product.name"
                     class="product-image w-full h-full object-cover"
@@ -501,4 +500,70 @@ const formatPrice = (price: number | string | null | undefined) => {
     font-size: 16px;
   }
 }
+
+/* 分类筛选毛玻璃样式 */
+.category-glass-bar {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 14px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.category-glass-scrolled .category-glass-bar {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.category-chip:hover {
+  color: #334155;
+  background: rgba(148, 163, 184, 0.12);
+  border-color: rgba(148, 163, 184, 0.15);
+}
+
+.category-chip-active {
+  color: #fff;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border-color: transparent;
+  box-shadow: 0 3px 12px rgba(37, 99, 235, 0.3);
+}
+
+.category-chip-active:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
+}
+
+.category-chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  animation: dotPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.3); }
+}
+
 </style>

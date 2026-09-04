@@ -1,6 +1,18 @@
 User-agent: *
 Allow: /
 Disallow: /admin
-Disallow: /api
+Disallow: /login
+Disallow: /api/
+Disallow: /_nuxt/
 
-Sitemap: https://www.ximingpower.com/sitemap.xml
+Sitemap: https://ximingpower.com/api/sitemap.xml
+
+# 禁止恶意爬虫
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /

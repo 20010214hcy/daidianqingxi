@@ -101,7 +101,7 @@
     <el-dialog
       v-model="showAddModal"
       :title="editingService ? '编辑服务' : '新增服务'"
-      width="600px"
+      width="700px"
       :close-on-click-modal="false"
     >
       <el-form :model="serviceForm" label-width="100px">
@@ -141,7 +141,59 @@
           <el-input v-model="serviceForm.description" type="textarea" :rows="2" placeholder="请输入服务简介" />
         </el-form-item>
         <el-form-item label="内容" required>
-          <el-input v-model="serviceForm.content" type="textarea" :rows="10" placeholder="请输入服务内容" />
+          <el-input v-model="serviceForm.content" type="textarea" :rows="8" placeholder="请输入服务内容（支持HTML）" />
+        </el-form-item>
+
+        <!-- 详情页字段 -->
+        <el-divider content-position="left">详情页设置</el-divider>
+
+        <el-form-item label="详情图片">
+          <ImageCropper v-model="serviceForm.detailImage" :width="800" :height="450" />
+          <div class="mt-1 text-xs text-gray-400">用于详情页顶部横幅展示</div>
+        </el-form-item>
+
+        <el-form-item label="视频URL">
+          <el-input v-model="serviceForm.videoUrl" placeholder="请输入视频URL（可选）" />
+          <div class="mt-1 text-xs text-gray-400">支持mp4格式，优先于详情图片显示</div>
+        </el-form-item>
+
+        <el-form-item label="方案优势">
+          <div class="w-full">
+            <div v-for="(adv, index) in advantagesList" :key="index" class="flex gap-2 mb-2">
+              <el-input v-model="adv.title" placeholder="优势标题" class="w-1/3" />
+              <el-input v-model="adv.description" placeholder="优势描述" class="flex-1" />
+              <el-button type="danger" text @click="advantagesList.splice(index, 1)">删除</el-button>
+            </div>
+            <el-button @click="advantagesList.push({ title: '', description: '' })" size="small" type="primary" text>
+              + 添加优势
+            </el-button>
+          </div>
+        </el-form-item>
+
+        <el-form-item label="技术特点">
+          <div class="w-full">
+            <div v-for="(feat, index) in featuresList" :key="index" class="flex gap-2 mb-2">
+              <el-input v-model="feat.title" placeholder="特点标题" class="w-1/3" />
+              <el-input v-model="feat.description" placeholder="特点描述" class="flex-1" />
+              <el-button type="danger" text @click="featuresList.splice(index, 1)">删除</el-button>
+            </div>
+            <el-button @click="featuresList.push({ title: '', description: '' })" size="small" type="primary" text>
+              + 添加特点
+            </el-button>
+          </div>
+        </el-form-item>
+
+        <el-form-item label="技术参数">
+          <div class="w-full">
+            <div v-for="(spec, index) in specsList" :key="index" class="flex gap-2 mb-2">
+              <el-input v-model="spec.label" placeholder="参数名称" class="w-1/3" />
+              <el-input v-model="spec.value" placeholder="参数值" class="flex-1" />
+              <el-button type="danger" text @click="specsList.splice(index, 1)">删除</el-button>
+            </div>
+            <el-button @click="specsList.push({ label: '', value: '' })" size="small" type="primary" text>
+              + 添加参数
+            </el-button>
+          </div>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -154,13 +206,12 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
+<script setup lang="ts">
+import { Plus, Delete } from '@element-plus/icons-vue'
 
-useHead({ title: '服务管理 - 后台管理' })
-definePageMeta({ layout: 'admin' })
+definePageMeta({
+  layout: 'admin'
+})
 
 const services = ref([])
 const businessUnits = ref([])
@@ -168,186 +219,235 @@ const showAddModal = ref(false)
 const editingService = ref(null)
 const filterBusinessUnit = ref(null)
 
-const serviceForm = ref({
+const serviceForm = reactive({
   title: '',
   description: '',
+  content: '',
   coverImage: '',
   icon: '',
-  sortOrder: 1,
-  status: 'published',
-  content: '',
-  businessUnitId: null
+  price: '',
+  videoUrl: '',
+  detailImage: '',
+  sortOrder: 0,
+  businessUnitId: null,
+  status: 'published'
 })
 
+const advantagesList = ref([])
+const featuresList = ref([])
+const specsList = ref([])
+
+// 获取服务列表
+const fetchServices = async () => {
+  try {
+    const params = filterBusinessUnit.value ? `?businessUnitId=${filterBusinessUnit.value}` : ''
+    const res = await $fetch(`/api/services${params}`)
+    if (res.success) {
+      services.value = res.data
+    }
+  } catch (error) {
+    console.error('获取服务失败:', error)
+  }
+}
+
+// 获取业务板块
 const fetchBusinessUnits = async () => {
   try {
     const res = await $fetch('/api/business-units')
-    if (res?.success) {
-      businessUnits.value = res.data || []
+    if (res.success) {
+      businessUnits.value = res.data
     }
   } catch (error) {
-    console.error('获取业务板块列表失败:', error)
+    console.error('获取业务板块失败:', error)
   }
 }
 
-const fetchServices = async () => {
-  try {
-    const params = {}
-    if (filterBusinessUnit.value) {
-      const unit = businessUnits.value.find(u => u.id === filterBusinessUnit.value)
-      if (unit) params.businessUnit = unit.slug
-    }
-    const response = await $fetch('/api/services', { params })
-    if (response?.success) {
-      services.value = response.data || []
-    }
-  } catch (error) {
-    console.error('获取服务列表失败:', error)
-  }
-}
-
+// 编辑服务
 const editService = (service) => {
   editingService.value = service
-  serviceForm.value = {
+  Object.assign(serviceForm, {
     title: service.title,
     description: service.description || '',
+    content: service.content,
     coverImage: service.coverImage || '',
     icon: service.icon || '',
-    sortOrder: service.sortOrder || 1,
-    status: service.status,
-    content: service.content,
-    businessUnitId: service.businessUnitId || null
-  }
+    price: service.price || '',
+    videoUrl: service.videoUrl || '',
+    detailImage: service.detailImage || '',
+    sortOrder: service.sortOrder || 0,
+    businessUnitId: service.businessUnitId || null,
+    status: service.status || 'published'
+  })
+  // 解析JSON字段
+  try {
+    advantagesList.value = service.advantages ? (typeof service.advantages === 'string' ? JSON.parse(service.advantages) : service.advantages) : []
+  } catch { advantagesList.value = [] }
+  try {
+    featuresList.value = service.features ? (typeof service.features === 'string' ? JSON.parse(service.features) : service.features) : []
+  } catch { featuresList.value = [] }
+  try {
+    specsList.value = service.specs ? (typeof service.specs === 'string' ? JSON.parse(service.specs) : service.specs) : []
+  } catch { specsList.value = [] }
   showAddModal.value = true
 }
 
-const deleteService = async (id, coverImage) => {
-  try {
-    await ElMessageBox.confirm('确定要删除这个服务吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
-    if (coverImage) {
-      try {
-        await $fetch('/api/upload', { method: 'DELETE', body: { url: coverImage } })
-      } catch (e) {
-        console.error('删除图片失败:', e)
-      }
-    }
-    await $fetch('/api/services/' + id, { method: 'DELETE' })
-    ElMessage.success('删除成功!')
-    await fetchServices()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除服务失败:', error)
-    }
-  }
-}
-
+// 提交表单
 const handleSubmit = async () => {
-  if (!serviceForm.value.title) {
-    ElMessage.warning('请输入服务名称!')
+  const { user } = useAuth()
+  if (!user.value) {
+    ElMessage.error("请先登录")
     return
   }
-  if (!serviceForm.value.content) {
-    ElMessage.warning('请输入服务内容!')
+  if (!serviceForm.title || !serviceForm.content) {
+    ElMessage.warning('请填写必填项')
     return
   }
+
+  const submitData = {
+    authorId: user.value.id,
+    ...serviceForm,
+    advantages: advantagesList.value.length > 0 ? JSON.stringify(advantagesList.value) : null,
+    features: featuresList.value.length > 0 ? JSON.stringify(featuresList.value) : null,
+    specs: specsList.value.length > 0 ? JSON.stringify(specsList.value) : null
+  }
+
   try {
     if (editingService.value) {
-      await $fetch('/api/services/' + editingService.value.id, {
+      await $fetch(`/api/services/${editingService.value.id}`, {
         method: 'PUT',
-        body: { ...serviceForm.value, authorId: 1 }
+        body: submitData
       })
+      ElMessage.success('更新成功')
     } else {
       await $fetch('/api/services', {
         method: 'POST',
-        body: { ...serviceForm.value, authorId: 1 }
+        body: submitData
       })
+      ElMessage.success('添加成功')
     }
-    ElMessage.success('保存成功!')
     showAddModal.value = false
     editingService.value = null
-    serviceForm.value = {
-      title: '', description: '', coverImage: '', icon: '',
-      sortOrder: 1, status: 'published', content: '', businessUnitId: null
-    }
-    await fetchServices()
+    resetForm()
+    fetchServices()
   } catch (error) {
-    console.error('保存服务失败:', error)
-    ElMessage.error('保存失败，请重试!')
+    ElMessage.error('操作失败')
   }
 }
 
-onMounted(async () => {
-  await fetchBusinessUnits()
-  await fetchServices()
+// 删除服务
+const deleteService = async (id, coverImage) => {
+  try {
+    await ElMessageBox.confirm('确定要删除此服务吗？', '提示', { type: 'warning' })
+    await $fetch(`/api/services/${id}`, {
+      method: 'DELETE',
+      body: { coverImage }
+    })
+    ElMessage.success('删除成功')
+    fetchServices()
+  } catch (error) {
+    if (error !== 'cancel') {
+      ElMessage.error('删除失败')
+    }
+  }
+}
+
+// 重置表单
+const resetForm = () => {
+  Object.assign(serviceForm, {
+    title: '',
+    description: '',
+    content: '',
+    coverImage: '',
+    icon: '',
+    price: '',
+    videoUrl: '',
+    detailImage: '',
+    sortOrder: 0,
+    businessUnitId: null,
+    status: 'published'
+  })
+  advantagesList.value = []
+  featuresList.value = []
+  specsList.value = []
+}
+
+onMounted(() => {
+  fetchServices()
+  fetchBusinessUnits()
 })
 </script>
 
 <style scoped>
-.desktop-table { display: block; }
-.mobile-list { display: none; }
+.desktop-table {
+  display: block;
+}
+
+.mobile-list {
+  display: none;
+}
+
 .mobile-card {
-  background: #fff;
+  background: white;
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
+
 .mobile-card-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
   margin-bottom: 12px;
 }
+
 .mobile-card-image {
   width: 60px;
   height: 60px;
-  object-fit: cover;
   border-radius: 8px;
-  flex-shrink: 0;
+  object-fit: cover;
 }
+
 .mobile-card-image-placeholder {
   width: 60px;
   height: 60px;
-  background: #f3f4f6;
   border-radius: 8px;
+  background: #f1f5f9;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
-  flex-shrink: 0;
+  font-size: 24px;
 }
-.mobile-card-info { flex: 1; min-width: 0; }
+
+.mobile-card-info {
+  flex: 1;
+}
+
 .mobile-card-title {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   color: #1e293b;
-  margin: 0 0 4px 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  margin-bottom: 4px;
 }
+
 .mobile-card-subtitle {
   font-size: 13px;
   color: #64748b;
-  margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
+
 .mobile-card-actions {
   display: flex;
-  justify-content: flex-end;
   gap: 8px;
-  padding-top: 12px;
-  border-top: 1px solid #f1f5f9;
+  justify-content: flex-end;
 }
+
 @media (max-width: 768px) {
-  .desktop-table { display: none !important; }
-  .mobile-list { display: block; }
+  .desktop-table {
+    display: none !important;
+  }
+
+  .mobile-list {
+    display: block;
+  }
 }
 </style>

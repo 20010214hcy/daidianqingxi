@@ -32,7 +32,6 @@ onMounted(async () => {
   try {
     const casesRes = await ('/api/cases?status=all')
     cases.value = casesRes?.data?.list || casesRes?.data || []
-    console.log('案例数据:', cases.value)
   } catch (e) {
     console.error('获取案例失败:', e)
   } finally {
@@ -42,7 +41,6 @@ onMounted(async () => {
   try {
     const servicesRes = await ('/api/services?status=all')
     services.value = servicesRes?.data || []
-    console.log('服务数据:', services.value)
   } catch (e) {
     console.error('获取服务失败:', e)
   } finally {

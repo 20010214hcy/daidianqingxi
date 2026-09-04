@@ -11,6 +11,12 @@ const protectedPaths = [
 const publicReadPaths = [
   '/api/articles', '/api/cases', '/api/services', '/api/certificates',
   '/api/products', '/api/categories', '/api/settings', '/api/contact',
+  '/api/price-visibility',  // 价格可见性允许公开读取
+]
+
+// 公开的写入路径（允许未登录用户提交）
+const publicWritePaths = [
+  '/api/messages',  // 允许未登录用户提交留言
 ]
 
 export default defineEventHandler(async (event) => {
@@ -18,8 +24,13 @@ export default defineEventHandler(async (event) => {
   const isProtected = protectedPaths.some(p => path.startsWith(p))
   if (!isProtected) return
 
+  // 允许公开的GET请求
   if (event.method === 'GET' && publicReadPaths.some(p => path.startsWith(p))) return
 
+  // 允许公开的写入请求（如提交留言）
+  if (event.method === "POST" && publicWritePaths.some(p => path.startsWith(p))) return
+
+  // 允许登录和初始化请求
   if (path === '/api/auth/login' || path === '/api/auth/init') return
 
   const cookies = parseCookies(event)

@@ -8,8 +8,7 @@
     </div>
 
     <!-- 实际图片 -->
-    <img
-      v-else
+    <img       v-else
       ref="imageRef"
       :src="src"
       :alt="alt"

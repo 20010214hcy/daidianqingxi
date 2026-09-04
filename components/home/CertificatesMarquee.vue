@@ -47,7 +47,7 @@
 
           <div class="lightbox-content">
             <div class="lightbox-img-wrap">
-              <img v-if="currentCert?.image" :src="currentCert.image" :alt="currentCert.title" class="lightbox-img" />
+              <img v-if="currentCert?.image" :src="currentCert.image" :alt="currentCert.title" class="lightbox-img"  loading="lazy" />
             </div>
             <div class="lightbox-info">
               <h3 class="lightbox-title">{{ currentCert?.title }}</h3>

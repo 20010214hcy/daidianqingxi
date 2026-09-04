@@ -30,8 +30,7 @@
           >
             <!-- Card Image -->
             <div class="service-image-wrapper overflow-hidden">
-              <img
-                v-if="service.coverImage"
+              <img                 v-if="service.coverImage"
                 :src="service.coverImage"
                 :alt="service.title"
                 class="service-image"

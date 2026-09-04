@@ -7,19 +7,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 业务板块表
 model businessunit {
-  id             Int              @id @default(autoincrement())
-  name           String           @unique(map: "BusinessUnit_name_key")
-  slug           String           @unique(map: "BusinessUnit_slug_key")
-  description    String?          @db.Text
-  logo           String?
-  sortOrder      Int              @default(0)
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  id              Int               @id @default(autoincrement())
+  name            String            @unique(map: "BusinessUnit_name_key")
+  slug            String            @unique(map: "BusinessUnit_slug_key")
+  description     String?           @db.Text
+  logo            String?
+  sortOrder       Int               @default(0)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
   productcategory productcategory[]
-  service        service[]
-  projectcase    projectcase[]
+  projectcase     projectcase[]
+  service         service[]
 }
 
 model article {
@@ -121,36 +120,36 @@ model product {
 }
 
 model productcategory {
-  id            Int          @id @default(autoincrement())
-  name          String       @unique(map: "ProductCategory_name_key")
-  sortOrder     Int          @default(0)
+  id             Int           @id @default(autoincrement())
+  name           String        @unique(map: "ProductCategory_name_key")
+  sortOrder      Int           @default(0)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime
   businessUnitId Int?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime
-  businessunit  businessunit? @relation(fields: [businessUnitId], references: [id])
-  product       product[]
+  product        product[]
+  businessunit   businessunit? @relation(fields: [businessUnitId], references: [id])
 
   @@index([businessUnitId], map: "ProductCategory_businessUnitId_idx")
 }
 
 model projectcase {
-  id            Int           @id @default(autoincrement())
-  title         String
-  description   String?
-  content       String        @db.LongText
-  coverImage    String?
-  images        String?
-  clientName    String?
-  location      String?
-  startDate     DateTime?
-  endDate       DateTime?
-  authorId      Int
+  id             Int           @id @default(autoincrement())
+  title          String
+  description    String?
+  content        String        @db.LongText
+  coverImage     String?
+  images         String?
+  clientName     String?
+  location       String?
+  startDate      DateTime?
+  endDate        DateTime?
+  authorId       Int
+  status         String        @default("published")
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime
   businessUnitId Int?
-  status        String        @default("published")
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime
-  user          user          @relation(fields: [authorId], references: [id], map: "ProjectCase_authorId_fkey")
-  businessunit  businessunit? @relation(fields: [businessUnitId], references: [id])
+  user           user          @relation(fields: [authorId], references: [id], map: "ProjectCase_authorId_fkey")
+  businessunit   businessunit? @relation(fields: [businessUnitId], references: [id])
 
   @@index([authorId], map: "ProjectCase_authorId_idx")
   @@index([businessUnitId], map: "ProjectCase_businessUnitId_idx")
@@ -159,34 +158,45 @@ model projectcase {
 }
 
 model service {
-  id            Int           @id @default(autoincrement())
-  title         String
-  description   String?
-  content       String        @db.LongText
-  coverImage    String?
-  icon          String?
-  price         String?
-  sortOrder     Int           @default(0)
-  authorId      Int
+  id             Int           @id @default(autoincrement())
+  title          String
+  description    String?
+  content        String        @db.LongText
+  coverImage     String?
+  icon           String?
+  price          String?
+  sortOrder      Int           @default(0)
+  authorId       Int
+  status         String        @default("published")
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime
   businessUnitId Int?
-  status        String        @default("published")
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime
-  user          user          @relation(fields: [authorId], references: [id], map: "Service_authorId_fkey")
-  businessunit  businessunit? @relation(fields: [businessUnitId], references: [id])
+  videoUrl       String?       @db.VarChar(500)
+  detailImage    String?       @db.VarChar(500)
+  advantages     Json?
+  features       Json?
+  specs          Json?
+  user           user          @relation(fields: [authorId], references: [id], map: "Service_authorId_fkey")
+  businessunit   businessunit? @relation(fields: [businessUnitId], references: [id])
 
   @@index([authorId], map: "Service_authorId_fkey")
   @@index([businessUnitId], map: "Service_businessUnitId_idx")
 }
 
 model sitesetting {
-  id         Int      @id @default(autoincrement())
-  siteName   String   @default("带电清洗")
-  siteSlogan String?  @default("专业工业清洗服务")
-  siteLogo   String?
-  siteIcon   String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime
+  id               Int      @id @default(autoincrement())
+  siteName         String   @default("带电清洗")
+  siteSlogan       String?  @default("专业工业清洗服务")
+  siteLogo         String?
+  siteIcon         String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime
+  smtpHost         String?  @db.VarChar(255)
+  smtpPort         Int?     @default(465)
+  smtpUser         String?  @db.VarChar(255)
+  smtpPass         String?  @db.VarChar(255)
+  smtpFrom         String?  @db.VarChar(255)
+  enableEmailReply Boolean? @default(false)
 }
 
 model user {

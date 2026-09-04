@@ -1,144 +1,89 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
-
   modules: ['@nuxtjs/tailwindcss', '@element-plus/nuxt', '@nuxt/image', '@nuxtjs/sitemap'],
-
   css: ['~/assets/css/main.css', '~/assets/css/tiptap-render.css', '~/assets/css/prose.css', '~/assets/css/section-header.css'],
-
-  // 图片优化
   image: {
+    provider: 'ipx',
     quality: 80,
     format: ['webp', 'jpg'],
-    screens: {
-      xs: 320,
-      sm: 640,
-      md: 768,
-      lg: 1024,
-      xl: 1280,
-      xxl: 1536,
-    },
-    // 预设
+    screens: { xs: 320, sm: 640, md: 768, lg: 1024, xl: 1280, xxl: 1536 },
     presets: {
-      cover: {
-        modifiers: {
-          fit: 'cover',
-          format: 'webp',
-          quality: 80,
-        },
-      },
-      avatar: {
-        modifiers: {
-          fit: 'cover',
-          format: 'webp',
-          quality: 70,
-          width: 100,
-          height: 100,
-        },
-      },
+      cover: { modifiers: { fit: 'cover', format: 'webp', quality: 80 } },
+      avatar: { modifiers: { fit: 'cover', format: 'webp', quality: 70, width: 100, height: 100 } },
     },
   },
-
-  // Nitro 配置（服务端渲染优化）
-  nitro: {
-    compressPublicAssets: true,
-    minify: true,
-  },
-
-  // 实验性功能
-  experimental: {
-    payloadExtraction: true,
-    renderJsonPayloads: true,
-  },
-
+  nitro: { compressPublicAssets: true, minify: true, routeRules: { '/api/**': {} } },
+  experimental: { payloadExtraction: true, renderJsonPayloads: true },
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
     keepalive: false,
     head: {
-      titleTemplate: (title) => title ? title + " - 河南玺铭电力科技有限公司" : "河南玺铭电力科技有限公司 - 带电清洗与储能系统集成服务商",
-      // 移除 Google Fonts，使用系统字体
+      titleTemplate: (title) => title ? title + ' - 河南玺铭电力科技有限公司' : '河南玺铭电力科技有限公司 - 带电清洗与储能系统集成服务商',
       link: [
-        // Canonical URL（使用模板会在运行时替换）
         { rel: 'canonical', href: 'https://www.ximingpower.com' },
+        { rel: 'alternate', type: 'text/plain', href: '/llms.txt', title: 'LLM Site Information' },
+        { rel: 'manifest', href: '/manifest.json' },
+        { rel: 'alternate', type: 'text/plain', href: '/ai.txt', title: 'AI Discovery' },
       ],
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: "专业带电清洗服务、储能系统集成，电力设备清洗，工业清洗工程" },
-        { name: 'keywords', content: "带电清洗,电力设备清洗,工业清洗,高压清洗,玺铭电力,化学清洗,储能系统,储能设备,储能集成" },
-        // Open Graph
+        { name: 'description', content: '专业带电清洗服务、储能系统集成，电力设备清洗，工业清洗工程' },
+        { name: 'keywords', content: '带电清洗,电力设备清洗,工业清洗,高压清洗,玺铭电力,化学清洗,储能系统,储能设备,储能集成' },
+        { name: 'robots', content: 'index, follow' },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:title', content: '河南玺铭电力科技有限公司 - 带电清洗与储能系统集成' },
+        { property: 'og:description', content: '专业带电清洗服务、储能系统集成，电力设备清洗，工业清洗工程' },
+        { property: 'og:url', content: 'https://www.ximingpower.com' },
         { property: 'og:image', content: '/images/og-cover.svg' },
-        { property: "og:site_name", content: "河南玺铭电力科技有限公司" },
+        { property: 'og:site_name', content: '河南玺铭电力科技有限公司' },
         { property: 'og:locale', content: 'zh_CN' },
-        // 性能提示
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: '河南玺铭电力科技有限公司 - 带电清洗与储能系统集成' },
+        { name: 'twitter:description', content: '专业带电清洗服务、储能系统集成，电力设备清洗，工业清洗工程' },
         { 'http-equiv': 'x-dns-prefetch-control', content: 'on' },
       ],
       script: [
-        {
-          innerHTML: `(function(){var _odp=Object.defineProperty;var _safe=['navigator','screen','location','localStorage','sessionStorage'];Object.defineProperty=function(o,p,d){if(o===window&&_safe.indexOf(p)>-1){return o}return _odp.call(Object,o,p,d)}})()`,
-          type: 'text/javascript',
-        }
+        { innerHTML: '(function(){var _odp=Object.defineProperty;var _safe=["navigator","screen","location","localStorage","sessionStorage"];Object.defineProperty=function(o,p,d){if(o===window&&_safe.indexOf(p)>-1){return o}return _odp.call(Object,o,p,d)}})()', type: 'text/javascript' },
       ],
     }
   },
-
-  devServer: {
-    port: 3000,
-    host: '::'
-  },
-
-  // 构建优化
-  build: {
-    transpile: ['element-plus'],
-  },
-
-  // Vite 优化
-  vite: {
-    build: {
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            'element-plus': ['element-plus'],
-          }
-        }
-      },
-      cssCodeSplit: true,
-    },
-    css: {
-      devSourcemap: false,
-    },
-  },
-
-  typescript: {
-    strict: true,
-    typeCheck: false,
-  },
-
-  // Sitemap 配置
-  sitemap: {
-    hostname: 'https://www.ximingpower.com',
-    gzip: true,
-    exclude: ['/admin/**', '/api/**', '/login'],
-    routes: [
-      '/',
-      '/about',
-      '/services',
-      '/cases',
-      '/news',
-      '/contact',
-      '/products',
-    ],
-  },
-
-  // 路由规则（缓存、重定向等）
+  devServer: { port: 3000, host: '::' },
+  build: { transpile: ['element-plus'] },
+  vite: { build: { rollupOptions: { output: { manualChunks: { 'element-plus': ['element-plus'] } } }, cssCodeSplit: true }, css: { devSourcemap: false } },
+  typescript: { strict: true, typeCheck: false },
+  sitemap: { hostname: 'https://www.ximingpower.com', gzip: true, exclude: ['/admin/**', '/api/**', '/login'], sources: ['/api/sitemap'] },
   routeRules: {
-    // 静态页面缓存
-    '/': { swr: false },
-    '/about': { swr: false },
-    '/contact': { swr: false },
-    '/services': { swr: false },
-    '/cases': { swr: false },
-    '/news': { swr: false },
-    // API 缓存（开发环境禁用）
-    '/api/**': { swr: false },
+    '/': { swr: 300 },
+    '/about': { swr: 600 },
+    '/contact': { swr: 600 },
+    '/services': { swr: 600 },
+    '/services/**': { swr: 600 },
+    '/cases': { swr: 600 },
+    '/cases/**': { swr: 600 },
+    '/news': { swr: 300 },
+    '/news/**': { swr: 300 },
+    '/products': { swr: 300 },
+    '/products/**': { swr: 300 },
+    '/solutions': { swr: 600 },
+    '/solutions/**': { swr: 600 },
+    '/api/articles': { swr: 60 },
+    '/api/articles/**': { swr: 60 },
+    '/api/services': { swr: 120 },
+    '/api/services/**': { swr: 120 },
+    '/api/products': { swr: 120 },
+    '/api/products/**': { swr: 120 },
+    '/api/cases': { swr: 120 },
+    '/api/cases/**': { swr: 120 },
+    '/api/categories': { swr: 300 },
+    '/api/certificates': { swr: 600 },
+    '/api/contact': { swr: 600 },
+    '/api/settings': { swr: 600 },
+    '/api/auth/**': { noswr: true },
+    '/api/upload': { noswr: true },
+    '/api/upload/**': { noswr: true },
+    '/api/messages': { noswr: true },
+    '/api/messages/**': { noswr: true },
+    '/api/email/**': { noswr: true },
   },
 })

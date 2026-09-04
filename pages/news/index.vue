@@ -55,7 +55,7 @@
           <NuxtLink v-for="item in newsList" :key="item.id"
             :to="`/news/${item.id}`" class="news-item group">
             <div class="news-item-img">
-              <img v-if="item.coverImage" :src="item.coverImage" :alt="item.title" />
+              <img v-if="item.coverImage" :src="item.coverImage" :alt="item.title"  loading="lazy" />
               <div v-else class="news-item-img-placeholder" />
             </div>
             <div class="news-item-body">
@@ -163,7 +163,9 @@ useHead({
   title: '新闻资讯 - 玺铭电力',
   meta: [
     { name: 'description', content: '了解电力设备带电清洗行业动态、玺铭电力公司新闻和技术分享' },
-    { name: 'keywords', content: '电力行业新闻,带电清洗资讯,工业清洗技术,电力设备维护' }
+    { name: 'keywords', content: '电力行业新闻,带电清洗资讯,工业清洗技术,电力设备维护' },
+    { property: 'og:title', content: '新闻中心 - 玺铭电力' },
+    { property: 'og:description', content: '了解电力设备带电清洗行业动态、玺铭电力公司新闻和技术分享' }
   ]
 })
 </script>
