@@ -19,13 +19,13 @@
               <div class="service-focus-overlay">
                 <h3 class="text-2xl md:text-3xl font-bold mb-3">{{ services[activeServiceIndex]?.title }}</h3>
                 <p class="text-slate-200 text-lg mb-6 max-w-lg">{{ services[activeServiceIndex]?.description }}</p>
-                <NuxtLink :to="`/services/${services[activeServiceIndex]?.id}`"
+                <UButton :to="`/services/${services[activeServiceIndex]?.id}`"
                   class="inline-flex items-center text-white font-medium hover:text-primary-200 transition-colors">
                   了解详情
                   <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                   </svg>
-                </NuxtLink>
+                </UButton>
               </div>
             </div>
           </Transition>

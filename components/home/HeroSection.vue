@@ -28,12 +28,12 @@
         </div>
       </div>
       <div class="hero-buttons animate-fade-in animate-delay-2">
-        <NuxtLink to="/services" class="hero-btn hero-btn-primary">
+        <UButton to="/services" size="xl" class="hero-btn-primary">
           了解核心服务
-        </NuxtLink>
-        <NuxtLink to="/contact" class="hero-btn hero-btn-outline">
+        </UButton>
+        <UButton to="/contact" size="xl" variant="outline" color="white" class="hero-btn-outline">
           免费获取方案
-        </NuxtLink>
+        </UButton>
       </div>
     </div>
     <button class="scroll-indicator" @click="scrollToServices" aria-label="向下滚动">

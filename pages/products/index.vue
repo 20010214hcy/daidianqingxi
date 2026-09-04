@@ -1,10 +1,10 @@
 <template>
   <div>
     <section class="bg-gradient-to-br from-slate-900 via-primary-900 to-slate-900 text-white py-20">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <UContainer class="text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-4">产品展示</h1>
         <p class="text-xl text-slate-300">高品质工业清洗设备与解决方案</p>
-      </div>
+      </UContainer>
     </section>
 
     <!-- 二级导航（业务板块）- 滚动后隐藏 -->

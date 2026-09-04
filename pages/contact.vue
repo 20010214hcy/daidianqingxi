@@ -70,12 +70,12 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm font-semibold text-slate-700 mb-2">姓名 <span class="text-red-500">*</span></label>
-                  <input v-model="formData.name" type="text" required placeholder="请输入您的姓名"
+                  <UInput v-model="formData.name" type="text" required placeholder="请输入您的姓名"
                     class="w-full px-4 py-3 border border-slate-200 rounded-xl text-slate-900 bg-white outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10 transition-all" />
                 </div>
                 <div>
                   <label class="block text-sm font-semibold text-slate-700 mb-2">电话 <span class="text-red-500">*</span></label>
-                  <input v-model="formData.phone" type="tel" required placeholder="请输入您的电话"
+                  <UInput v-model="formData.phone" type="tel" required placeholder="请输入您的电话"
                     class="w-full px-4 py-3 border border-slate-200 rounded-xl text-slate-900 bg-white outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10 transition-all" />
                 </div>
               </div>
@@ -83,29 +83,29 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm font-semibold text-slate-700 mb-2">邮箱</label>
-                  <input v-model="formData.email" type="email" placeholder="请输入您的邮箱"
+                  <UInput v-model="formData.email" type="email" placeholder="请输入您的邮箱"
                     class="w-full px-4 py-3 border border-slate-200 rounded-xl text-slate-900 bg-white outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10 transition-all" />
                 </div>
                 <div>
                   <label class="block text-sm font-semibold text-slate-700 mb-2">公司名称</label>
-                  <input v-model="formData.company" type="text" placeholder="请输入公司名称"
+                  <UInput v-model="formData.company" type="text" placeholder="请输入公司名称"
                     class="w-full px-4 py-3 border border-slate-200 rounded-xl text-slate-900 bg-white outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10 transition-all" />
                 </div>
               </div>
 
               <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-2">咨询主题</label>
-                <input v-model="formData.subject" type="text" placeholder="请输入咨询主题"
+                <UInput v-model="formData.subject" type="text" placeholder="请输入咨询主题"
                   class="w-full px-4 py-3 border border-slate-200 rounded-xl text-slate-900 bg-white outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10 transition-all" />
               </div>
 
               <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-2">留言内容 <span class="text-red-500">*</span></label>
-                <textarea v-model="formData.content" required rows="5" placeholder="请详细描述您的需求..."
+                <UTextarea v-model="formData.content" required :rows="5" placeholder="请详细描述您的需求..."
                   class="w-full px-4 py-3 border border-slate-200 rounded-xl text-slate-900 bg-white outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10 transition-all resize-none" />
               </div>
 
-              <button type="submit" :disabled="isSubmitting"
+              <UButton type="submit" :disabled="isSubmitting"
                 class="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-slate-900 text-white font-semibold rounded-xl hover:bg-slate-800 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
                 <span v-if="isSubmitting" class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 <template v-else>
@@ -114,7 +114,7 @@
                     <path d="M5 12h14M12 5l7 7-7 7"/>
                   </svg>
                 </template>
-              </button>
+              </UButton>
 
               <Transition name="fade">
                 <p v-if="submitMessage" class="text-center text-sm font-medium px-4 py-3 rounded-xl"

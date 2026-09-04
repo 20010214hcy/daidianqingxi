@@ -1,5 +1,5 @@
 <template>
-  <header 
+  <header
     :class="[
       'bg-white shadow-md z-50 sticky top-0',
       isHomePage ? 'header-scroll-anim' : '',
@@ -10,8 +10,8 @@
       <div class="flex justify-between items-center h-20">
         <!-- Logo -->
         <NuxtLink to="/" class="flex items-center space-x-2">
-          <div v-if="siteSetting.siteLogo" class="h-10  flex items-center justify-center bg-slate-100">
-            <img :src="siteSetting.siteLogo" alt="Logo" class="w-full h-full object-contain"  loading="lazy" />
+          <div v-if="siteSetting.siteLogo" class="h-10 flex items-center justify-center bg-slate-100">
+            <img :src="siteSetting.siteLogo" alt="Logo" class="w-full h-full object-contain" loading="lazy" />
           </div>
         </NuxtLink>
 
@@ -28,38 +28,30 @@
         </nav>
 
         <!-- Mobile Menu Button -->
-        <button
+        <UButton
+          icon="i-heroicons-bars-3"
+          color="gray"
+          variant="ghost"
+          class="md:hidden"
           @click="isMobileMenuOpen = !isMobileMenuOpen"
-          class="md:hidden p-3 rounded-lg hover:bg-slate-100 transition-colors hamburger-btn"
-          :class="{ 'is-active': isMobileMenuOpen }"
-          aria-label="菜单"
-        >
-          <svg class="w-6 h-6 hamburger-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path class="hamburger-line top" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16" />
-            <path class="hamburger-line mid" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12h16" />
-            <path class="hamburger-line bot" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 18h16" />
-          </svg>
-        </button>
+        />
       </div>
 
       <!-- Mobile Navigation -->
       <Transition name="mobile-menu">
-        <div
-          v-if="isMobileMenuOpen"
-          class="md:hidden overflow-hidden"
-        >
-        <nav class="flex flex-col space-y-1 pt-4">
-          <NuxtLink
-            v-for="item in navItems" :key="item.to"
-            :to="item.to"
-            class="nav-link-mobile"
-            exact-active-class="nav-link-mobile-active"
-            @click="isMobileMenuOpen = false"
-          >
-            {{ item.label }}
-          </NuxtLink>
-        </nav>
-      </div>
+        <div v-if="isMobileMenuOpen" class="md:hidden overflow-hidden">
+          <nav class="flex flex-col space-y-1 pt-4 pb-4">
+            <NuxtLink
+              v-for="item in navItems" :key="item.to"
+              :to="item.to"
+              class="nav-link-mobile"
+              exact-active-class="nav-link-mobile-active"
+              @click="isMobileMenuOpen = false"
+            >
+              {{ item.label }}
+            </NuxtLink>
+          </nav>
+        </div>
       </Transition>
     </div>
   </header>
@@ -88,7 +80,6 @@ const handleScroll = () => {
   ticking = true
   requestAnimationFrame(() => {
     const currentScrollY = window.scrollY
-    // 移动端不隐藏导航栏（用 matchMedia 避免读 innerWidth 触发回流）
     if (!isDesktop.value) {
       headerHidden.value = false
       lastScrollY = currentScrollY
@@ -111,7 +102,6 @@ const handleScroll = () => {
   })
 }
 
-// 用 matchMedia 替代 window.innerWidth，避免布局回流
 const isDesktop = ref(true)
 if (import.meta.client) {
   const mql = window.matchMedia('(min-width: 768px)')
@@ -129,7 +119,6 @@ watch(isHomePage, (val) => {
   }
 }, { immediate: false })
 
-// SSR 数据获取
 const { data: settingData } = useFetch('/api/settings', {
   transform: (res: any) => res?.success && res.data ? res.data : { siteName: '', siteSlogan: '', siteLogo: '', siteIcon: '' }
 })
@@ -231,7 +220,7 @@ onUnmounted(() => {
   width: calc(100% - 40px);
 }
 
-/* 移动端菜单滑入动画 */
+/* 移动端菜单动画 */
 .mobile-menu-enter-active {
   transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
 }
@@ -247,23 +236,5 @@ onUnmounted(() => {
 .mobile-menu-leave-from {
   max-height: 400px;
   opacity: 1;
-}
-
-/* 汉堡按钮变形为 X */
-.hamburger-icon {
-  transition: transform 0.3s ease;
-}
-.hamburger-line {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
-  transform-origin: center;
-}
-.hamburger-btn.is-active .hamburger-line.top {
-  transform: translateY(6px) rotate(45deg);
-}
-.hamburger-btn.is-active .hamburger-line.mid {
-  opacity: 0;
-}
-.hamburger-btn.is-active .hamburger-line.bot {
-  transform: translateY(-6px) rotate(-45deg);
 }
 </style>
