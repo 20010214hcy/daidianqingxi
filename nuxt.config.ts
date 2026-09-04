@@ -1,6 +1,6 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  modules: ['@nuxt/ui', '@element-plus/nuxt', '@nuxt/image', '@nuxtjs/sitemap'],
+  modules: ['@nuxtjs/tailwindcss', '@element-plus/nuxt', '@nuxt/image', '@nuxtjs/sitemap'],
   css: ['~/assets/css/main.css', '~/assets/css/tiptap-render.css', '~/assets/css/prose.css', '~/assets/css/section-header.css'],
   image: {
     provider: 'ipx',
