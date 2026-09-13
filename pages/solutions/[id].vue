@@ -70,7 +70,7 @@
           <!-- 文字描述 -->
           <div class="main">
             <div class="name">{{ solution.title }}</div>
-            <div class="content" v-html="solution.content || solution.description"></div>
+            <div class="content" v-html="sanitizedContent"></div>
           </div>
         </div>
       </section>
@@ -231,10 +231,12 @@
 </template>
 
 <script setup lang="ts">
+import DOMPurify from "dompurify"
 const route = useRoute()
 const solutionId = route.params.id
 
 const loading = ref(true)
+n// XSS 防护const sanitizedContent = computed(() => {  return DOMPurify.sanitize(solution.value?.content || solution.value?.description || "")})
 const solution = ref(null)
 const advantages = ref([])
 const features = ref([])

@@ -28,12 +28,12 @@
         </div>
       </div>
       <div class="hero-buttons animate-fade-in animate-delay-2">
-        <UButton to="/services" size="xl" class="hero-btn-primary">
+        <NuxtLink to="/services" class="hero-btn-primary">
           了解核心服务
-        </UButton>
-        <UButton to="/contact" size="xl" variant="outline" color="white" class="hero-btn-outline">
+        </NuxtLink>
+        <NuxtLink to="/contact" class="hero-btn-outline">
           免费获取方案
-        </UButton>
+        </NuxtLink>
       </div>
     </div>
     <button class="scroll-indicator" @click="scrollToServices" aria-label="向下滚动">
@@ -181,20 +181,31 @@ const scrollToServices = () => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 14px 36px;
-  font-size: 16px;
+  padding: 18px 44px;
+  font-size: 18px;
   font-weight: 600;
   border-radius: 8px;
   transition: all 0.3s ease;
   text-decoration: none;
   letter-spacing: 1px;
   cursor: pointer;
+  min-width: 180px;
 }
 
 .hero-btn-primary {
-  background: #2563eb;
-  color: #ffffff;
-  border: 2px solid #2563eb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border: 2px solid #2563eb !important;
+  padding: 18px 44px !important;
+  font-size: 18px !important;
+  min-width: 180px;
 }
 
 .hero-btn-primary:hover {
@@ -205,9 +216,19 @@ const scrollToServices = () => {
 }
 
 .hero-btn-outline {
-  background: transparent;
-  color: #ffffff;
-  border: 2px solid rgba(255, 255, 255, 0.7);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  background: transparent !important;
+  color: #ffffff !important;
+  border: 2px solid rgba(255, 255, 255, 0.7) !important;
+  padding: 18px 44px !important;
+  font-size: 18px !important;
+  min-width: 180px;
 }
 
 .hero-btn-outline:hover {
@@ -309,8 +330,9 @@ const scrollToServices = () => {
   }
 
   .hero-btn {
-    padding: 12px 28px;
-    font-size: 15px;
+    padding: 14px 32px;
+    font-size: 16px;
+    min-width: 160px;
   }
 
   .hero-buttons {
@@ -333,10 +355,10 @@ const scrollToServices = () => {
   }
 
   .hero-btn {
-    padding: 12px 24px;
-    font-size: 14px;
+    padding: 14px 28px;
+    font-size: 15px;
     width: 100%;
-    max-width: 260px;
+    max-width: 280px;
   }
 
   .hero-buttons {

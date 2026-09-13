@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
 
     const ext = filePart.filename.split('.').pop()?.toLowerCase() || ''
     if (!ALLOWED_EXTENSIONS.includes(ext)) {
-      return errorResponse('只支持图片格式: jpg, png, gif, webp, svg')
+      return errorResponse('只支持图片格式: jpg, jpeg, png, gif, webp')
     }
 
     const buffer = typeof filePart.data === 'string'
@@ -38,15 +38,15 @@ export default defineEventHandler(async (event) => {
       mkdirSync(UPLOAD_DIR, { recursive: true })
     }
 
-    const fileName = `${randomUUID()}.webp`
-
-    if (ext === 'svg' || ext === 'gif') {
-      const name = `${randomUUID()}.${ext}`
+    // GIF 保留原格式（可能含动画），其余转 WebP
+    if (ext === 'gif') {
+      const name = `${randomUUID()}.gif`
       const filePath = join(UPLOAD_DIR, name)
       writeFileSync(filePath, buffer)
       return successResponse({ url: `/uploads/${name}`, fileName: name })
     }
 
+    const fileName = `${randomUUID()}.webp`
     const filePath = join(UPLOAD_DIR, fileName)
 
     await sharp(buffer)

@@ -20,7 +20,8 @@ export default defineEventHandler(async (event) => {
       return errorResponse('产品不存在', 404)
     }
 
-    return successResponse(product)
+    const { productcategory, ...rest } = product as any
+    return successResponse({ ...rest, category: productcategory })
   } catch (error) {
     console.error('获取产品详情失败:', error)
     return errorResponse('获取产品详情失败')

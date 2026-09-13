@@ -80,7 +80,7 @@
           <el-table-column prop="name" label="产品名称" min-width="180" />
           <el-table-column label="分类" width="120">
             <template #default="{ row }">
-              <el-tag size="small" type="info">{{ row.productcategory?.name || '-' }}</el-tag>
+              <el-tag size="small" type="info">{{ row.category?.name || '-' }}</el-tag>
             </template>
           </el-table-column>
           <el-table-column label="价格" width="120">
@@ -114,7 +114,7 @@
             v-for="product in products"
             :key="product.id"
             :title="product.name"
-            :subtitle="product.productcategory?.name || '未分类'"
+            :subtitle="product.category?.name || '未分类'"
             :image="product.image"
             :status="product.status === 'published' ? '已发布' : '草稿'"
             :status-type="product.status === 'published' ? 'success' : 'warning'"
@@ -243,7 +243,7 @@ interface Product {
   id: number
   name: string
   categoryId: number | null
-  productcategory?: { id: number; name: string }
+  category?: { id: number; name: string }
   price: number
   status: string
   sortOrder: number

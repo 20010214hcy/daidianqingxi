@@ -28,13 +28,16 @@
         </nav>
 
         <!-- Mobile Menu Button -->
-        <UButton
-          icon="i-heroicons-bars-3"
-          color="gray"
-          variant="ghost"
-          class="md:hidden"
+        <button
+          type="button"
+          class="md:hidden p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+          aria-label="打开菜单"
           @click="isMobileMenuOpen = !isMobileMenuOpen"
-        />
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
       </div>
 
       <!-- Mobile Navigation -->

@@ -80,7 +80,13 @@ export default defineEventHandler(async (event) => {
       prisma.product.count({ where }),
     ])
 
-    return paginatedResponse(products, total, page, pageSize)
+    // Map productcategory to category for frontend compatibility
+    const mapped = products.map(p => {
+      const { productcategory, ...rest } = p as any
+      return { ...rest, category: productcategory }
+    })
+
+    return paginatedResponse(mapped, total, page, pageSize)
   } catch (error) {
     console.error('获取产品列表失败:', error)
     return errorResponse('获取产品列表失败')

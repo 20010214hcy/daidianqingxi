@@ -74,7 +74,7 @@
             <!-- 文字描述 -->
             <div class="overview-text">
               <h3 class="overview-name">{{ service.title }}</h3>
-              <div class="overview-description" v-html="service.content || service.description"></div>
+              <div class="overview-description" v-html="sanitizedContent"></div>
             </div>
           </div>
         </div>
@@ -226,11 +226,13 @@
 </template>
 
 <script setup lang="ts">
+import DOMPurify from "dompurify"
 const route = useRoute()
 const serviceId = route.params.id
 
 // 状态
 const loading = ref(true)
+n// XSS 防护const sanitizedContent = computed(() => {  return DOMPurify.sanitize(service.value?.content || service.value?.description || "")})
 const service = ref<any>(null)
 const advantages = ref<any[]>([])
 const relatedProducts = ref<any[]>([])
