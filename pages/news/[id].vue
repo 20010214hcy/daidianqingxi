@@ -42,7 +42,7 @@
           <!-- 左侧：正文 -->
           <main class="flex-1 min-w-0">
             <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-              <img v-if="article.coverImage" :src="article.coverImage" :alt="article.title" class="w-full h-auto max-h-[480px] object-cover"  loading="lazy" />
+              <img v-if="article.coverImage" :src="article.coverImage" :alt="article.title" class="w-full h-auto max-h-[480px] object-cover" loading="lazy" />
               <div class="px-8 md:px-12 py-10">
                 <article class="prose-content" v-html="sanitizedContent" />
                 <div class="mt-10 pt-6 border-t border-slate-100 flex items-center justify-between flex-wrap gap-4">
@@ -52,8 +52,11 @@
                   </div>
                   <div class="flex items-center gap-2">
                     <span class="text-sm text-slate-400">分享：</span>
-                    <button @click="copyLink" class="share-btn" title="复制链接">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+                    <button @click="shareArticle" class="share-btn" title="分享文章">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                        <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/>
+                      </svg>
                     </button>
                   </div>
                 </div>
@@ -88,7 +91,7 @@
                   <NuxtLink v-for="item in relatedArticles" :key="item.id" :to="`/news/${item.id}`" class="group block">
                     <div class="flex gap-3">
                       <div v-if="item.coverImage" class="w-20 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100">
-                        <img :src="item.coverImage" :alt="item.title" class="w-full h-full object-cover"  loading="lazy" />
+                        <img :src="item.coverImage" :alt="item.title" class="w-full h-full object-cover" loading="lazy" />
                       </div>
                       <div class="min-w-0">
                         <p class="text-sm text-slate-700 line-clamp-2 group-hover:text-blue-600 transition-colors leading-snug">{{ item.title }}</p>
@@ -121,11 +124,18 @@
         <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
       </svg>
     </button>
+
+    <!-- 轻提示 -->
+    <Transition name="toast">
+      <div v-if="toastText" class="fixed bottom-24 right-8 z-50 px-4 py-2.5 bg-slate-900 text-white text-sm rounded-lg shadow-lg">
+        {{ toastText }}
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import DOMPurify from "dompurify"
+import DOMPurify from 'dompurify'
 import type { Article } from '~/types'
 
 definePageMeta({ layout: 'default' })
@@ -140,67 +150,167 @@ const showBackToTop = ref(false)
 const scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
 onMounted(() => {
-  window.addEventListener('scroll', () => {
-    showBackToTop.value = window.scrollY > 300
-  })
+  const onScroll = () => { showBackToTop.value = window.scrollY > 300 }
+  window.addEventListener('scroll', onScroll, { passive: true })
+  onUnmounted(() => window.removeEventListener('scroll', onScroll))
 })
 
-// 获取文章数据（响应路由变化）
-const article = ref<Article>({} as Article)
-const loading = ref(true)
+// SSR 拉取文章
+const { data: articleRes } = await useFetch(`/api/articles/${articleId.value}`, {
+  transform: (res: any) => (res?.success ? res.data : null) as Article | null,
+})
+const article = computed(() => articleRes.value || ({} as Article))
 
-const fetchArticle = async () => {
-  loading.value = true
-  try {
-    const res = await $fetch(`/api/articles/${articleId.value}`) as any
-    article.value = res?.success ? res.data : {} as Article
-  } catch (e) {
-    console.error('获取文章失败:', e)
-  } finally {
-    loading.value = false
-  }
-}
-
-watch(articleId, fetchArticle, { immediate: true })
-
-// 获取文章列表（用于导航）
-const { data: navData } = useFetch('/api/articles', {
+// 导航列表（SSR）
+const { data: navData } = await useFetch('/api/articles', {
   params: { page: 1, pageSize: 100, status: 'published' },
   transform: (res: any) => {
     const list = res?.success ? (res.data?.list || []) : []
-    return list.map((a: any) => ({ id: a.id, title: a.title, publishedAt: a.publishedAt, createdAt: a.createdAt, category: a.category, coverImage: a.coverImage }))
-  }
+    return list.map((a: any) => ({
+      id: a.id,
+      title: a.title,
+      publishedAt: a.publishedAt,
+      createdAt: a.createdAt,
+      category: a.category,
+      coverImage: a.coverImage,
+    }))
+  },
 })
 
 const currentIndex = computed(() => (navData.value || []).findIndex((a: any) => a.id === articleId.value))
-const prevArticle = computed(() => currentIndex.value > 0 ? navData.value[currentIndex.value - 1] : null)
-const nextArticle = computed(() => currentIndex.value >= 0 && currentIndex.value < (navData.value?.length || 0) - 1 ? navData.value[currentIndex.value + 1] : null)
-const relatedArticles = computed(() => (navData.value || []).filter((a: any) => a.id !== articleId.value && a.category === article.value.category).slice(0, 5))
+const prevArticle = computed(() => (currentIndex.value > 0 ? navData.value![currentIndex.value - 1] : null))
+const nextArticle = computed(() =>
+  currentIndex.value >= 0 && currentIndex.value < (navData.value?.length || 0) - 1
+    ? navData.value![currentIndex.value + 1]
+    : null
+)
+const relatedArticles = computed(() =>
+  (navData.value || [])
+    .filter((a: any) => a.id !== articleId.value && a.category === article.value.category)
+    .slice(0, 5)
+)
 
-// 记录阅读次数
+// 阅读计数（仅客户端）
 onMounted(async () => {
   try { await $fetch(`/api/articles/${articleId.value}/view`, { method: 'POST' }) } catch {}
 })
 
 const sanitizedContent = computed(() => {
-  if (process.server) return article.value.content || ""
+  if (import.meta.server) return article.value.content || ''
   return DOMPurify.sanitize(article.value.content || '')
 })
 
-const copyLink = async () => { try { await navigator.clipboard.writeText(window.location.href); alert('链接已复制') } catch {} }
+// 分享：优先系统分享，其次复制链接
+const toastText = ref('')
+let toastTimer: ReturnType<typeof setTimeout> | null = null
+const showToast = (text: string) => {
+  toastText.value = text
+  if (toastTimer) clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => { toastText.value = '' }, 2200)
+}
 
-useHead({
-  title: computed(() => article.value.title ? `${article.value.title} - 玺铭电力` : '新闻详情 - 玺铭电力'),
-  meta: [{ name: 'description', content: computed(() => article.value.title || '玺铭电力新闻详情') }]
-})
+const shareArticle = async () => {
+  const url = window.location.href
+  const title = article.value.title || '玺铭电力新闻'
+  if (navigator.share) {
+    try {
+      await navigator.share({ title, url })
+      return
+    } catch {
+      /* 用户取消或不支持，走复制 */
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(url)
+    showToast('链接已复制')
+  } catch {
+    showToast('复制失败，请手动复制地址栏链接')
+  }
+}
 
 const getCategoryLabel = (category: string) => {
   const labels: Record<string, string> = { news: '行业动态', company: '公司新闻', tech: '技术分享' }
   return labels[category] || category
 }
+
+const categoryLabel = computed(() => getCategoryLabel(article.value.category || ''))
+const plainDescription = computed(() => {
+  const text = (article.value.content || '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+  return text.slice(0, 160)
+})
+
+const articleJsonLd = computed(() => {
+  if (!article.value.id) return null
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: article.value.title,
+    description: plainDescription.value,
+    image: article.value.coverImage ? [article.value.coverImage] : undefined,
+    datePublished: article.value.publishedAt || article.value.createdAt,
+    dateModified: article.value.updatedAt || article.value.publishedAt || article.value.createdAt,
+    inLanguage: 'zh-CN',
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://www.ximingpower.com/news/${article.value.id}`,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: '河南玺铭电力科技有限公司',
+      url: 'https://www.ximingpower.com',
+    },
+    articleSection: categoryLabel.value,
+  }
+})
+
+useHead({
+  title: computed(() => (article.value.title ? `${article.value.title} - 玺铭电力` : '新闻详情 - 玺铭电力')),
+  meta: [
+    { name: 'description', content: computed(() => plainDescription.value || article.value.title || '玺铭电力新闻详情') },
+    { property: 'og:title', content: computed(() => article.value.title || '新闻详情 - 玺铭电力') },
+    { property: 'og:description', content: computed(() => plainDescription.value || '') },
+    { property: 'og:type', content: 'article' },
+    { property: 'og:image', content: computed(() => article.value.coverImage || '') },
+  ],
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: computed(() => (articleJsonLd.value ? JSON.stringify(articleJsonLd.value) : '')),
+    } as any,
+  ],
+})
 </script>
 
 <style scoped>
-.share-btn { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid #e5e7eb; background: #fff; color: #64748b; cursor: pointer; transition: all 0.2s; }
-.share-btn:hover { border-color: #1a73e8; color: #1a73e8; }
+.share-btn {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.share-btn:hover {
+  border-color: #1a73e8;
+  color: #1a73e8;
+}
+
+.toast-enter-active,
+.toast-leave-active {
+  transition: all 0.25s ease;
+}
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
+}
 </style>
