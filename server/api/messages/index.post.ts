@@ -5,9 +5,9 @@ import { checkRateLimit } from '~/server/utils/rateLimit'
 
 export default defineEventHandler(async (event) => {
   try {
-    // 速率限制：同一 IP 每小时最多 10 条留言
+    // 速率限制：同一 IP 每小时最多 10 条留言（跨 PM2 实例共享）
     const ip = getRequestIP(event, { xForwardedFor: true }) || 'unknown'
-    if (!checkRateLimit(`msg:${ip}`, 10, 60 * 60 * 1000)) {
+    if (!(await checkRateLimit(`msg:${ip}`, 10, 60 * 60 * 1000))) {
       return errorResponse('提交过于频繁，请稍后再试', 429)
     }
 
@@ -19,7 +19,6 @@ export default defineEventHandler(async (event) => {
       return errorResponse('姓名、电话和留言内容不能为空', 400)
     }
 
-    // XSS 过滤：留言字段为纯文本，过滤所有 HTML
     const message = await prisma.message.create({
       data: {
         updatedAt: new Date(),
