@@ -61,6 +61,8 @@ model contactinfo {
   email2      String   @default("service@daidianqingxi.com")
   workHours1  String   @default("周一至周五：9:00 - 18:00")
   workHours2  String   @default("周六：9:00 - 12:00")
+  latitude    Float?   @default(33.714605)
+  longitude   Float?   @default(113.401646)
   createdAt   DateTime @default(now())
   updatedAt   DateTime
 }

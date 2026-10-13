@@ -136,15 +136,15 @@
 
 /* ===== 链接 ===== */
 .prose-content a {
-  color: #1a73e8;
+  color: #2563eb;
   text-decoration: underline;
   text-underline-offset: 3px;
-  text-decoration-color: rgba(26, 115, 232, 0.3);
+  text-decoration-color: rgba(37, 99, 235, 0.3);
   transition: text-decoration-color 0.2s;
 }
 
 .prose-content a:hover {
-  text-decoration-color: #1a73e8;
+  text-decoration-color: #2563eb;
 }
 
 /* ===== 列表 ===== */
@@ -173,7 +173,7 @@
 
 /* ===== 引用 ===== */
 .prose-content blockquote {
-  border-left: 4px solid #1a73e8;
+  border-left: 4px solid #2563eb;
   background: #f8fafc;
   padding: 1em 1.5em;
   margin: 1.5em 0;

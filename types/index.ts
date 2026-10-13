@@ -79,6 +79,8 @@ export interface ContactInfo {
   email2: string
   workHours1: string
   workHours2: string
+  latitude?: number | null
+  longitude?: number | null
 }
 
 export interface SiteSetting {

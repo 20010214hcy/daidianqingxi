@@ -1,5 +1,5 @@
 <template>
-  <div class="tiptap-editor">
+  <div class="tiptap-editor" @paste="handleEditorPaste">
     <!-- 工具栏 -->
     <div class="tiptap-toolbar" v-if="editor">
       <button
@@ -37,6 +37,7 @@
 </template>
 
 <script setup lang="ts">
+import { usePasteImageUpload } from '~/composables/usePasteImageUpload'
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
@@ -236,6 +237,33 @@ const handleImageUpload = async (e: Event) => {
 }
 
 onBeforeUnmount(() => editor.value?.destroy())
+
+const insertImageUrl = (url: string) => {
+  // 若编辑器实例存在则插入图片
+  const ed: any = (editor && typeof editor === 'object' && 'value' in (editor as any))
+    ? (editor as any).value
+    : (typeof editor !== 'undefined' ? (editor as any) : null)
+  if (ed?.commands?.setImage) {
+    ed.commands.setImage({ src: url })
+    return true
+  }
+  if (ed?.chain) {
+    ed.chain().focus().setImage({ src: url }).run()
+    return true
+  }
+  return false
+}
+
+const { handlePaste: handleEditorPaste } = usePasteImageUpload({
+  onUploaded: async (url) => {
+    if (!insertImageUrl(url)) {
+      ElMessage?.error?.('图片已上传，但插入正文失败')
+    } else {
+      ElMessage?.success?.('图片已插入')
+    }
+  },
+  onError: (msg) => ElMessage?.error?.(msg),
+})
 </script>
 
 <style>
@@ -309,9 +337,9 @@ onBeforeUnmount(() => editor.value?.destroy())
   height: 0;
 }
 
-.tiptap-content .tiptap h1 { font-size: 28px; font-weight: 700; margin: 24px 0 12px; color: #1a1a2e; }
-.tiptap-content .tiptap h2 { font-size: 22px; font-weight: 700; margin: 20px 0 10px; color: #1a1a2e; }
-.tiptap-content .tiptap h3 { font-size: 18px; font-weight: 700; margin: 16px 0 8px; color: #1a1a2e; }
+.tiptap-content .tiptap h1 { font-size: 28px; font-weight: 700; margin: 24px 0 12px; color: #0f172a; }
+.tiptap-content .tiptap h2 { font-size: 22px; font-weight: 700; margin: 20px 0 10px; color: #0f172a; }
+.tiptap-content .tiptap h3 { font-size: 18px; font-weight: 700; margin: 16px 0 8px; color: #0f172a; }
 .tiptap-content .tiptap p { margin: 8px 0; }
 .tiptap-content .tiptap ul { list-style: disc; padding-left: 24px; margin: 8px 0; }
 .tiptap-content .tiptap ol { list-style: decimal; padding-left: 24px; margin: 8px 0; }
@@ -320,7 +348,7 @@ onBeforeUnmount(() => editor.value?.destroy())
   padding: 12px 16px;
   margin: 12px 0;
   color: #606266;
-  background: #f5f7fa;
+  background: #f8fafc;
   border-radius: 0 4px 4px 0;
 }
 .tiptap-content .tiptap img {

@@ -12,5 +12,6 @@
       <slot />
     </main>
     <Footer />
+    <LazyMobileStickyBar />
   </div>
 </template>

@@ -1,0 +1,221 @@
+/* =========================================================
+   responsive-density.css
+   14" 笔记本 100% 缩放：整体再收一档（偏紧凑、信息密度优先）
+   ========================================================= */
+
+:root {
+  --text-xs: 11.5px;
+  --text-sm: 12.5px;
+  --text-base: 13.5px;
+  --text-md: 15px;
+  --text-lg: 16.5px;
+  --text-xl: 19px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
+  --text-hero: clamp(26px, 3vw, 40px);
+  --text-section: clamp(20px, 1.8vw, 26px);
+  --text-card: 13.5px;
+  --leading-body: 1.65;
+  --leading-tight: 1.25;
+  --page-pad-x: clamp(14px, 2.5vw, 24px);
+  --section-pad-y: clamp(36px, 4vw, 56px);
+  --content-max: 1080px;
+}
+
+/* 大屏略放大，但有上限 */
+@media (min-width: 1440px) {
+  :root {
+    --text-base: 14px;
+    --text-md: 15.5px;
+    --text-lg: 17.5px;
+    --text-xl: 21px;
+    --text-2xl: 26px;
+    --text-3xl: 32px;
+    --text-hero: clamp(28px, 3.2vw, 44px);
+    --text-section: clamp(21px, 1.9vw, 28px);
+    --content-max: 1160px;
+    --section-pad-y: 64px;
+  }
+}
+
+/* 手机 */
+@media (max-width: 639px) {
+  :root {
+    --text-sm: 12px;
+    --text-base: 13px;
+    --text-md: 14px;
+    --text-lg: 15.5px;
+    --text-xl: 17px;
+    --text-2xl: 20px;
+    --text-3xl: 22px;
+    --text-hero: 24px;
+    --text-section: 19px;
+    --text-card: 13px;
+    --section-pad-y: 32px;
+  }
+}
+
+/* ── 核心：笔记本把 rem 整体缩小（影响 Tailwind text-*） ── */
+@media (min-width: 960px) and (max-width: 1439px) {
+  html {
+    font-size: 10px;
+  }
+
+  :root {
+    --text-xs: 8.5px;
+    --text-sm: 9.5px;
+    --text-base: 10px;
+    --text-md: 11px;
+    --text-lg: 12px;
+    --text-xl: 13.5px;
+    --text-2xl: 16px;
+    --text-3xl: 18px;
+    --text-hero: clamp(18px, 1.9vw, 24px);
+    --text-section: clamp(14px, 1.2vw, 17px);
+    --text-card: 10px;
+    --content-max: 1000px;
+    --section-pad-y: 36px;
+  }
+
+  .max-w-7xl { max-width: var(--content-max); }
+  .max-w-6xl { max-width: 940px; }
+  .max-w-4xl { max-width: 640px; }
+
+  .text-4xl, .text-5xl { font-size: 1.05rem; }
+  .text-3xl { font-size: 0.9rem; }
+  .text-2xl { font-size: 0.8rem; }
+  .text-xl { font-size: 0.72rem; }
+  .text-lg { font-size: 0.68rem; }
+  .text-base { font-size: 0.65rem; }
+  .text-sm { font-size: 0.58rem; }
+
+  .py-20 {
+    padding-top: var(--section-pad-y);
+    padding-bottom: var(--section-pad-y);
+  }
+
+  .py-16 {
+    padding-top: calc(var(--section-pad-y) * 0.85);
+    padding-bottom: calc(var(--section-pad-y) * 0.85);
+  }
+
+  .hero-title,
+  .business-title,
+  .process-title,
+  .cases-title,
+  .products-banner-title,
+  .news-banner-title,
+  .contact-title,
+  .contact-hero-title,
+  .cp-title,
+  .visual-title,
+  .panel-title,
+  .detail-title,
+  .products-cta-title {
+    font-size: var(--text-section) !important;
+    line-height: 1.25 !important;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-subtitle,
+  .business-desc,
+  .process-desc,
+  .section-desc,
+  .products-banner-desc,
+  .cp-lead,
+  .visual-desc {
+    font-size: var(--text-base) !important;
+    line-height: var(--leading-body) !important;
+  }
+
+  .business-name,
+  .process-step-title,
+  .product-name,
+  .related-name,
+  .news-item-title,
+  .cp-card-title,
+  .cp-form-title,
+  .side-title,
+  .footer-col-title,
+  .footer-cta-title {
+    font-size: var(--text-md) !important;
+  }
+
+  .business-summary,
+  .process-step-desc,
+  .process-points li,
+  .product-desc,
+  .detail-intro-text,
+  .footer-brand-desc,
+  .footer-links a {
+    font-size: var(--text-sm) !important;
+    line-height: 1.55 !important;
+  }
+
+  .hero-stat-number {
+    font-size: 13px !important;
+  }
+
+  .hero-stat-label {
+    font-size: 9px !important;
+  }
+
+  .hero-btn-primary,
+  .hero-btn-outline {
+    font-size: 10.5px !important;
+    padding: 8px 14px !important;
+  }
+
+  .process-badge {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+  }
+
+  .process-num {
+    font-size: 10px;
+  }
+
+  .trust-value {
+    font-size: 13px;
+  }
+
+  .trust-label {
+    font-size: 9px;
+  }
+
+  .cp-phone-num {
+    font-size: 12px;
+  }
+
+  .detail-price {
+    font-size: 13px;
+  }
+
+  .footer-phone {
+    font-size: 11.5px;
+  }
+
+  .process-output {
+    padding: 8px 10px;
+  }
+
+  .cp-form-card {
+    padding: 18px 16px;
+  }
+
+  .product-card-body {
+    padding: 10px 10px 6px;
+  }
+}
+
+.section-title {
+  font-size: var(--text-section);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.02em;
+}
+
+.section-desc {
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+}

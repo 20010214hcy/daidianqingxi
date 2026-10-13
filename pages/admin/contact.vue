@@ -56,6 +56,18 @@
         <el-form-item label="周末" prop="workHours2">
           <el-input v-model="form.workHours2" placeholder="如：周六：9:00 - 12:00" maxlength="50" />
         </el-form-item>
+
+        <el-divider content-position="left">地图坐标</el-divider>
+
+        <el-form-item label="地图纬度">
+          <el-input v-model="form.latitude" placeholder="如：33.714605" />
+          <div class="form-tip">前台联系页地图中心点纬度，可在高德坐标拾取器查询</div>
+        </el-form-item>
+
+        <el-form-item label="地图经度">
+          <el-input v-model="form.longitude" placeholder="如：113.401646" />
+          <div class="form-tip">前台联系页地图中心点经度</div>
+        </el-form-item>
       </el-form>
     </el-card>
 
@@ -99,6 +111,10 @@
             <span class="preview-label">周末时段</span>
             <span class="preview-value">{{ form.workHours2 }}</span>
           </div>
+          <div v-if="form.latitude && form.longitude" class="preview-item">
+            <span class="preview-label">地图坐标</span>
+            <span class="preview-value">{{ form.latitude }}, {{ form.longitude }}</span>
+          </div>
         </div>
       </div>
     </el-card>
@@ -137,6 +153,8 @@ const form = reactive({
   email2: '',
   workHours1: '',
   workHours2: '',
+  latitude: '' as string | number,
+  longitude: '' as string | number,
 })
 
 const rules: FormRules = {
@@ -243,5 +261,12 @@ onMounted(() => {
   font-size: 14px;
   color: #475569;
   line-height: 1.6;
+}
+
+.form-tip {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.5;
 }
 </style>

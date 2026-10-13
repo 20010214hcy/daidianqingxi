@@ -1,16 +1,16 @@
 /* ===== 玺铭电力 · 首页设计系统 =====
  * 设计理念：专业 · 可信 · 简洁
- * 配色：深蓝 #0c2340 / 科技蓝 #1a73e8 / 浅灰 #f5f7fa
+ * 配色：深蓝 #0f172a / 科技蓝 #2563eb / 浅灰 #f8fafc
  */
 
 :root {
-  --xm-navy: #0c2340;
-  --xm-blue: #1a73e8;
-  --xm-blue-light: #4a90d9;
+  --xm-navy: #0f172a;
+  --xm-blue: #2563eb;
+  --xm-blue-light: #60a5fa;
   --xm-blue-pale: #e8f0fe;
-  --xm-gray-bg: #f5f7fa;
+  --xm-gray-bg: #f8fafc;
   --xm-gray-border: #e5e7eb;
-  --xm-text-primary: #1a1a2e;
+  --xm-text-primary: #0f172a;
   --xm-text-secondary: #6b7280;
   --xm-text-muted: #9ca3af;
   --xm-radius: 12px;
@@ -24,15 +24,21 @@
 .hero-section { background-color: var(--xm-navy); }
 .hero-section::before, .hero-section::after { display: none !important; }
 .hero-overlay { background: linear-gradient(180deg, rgba(12,35,64,0.4), rgba(12,35,64,0.3) 50%, rgba(12,35,64,0.5)) !important; }
-.hero-title { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif !important; font-size: 64px !important; font-weight: 800 !important; letter-spacing: 4px !important; }
+.hero-title { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif !important; font-size: clamp(30px, 3.4vw, 48px) !important; font-weight: 800 !important; letter-spacing: 2px !important; display: flex !important; flex-direction: column !important; align-items: center !important; gap: 12px !important; }
+.hero-title-main { display: block !important; }
+.hero-title-sub { display: block !important; font-size: 0.46em !important; font-weight: 600 !important; letter-spacing: 4px !important; color: rgba(255,255,255,0.78) !important; text-shadow: 0 1px 10px rgba(0,0,0,0.3) !important; }
 .hero-subtitle { font-family: inherit !important; font-size: 18px !important; letter-spacing: 3px !important; color: rgba(255,255,255,0.9) !important; }
 .hero-decoration-text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important; font-size: 12px !important; letter-spacing: 6px !important; color: rgba(255,255,255,0.5) !important; }
 .hero-stat-number { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important; font-size: 36px !important; font-weight: 700 !important; color: #fff !important; }
 .hero-stat-label { font-size: 13px !important; color: rgba(255,255,255,0.7) !important; letter-spacing: 1px !important; }
 .hero-btn-primary { background: var(--xm-blue) !important; border-color: var(--xm-blue) !important; border-radius: 8px !important; letter-spacing: 2px !important; }
-.hero-btn-primary:hover { background: #1557b0 !important; border-color: #1557b0 !important; box-shadow: 0 8px 30px rgba(26,115,232,0.4) !important; }
+.hero-btn-primary:hover { background: #1d4ed8 !important; border-color: #1d4ed8 !important; box-shadow: 0 8px 30px rgba(26,115,232,0.4) !important; }
 .hero-btn-outline { border: 2px solid rgba(255,255,255,0.6) !important; border-radius: 8px !important; letter-spacing: 2px !important; }
 .hero-btn-outline:hover { background: rgba(255,255,255,0.1) !important; border-color: #fff !important; }
+
+/* ---------- 页面锚点 ---------- */
+html { scroll-behavior: smooth; }
+section[id] { scroll-margin-top: 88px; }
 
 /* ---------- About ---------- */
 .about-section { background: #fff !important; }
@@ -50,7 +56,7 @@
 .about-stat-number { font-size: 2.4rem !important; font-weight: 800 !important; background: linear-gradient(135deg, var(--xm-navy), var(--xm-blue)) !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; background-clip: text !important; }
 .about-stat-label { font-size: 0.8rem !important; color: var(--xm-text-secondary) !important; text-transform: none !important; letter-spacing: 1px !important; }
 .about-cta { background: var(--xm-blue) !important; font-size: 15px !important; letter-spacing: 1px !important; text-transform: none !important; border-radius: 8px !important; }
-.about-cta:hover { background: #1557b0 !important; box-shadow: 0 8px 24px rgba(26,115,232,0.3) !important; }
+.about-cta:hover { background: #1d4ed8 !important; box-shadow: 0 8px 24px rgba(26,115,232,0.3) !important; }
 
 /* ---------- Services ---------- */
 .services-section { background: var(--xm-gray-bg) !important; }
@@ -63,7 +69,6 @@
 .service-focus { border-radius: var(--xm-radius-lg) !important; box-shadow: var(--xm-shadow-lg) !important; }
 
 /* ---------- Cases ---------- */
-.cases-section { background: #fff !important; }
 .case-tag { background: var(--xm-blue-pale) !important; color: var(--xm-blue) !important; border-radius: 20px !important; }
 .case-card { border: 1px solid var(--xm-gray-border) !important; box-shadow: none !important; border-radius: var(--xm-radius-lg) !important; }
 .case-card:hover { border-color: var(--xm-blue) !important; box-shadow: var(--xm-shadow-lg) !important; }
@@ -73,7 +78,7 @@
 .case-card:hover .case-card-title { color: var(--xm-blue) !important; }
 .case-card-desc { color: var(--xm-text-secondary) !important; }
 .case-more-btn { background: var(--xm-blue) !important; font-size: 15px !important; letter-spacing: 1px !important; text-transform: none !important; border-radius: 8px !important; }
-.case-more-btn:hover { background: #1557b0 !important; box-shadow: 0 8px 24px rgba(26,115,232,0.3) !important; }
+.case-more-btn:hover { background: #1d4ed8 !important; box-shadow: 0 8px 24px rgba(26,115,232,0.3) !important; }
 
 /* ---------- News ---------- */
 .news-headline { border: 1px solid var(--xm-gray-border) !important; box-shadow: none !important; border-radius: var(--xm-radius-lg) !important; }
@@ -90,7 +95,8 @@ footer { background: var(--xm-navy) !important; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 768px) {
-  .hero-title { font-size: 36px !important; letter-spacing: 2px !important; }
+  .hero-title { font-size: 30px !important; letter-spacing: 1px !important; gap: 8px !important; }
+  .hero-title-sub { font-size: 0.52em !important; letter-spacing: 1.5px !important; }
   .hero-subtitle { font-size: 15px !important; letter-spacing: 1px !important; }
   .hero-stat-number { font-size: 28px !important; }
   .about-heading { font-size: 26px !important; }
@@ -100,7 +106,8 @@ footer { background: var(--xm-navy) !important; }
 }
 
 @media (max-width: 480px) {
-  .hero-title { font-size: 28px !important; }
+  .hero-title { font-size: 22px !important; gap: 6px !important; }
+  .hero-title-sub { font-size: 0.55em !important; letter-spacing: 1px !important; }
   .about-heading { font-size: 22px !important; }
   .about-stat-number { font-size: 1.5rem !important; }
 }

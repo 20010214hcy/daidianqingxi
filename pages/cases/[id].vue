@@ -32,7 +32,7 @@
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- 封面图 -->
         <div v-if="caseItem.coverImage" class="mb-12">
-          <img :src="caseItem.coverImage" :alt="caseItem.title" class="w-full rounded-lg shadow-lg"  loading="lazy" />
+          <img :src="caseItem.coverImage" :alt="caseItem.title" class="w-full rounded-lg shadow-lg" />
         </div>
 
         <!-- 项目信息 -->

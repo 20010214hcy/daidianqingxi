@@ -190,12 +190,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  House, Document, Suitcase, Reading, ChatDotRound, Monitor, Trophy,
-  Star, Message, Lock, Setting, User, Goods, Medal, Phone,
-  Fold, Expand, Search, Refresh, FullScreen, Aim, ArrowDown, SwitchButton,
-  UserFilled, Picture
-} from '@element-plus/icons-vue'
+import { House, Document, Suitcase, Reading, ChatDotRound, Monitor, Trophy, Star, Message, Lock, Setting, User, Goods, Medal, Phone, Fold, Expand, Search, Refresh, FullScreen, Aim, ArrowDown, SwitchButton, UserFilled, Picture, Grid } from '@element-plus/icons-vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 
 const route = useRoute()
@@ -270,92 +265,57 @@ onUnmounted(() => {
 
 // 菜单配置（含权限模块标识）
 const allMenuGroups = [
-  // 仪表盘
+  // 仪表盘：一级直达
   {
     title: '仪表盘',
     icon: Monitor,
     permission: 'dashboard' as const,
     items: [
-      { path: '/admin', title: '数据概览', icon: Monitor, permission: 'dashboard' as const }
-    ]
-  },
-  // 核心业务
-  {
-    title: '产品管理',
-    icon: Goods,
-    permission: 'products' as const,
-    items: [
-      { path: '/admin/products', title: '产品列表', icon: Goods, permission: 'products' as const },
-      { path: '/admin/categories', title: '分类管理', icon: Setting, permission: 'categories' as const }
-    ]
-  },
-  {
-    title: '服务项目',
-    icon: Suitcase,
-    permission: 'services' as const,
-    items: [
-      { path: '/admin/services', title: '服务管理', icon: Star, permission: 'services' as const }
-    ]
-  },
-  {
-    title: '工程案例',
-    icon: Trophy,
-    permission: 'cases' as const,
-    items: [
-      { path: '/admin/cases', title: '案例管理', icon: Trophy, permission: 'cases' as const }
+      { path: '/admin', title: '仪表盘', icon: Monitor, permission: 'dashboard' as const }
     ]
   },
   // 内容运营
   {
-    title: '新闻资讯',
+    title: '内容',
     icon: Reading,
     permission: 'articles' as const,
     items: [
-      { path: '/admin/articles', title: '文章管理', icon: Document, permission: 'articles' as const }
-    ]
-  },
-  {
-    title: '资质证书',
-    icon: Medal,
-    permission: 'certificates' as const,
-    items: [
+      { path: '/admin/articles', title: '新闻文章', icon: Document, permission: 'articles' as const },
+      { path: '/admin/media', title: '媒体资源', icon: Picture, permission: 'articles' as const },
       { path: '/admin/certificates', title: '资质证书', icon: Medal, permission: 'certificates' as const }
     ]
   },
+  // 业务展示
   {
-    title: '媒体资源',
-    icon: Picture,
-    permission: 'articles' as const,
+    title: '业务',
+    icon: Goods,
+    permission: 'products' as const,
     items: [
-      { path: '/admin/media', title: '图片管理', icon: Picture, permission: 'articles' as const }
+      { path: '/admin/products', title: '产品列表', icon: Goods, permission: 'products' as const },
+      { path: '/admin/categories', title: '分类管理', icon: Grid, permission: 'categories' as const },
+      { path: '/admin/services', title: '服务项目', icon: Suitcase, permission: 'services' as const },
+      { path: '/admin/cases', title: '工程案例', icon: Trophy, permission: 'cases' as const }
     ]
   },
-  // 客户互动
+  // 客户线索
   {
-    title: '联系我们',
-    icon: ChatDotRound,
-    permission: 'contact' as const,
+    title: '客户',
+    icon: Message,
+    permission: 'messages' as const,
     items: [
-      { path: '/admin/contact', title: '联系信息', icon: Phone, permission: 'contact' as const },
-      { path: '/admin/messages', title: '留言管理', icon: Message, permission: 'messages' as const }
+      { path: '/admin/messages', title: '留言管理', icon: Message, permission: 'messages' as const },
+      { path: '/admin/contact', title: '联系信息', icon: Phone, permission: 'contact' as const }
     ]
   },
-  // 系统管理
+  // 系统
   {
-    title: '系统设置',
+    title: '系统',
     icon: Setting,
-    permission: 'profile' as const,
+    permission: 'settings' as const,
     items: [
-      { path: '/admin/profile', title: '个人资料', icon: User, permission: 'profile' as const },
-      { path: '/admin/settings', title: '网站设置', icon: Setting, permission: 'settings' as const }
-    ]
-  },
-  {
-    title: '用户管理',
-    icon: UserFilled,
-    permission: 'users' as const,
-    items: [
-      { path: '/admin/users', title: '用户列表', icon: UserFilled, permission: 'users' as const }
+      { path: '/admin/settings', title: '网站设置', icon: Setting, permission: 'settings' as const },
+      { path: '/admin/users', title: '用户管理', icon: UserFilled, permission: 'users' as const },
+      { path: '/admin/profile', title: '个人资料', icon: User, permission: 'profile' as const }
     ]
   }
 ]

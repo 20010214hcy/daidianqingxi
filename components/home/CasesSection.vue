@@ -1,5 +1,5 @@
 <template>
-  <section class="cases-section" ref="sectionRef">
+  <section id="cases" class="cases-section" ref="sectionRef">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- 标题区 -->
       <div class="cases-header" :class="{ 'animate-in': visible }">
@@ -18,7 +18,17 @@
             <div v-for="(item, i) in featuredCases" :key="item.id" class="swiper-slide">
               <NuxtLink :to="`/cases/${item.id}`" class="case-card group">
                 <div class="case-img-box">
-                  <img v-if="item.coverImage" :src="item.coverImage" :alt="item.title" class="case-img"  loading="lazy" />
+                  <NuxtImg
+                    v-if="item.coverImage"
+                    :src="item.coverImage"
+                    :alt="item.title"
+                    class="case-img"
+                    sizes="xs:100vw sm:50vw md:33vw lg:420px"
+                    format="webp"
+                    quality="76"
+                    loading="lazy"
+                    decoding="async"
+                  />
                   <div v-else class="case-img-placeholder" />
                   <div class="case-mask" />
                   <span class="case-num">{{ String(i + 1).padStart(2, '0') }}</span>
@@ -71,12 +81,20 @@ const nextRef = ref<HTMLElement>()
 const visible = ref(false)
 
 onMounted(() => {
+  // 兜底：若 IO 未触发（首屏已可见/阈值问题），1s 后强制显示，避免“刷新才出现”
+  const fallback = setTimeout(() => { visible.value = true }, 1000)
+  onUnmounted(() => clearTimeout(fallback))
+
   if (sectionRef.value) {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) { visible.value = true; observer.disconnect() }
+        if (entry.isIntersecting) {
+          visible.value = true
+          clearTimeout(fallback)
+          observer.disconnect()
+        }
       },
-      { threshold: 0.1 }
+      { threshold: 0.05, rootMargin: '0px 0px -5% 0px' }
     )
     observer.observe(sectionRef.value)
   }
@@ -100,9 +118,10 @@ onMounted(() => {
 
 <style scoped>
 .cases-section {
-  padding: 100px 0;
-  background: #f5f7fa;
+  padding: 80px 0;
+  background: #fff;
   overflow: hidden;
+  scroll-margin-top: 88px;
 }
 
 /* 标题区 */
@@ -119,7 +138,7 @@ onMounted(() => {
   display: inline-block;
   font-size: 12px;
   font-weight: 600;
-  color: #1a73e8;
+  color: #2563eb;
   letter-spacing: 4px;
   text-transform: uppercase;
   margin-bottom: 14px;
@@ -128,7 +147,7 @@ onMounted(() => {
 .cases-title {
   font-size: 36px;
   font-weight: 800;
-  color: #1a1a2e;
+  color: #0f172a;
   margin-bottom: 10px;
 }
 
@@ -171,9 +190,9 @@ onMounted(() => {
 }
 
 .swiper-btn:hover {
-  background: #1a73e8;
-  border-color: #1a73e8;
-  box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+  background: #2563eb;
+  border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 .swiper-btn:hover svg { color: #fff; }
@@ -201,7 +220,7 @@ onMounted(() => {
 
 .case-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 16px 40px rgba(26, 115, 232, 0.12);
+  box-shadow: 0 16px 40px rgba(37, 99, 235, 0.12);
 }
 
 .case-img-box {
@@ -233,7 +252,7 @@ onMounted(() => {
 }
 
 .case-card:hover .case-mask {
-  background: linear-gradient(180deg, transparent 20%, rgba(26, 115, 232, 0.08) 100%);
+  background: linear-gradient(180deg, transparent 20%, rgba(37, 99, 235, 0.08) 100%);
 }
 
 .case-num {
@@ -255,13 +274,13 @@ onMounted(() => {
 .case-title {
   font-size: 17px;
   font-weight: 700;
-  color: #1a1a2e;
+  color: #0f172a;
   margin-bottom: 8px;
   line-height: 1.4;
   transition: color 0.3s;
 }
 
-.case-card:hover .case-title { color: #1a73e8; }
+.case-card:hover .case-title { color: #2563eb; }
 
 .case-desc {
   font-size: 13px;
@@ -279,7 +298,7 @@ onMounted(() => {
   align-items: center;
   font-size: 13px;
   font-weight: 600;
-  color: #1a73e8;
+  color: #2563eb;
   letter-spacing: 0.5px;
   opacity: 0;
   transform: translateX(-8px);
@@ -305,7 +324,7 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   padding: 12px 32px;
-  background: #1a73e8;
+  background: #2563eb;
   color: #fff;
   font-size: 15px;
   font-weight: 600;
@@ -316,15 +335,22 @@ onMounted(() => {
 }
 
 .case-more-btn:hover {
-  background: #1557b0;
+  background: #1d4ed8;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(26, 115, 232, 0.3);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3);
 }
 
 /* 响应式 */
+/* md-desktop-density */
+@media (min-width: 960px) and (max-width: 1440px) {
+  .cases-section { padding: 80px 0; }
+  .cases-title { font-size: 28px; }
+  .cases-swiper-wrap { padding: 0 36px; }
+}
+
 @media (max-width: 1024px) {
   .cases-section { padding: 80px 0; }
-  .cases-title { font-size: 30px; }
+  .cases-title { font-size: 24px; }
 }
 
 @media (max-width: 768px) {
@@ -335,6 +361,11 @@ onMounted(() => {
 
 @media (max-width: 640px) {
   .cases-section { padding: 60px 0; }
+  .cases-header { margin-bottom: 18px; }
+  .cases-title { font-size: 22px; }
+  .section-desc { font-size: 13px !important; }
+  .cases-swiper-wrap { padding: 0; }
+  .swiper-btn { display: none; }
   .cases-title { font-size: 26px; }
   .cases-swiper-wrap { padding: 0; }
   .swiper-btn { display: none; }

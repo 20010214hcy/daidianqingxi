@@ -5,7 +5,7 @@ Disallow: /login
 Disallow: /api/
 Disallow: /_nuxt/
 
-Sitemap: https://ximingpower.com/api/sitemap.xml
+Sitemap: https://ximingpower.com/sitemap.xml
 
 # 禁止恶意爬虫
 User-agent: AhrefsBot

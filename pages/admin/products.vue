@@ -71,7 +71,7 @@
             <template #default="{ row }">
               <img
                 v-if="row.image"
-                :src="row.image"
+                :src="cacheBust(row.image)"
                 class="w-12 h-12 rounded object-cover"
               />
               <div v-else class="w-12 h-12 rounded bg-slate-100 flex items-center justify-center text-slate-400 text-xs">无图</div>
@@ -234,6 +234,7 @@
 </template>
 
 <script setup lang="ts">
+import { cacheBust } from '~/utils/cacheBust'
 import { formatDate } from '~/utils/format'
 import { ref, computed, reactive, watch } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'

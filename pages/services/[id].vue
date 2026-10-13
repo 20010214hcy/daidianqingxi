@@ -431,7 +431,7 @@ onMounted(() => {
 .section-title {
   font-size: 32px;
   font-weight: 700;
-  color: #1a1a2e;
+  color: #0f172a;
   margin-bottom: 16px;
 }
 
@@ -473,7 +473,7 @@ onMounted(() => {
 .overview-name {
   font-size: 24px;
   font-weight: 600;
-  color: #1a1a2e;
+  color: #0f172a;
   margin-bottom: 20px;
 }
 
@@ -552,7 +552,7 @@ onMounted(() => {
 .advantage-title {
   font-size: 18px;
   font-weight: 600;
-  color: #1a1a2e;
+  color: #0f172a;
   margin-bottom: 12px;
 }
 
@@ -591,7 +591,7 @@ onMounted(() => {
   padding: 16px 20px;
   font-size: 15px;
   font-weight: 500;
-  color: #1a1a2e;
+  color: #0f172a;
   background: #f8fafc;
 }
 
@@ -661,7 +661,7 @@ onMounted(() => {
 .product-name {
   font-size: 16px;
   font-weight: 600;
-  color: #1a1a2e;
+  color: #0f172a;
   margin-bottom: 8px;
 }
 
@@ -736,7 +736,7 @@ onMounted(() => {
 .case-name {
   font-size: 16px;
   font-weight: 600;
-  color: #1a1a2e;
+  color: #0f172a;
   margin-bottom: 8px;
 }
 
@@ -819,7 +819,7 @@ onMounted(() => {
 
 .error-content h2 {
   font-size: 24px;
-  color: #1a1a2e;
+  color: #0f172a;
   margin-bottom: 12px;
 }
 

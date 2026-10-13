@@ -1,5 +1,5 @@
 <template>
-  <section class="certs-section">
+  <section id="certs" class="certs-section">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-12 section-header-center">
         <span class="section-tag">资质荣誉</span>
@@ -15,7 +15,17 @@
           @click="openLightbox(index)"
         >
           <div class="cert-img-wrap">
-            <img v-if="cert.image" :src="cert.image" :alt="cert.title" class="cert-img" loading="lazy" />
+            <NuxtImg
+              v-if="cert.image"
+              :src="cert.image"
+              :alt="cert.title"
+              class="cert-img"
+              sizes="xs:50vw sm:33vw md:25vw lg:300px"
+              format="webp"
+              quality="82"
+              loading="lazy"
+              decoding="async"
+            />
             <div class="cert-zoom-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
@@ -47,7 +57,17 @@
 
           <div class="lightbox-content">
             <div class="lightbox-img-wrap">
-              <img v-if="currentCert?.image" :src="currentCert.image" :alt="currentCert.title" class="lightbox-img"  loading="lazy" />
+              <NuxtImg
+                v-if="currentCert?.image"
+                :src="currentCert.image"
+                :alt="currentCert.title"
+                class="lightbox-img"
+                sizes="xs:100vw md:800px lg:1200px"
+                format="webp"
+                quality="88"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
             <div class="lightbox-info">
               <h3 class="lightbox-title">{{ currentCert?.title }}</h3>
@@ -93,18 +113,22 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.certs-section { padding: 80px 0; background: #f5f7fa; }
+.certs-section {
+  padding: 80px 0;
+  background: #fff;
+  scroll-margin-top: 88px;
+}
 
 .certs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
 
 .cert-card { background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-.cert-card:hover { transform: translateY(-6px); border-color: #1a73e8; box-shadow: 0 12px 32px rgba(26, 115, 232, 0.12); }
+.cert-card:hover { transform: translateY(-6px); border-color: #2563eb; box-shadow: 0 12px 32px rgba(37, 99, 235, 0.12); }
 
 .cert-img-wrap { position: relative; height: 200px; background: #f9fafb; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .cert-img { max-width: 100%; max-height: 100%; object-fit: contain; transition: transform 0.4s ease; }
 .cert-card:hover .cert-img { transform: scale(1.03); }
 
-.cert-zoom-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(26, 115, 232, 0.12); opacity: 0; transition: opacity 0.3s ease; }
+.cert-zoom-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(37, 99, 235, 0.12); opacity: 0; transition: opacity 0.3s ease; }
 .cert-card:hover .cert-zoom-icon { opacity: 1; }
 .cert-zoom-icon svg { width: 36px; height: 36px; color: #fff; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
 
@@ -132,7 +156,13 @@ onMounted(() => {
 .lightbox-leave-active { transition: opacity 0.2s ease; }
 .lightbox-enter-from, .lightbox-leave-to { opacity: 0; }
 
+/* md-desktop-density */
+@media (min-width: 960px) and (max-width: 1440px) {
+  .certs-section { padding: 64px 0; }
+  .certs-grid { grid-template-columns: repeat(3, 1fr); gap: 18px; }
+}
 @media (max-width: 1024px) { .certs-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; } }
-@media (max-width: 768px) { .certs-section { padding: 60px 0; } .certs-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; } .cert-img-wrap { height: 160px; } .lightbox-overlay { padding: 20px; } .lightbox-nav { width: 40px; height: 40px; } .lightbox-prev { left: 10px; } .lightbox-next { right: 10px; } }
+@media (max-width: 768px) {
+  .certs-section { padding: 48px 0; } .certs-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; } .cert-img-wrap { height: 160px; } .lightbox-overlay { padding: 20px; } .lightbox-nav { width: 40px; height: 40px; } .lightbox-prev { left: 10px; } .lightbox-next { right: 10px; } }
 @media (max-width: 480px) { .certs-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } .cert-img-wrap { height: 140px; } .cert-info { padding: 10px 12px; } .cert-title { font-size: 13px; } .lightbox-title { font-size: 16px; } }
 </style>

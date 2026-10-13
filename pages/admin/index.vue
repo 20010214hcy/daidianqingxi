@@ -211,7 +211,7 @@ const chartData = ref<{ label: string; value: number }[]>([])
 const recentArticles = ref<{ id: number; title: string; createdAt: string }[]>([])
 const system = ref({ uptime: '', memoryUsage: '', nodeVersion: '', status: 'healthy' })
 
-const barColors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#ef4444']
+const barColors = ['#3b82f6', '#10b981', '#f59e0b', '#60a5fa', '#06b6d4', '#ef4444']
 
 const today = computed(() => {
   const d = new Date()
@@ -233,7 +233,7 @@ const sysStatus = computed(() => system.value.status === 'healthy' ? 'healthy' :
 
 const statCards = computed(() => [
   { label: '产品总数', value: counts.value.products, sub: '全部产品', icon: '📦', color: '#3b82f6', trend: 12 },
-  { label: '服务项目', value: counts.value.services, sub: '服务类型', icon: '⚡', color: '#8b5cf6', trend: 5 },
+  { label: '服务项目', value: counts.value.services, sub: '服务类型', icon: '⚡', color: '#60a5fa', trend: 5 },
   { label: '工程案例', value: counts.value.cases, sub: '成功项目', icon: '🏭', color: '#10b981', trend: 8 },
   { label: '文章资讯', value: counts.value.articles, sub: '新闻总数', icon: '📰', color: '#f59e0b', trend: -3 },
   { label: '待回留言', value: counts.value.pendingMessages, sub: '待处理', icon: '💬', color: '#ef4444', trend: 0 },
@@ -243,7 +243,7 @@ const quickActions = [
   { label: '新增产品', icon: '📦', path: '/admin/products', color: '#3b82f6' },
   { label: '新增文章', icon: '📰', path: '/admin/articles', color: '#f59e0b' },
   { label: '查看留言', icon: '💬', path: '/admin/messages', color: '#ef4444' },
-  { label: '资质证书', icon: '🏅', path: '/admin/certificates', color: '#8b5cf6' },
+  { label: '资质证书', icon: '🏅', path: '/admin/certificates', color: '#60a5fa' },
   { label: '新增案例', icon: '🏭', path: '/admin/cases', color: '#10b981' },
   { label: '网站设置', icon: '⚙️', path: '/admin/settings', color: '#64748b' },
 ]
@@ -251,7 +251,7 @@ const quickActions = [
 const statusItems = computed(() => [
   { label: '运行时间', value: system.value.uptime, icon: Timer, color: '#10b981', healthy: true },
   { label: '内存使用', value: system.value.memoryUsage, icon: Cpu, color: '#3b82f6', healthy: true },
-  { label: 'Node 版本', value: system.value.nodeVersion, icon: Monitor, color: '#8b5cf6', healthy: true },
+  { label: 'Node 版本', value: system.value.nodeVersion, icon: Monitor, color: '#60a5fa', healthy: true },
   { label: 'API 状态', value: '正常', icon: Connection, color: '#10b981', healthy: true },
 ])
 

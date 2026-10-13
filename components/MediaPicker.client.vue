@@ -1,8 +1,8 @@
 <template>
-  <div class="media-picker">
+  <div class="media-picker" @paste="handlePaste">
     <!-- 当前图片预览 -->
     <div v-if="modelValue" class="media-picker-preview">
-      <img :src="modelValue" class="media-picker-img"  loading="lazy" />
+      <img :src="cacheBust(modelValue)" class="media-picker-img"  loading="lazy" />
       <div class="media-picker-actions">
         <el-button size="small" @click="showLibrary = true">从媒体库选择</el-button>
         <el-upload action="/api/upload" :show-file-list="false" :on-success="handleUpload" :before-upload="beforeUpload" accept="image/*">
@@ -28,7 +28,7 @@
       <span class="text-slate-400 text-sm mx-2">或</span>
       <div class="paste-area" @paste="handlePaste" tabindex="0">
         <el-icon class="mr-1"><DocumentCopy /></el-icon>
-        <span>Ctrl+V 粘贴图片</span>
+        <span>Ctrl+V 粘贴图片上传</span>
       </div>
     </div>
 
@@ -38,7 +38,7 @@
       <div v-if="urlInput" class="mt-4">
         <p class="text-sm text-slate-500 mb-2">预览：</p>
         <div class="w-full max-h-60 overflow-hidden rounded-lg bg-slate-50">
-          <img :src="urlInput" class="max-w-full max-h-60 object-contain mx-auto" @error="urlError = true" @load="urlError = false"  loading="lazy" />
+          <img :src="cacheBust(urlInput)" class="max-w-full max-h-60 object-contain mx-auto" @error="urlError = true" @load="urlError = false"  loading="lazy" />
         </div>
         <p v-if="urlError" class="text-red-500 text-sm mt-2">图片加载失败，请检查链接</p>
       </div>
@@ -66,7 +66,7 @@
           class="media-library-item"
           :class="{ 'is-selected': selectedUrl === item.url }"
           @click="selectedUrl = item.url">
-          <img :src="item.url" :alt="item.filename" class="media-library-img" loading="lazy" />
+          <img :src="cacheBust(item.url)" :alt="item.filename" class="media-library-img" loading="lazy" />
           <div class="media-library-check" v-if="selectedUrl === item.url">
             <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
@@ -89,6 +89,7 @@
 </template>
 
 <script setup lang="ts">
+import { cacheBust } from '~/utils/cacheBust'
 import { Picture, Search, DocumentCopy } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
@@ -219,14 +220,14 @@ const clearImage = () => { emit('update:modelValue', '') }
   transition: all 0.2s;
   outline: none;
 }
-.paste-area:hover { border-color: #1a73e8; color: #1a73e8; background: #f0f7ff; }
-.paste-area:focus { border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.15); }
+.paste-area:hover { border-color: #2563eb; color: #2563eb; background: #f0f7ff; }
+.paste-area:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15); }
 
 .media-library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; max-height: 50vh; overflow-y: auto; padding: 4px; }
 .media-library-item { position: relative; border-radius: 10px; overflow: hidden; border: 2px solid transparent; cursor: pointer; transition: all 0.2s; background: #f8fafc; }
 .media-library-item:hover { border-color: #cbd5e1; }
-.media-library-item.is-selected { border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2); }
+.media-library-item.is-selected { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); }
 .media-library-img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
-.media-library-check { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; background: #1a73e8; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.media-library-check { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; background: #2563eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 .media-library-name { font-size: 11px; color: #64748b; padding: 6px 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>

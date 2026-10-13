@@ -8,7 +8,6 @@
             <img               class="about-image"
               src="/uploads/51a3b015-95f2-4b29-8fb6-952e2341599e.webp"
               alt="玺铭电力 - 专业电力设备运维"
-              loading="lazy"
             />
           </div>
         </div>
@@ -94,6 +93,8 @@ const statItems = [
 ]
 
 onMounted(() => {
+  const aboutRevealFallback = setTimeout(() => { aboutVisible.value = true }, 1200)
+  onUnmounted(() => clearTimeout(aboutRevealFallback))
   if (aboutRef.value) {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -132,7 +133,7 @@ onMounted(() => {
   transition: box-shadow 0.4s ease;
 }
 
-.about-image-wrapper:hover { box-shadow: 0 8px 40px rgba(26, 115, 232, 0.15); }
+.about-image-wrapper:hover { box-shadow: 0 8px 40px rgba(37, 99, 235, 0.15); }
 
 .about-image-accent {
   position: absolute;
@@ -140,7 +141,7 @@ onMounted(() => {
   left: -12px;
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #1a73e8, #4a90d9);
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
   border-radius: 16px;
   opacity: 0.12;
   z-index: 0;
@@ -178,14 +179,14 @@ onMounted(() => {
   align-items: flex-start;
   gap: 14px;
   padding: 18px;
-  background: #f5f7fa;
+  background: #f8fafc;
   border: 1px solid transparent;
   border-radius: 12px;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .about-feature-item:hover {
-  border-color: #1a73e8;
+  border-color: #2563eb;
   background: #fff;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
@@ -199,7 +200,7 @@ onMounted(() => {
   background: #e8f0fe;
   border-radius: 10px;
   flex-shrink: 0;
-  color: #1a73e8;
+  color: #2563eb;
 }
 
 .about-feature-icon svg { width: 20px; height: 20px; }
@@ -225,7 +226,7 @@ onMounted(() => {
 .about-stat-number {
   font-size: 2rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #0c2340, #1a73e8);
+  background: linear-gradient(135deg, #0f172a, #2563eb);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -240,7 +241,7 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   padding: 12px 28px;
-  background: #1a73e8;
+  background: #2563eb;
   color: #fff;
   font-size: 15px;
   font-weight: 600;
@@ -249,7 +250,7 @@ onMounted(() => {
   transition: all 0.3s ease;
 }
 
-.about-cta:hover { background: #1557b0; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26, 115, 232, 0.3); }
+.about-cta:hover { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3); }
 .about-cta-arrow { width: 18px; height: 18px; transition: transform 0.3s ease; }
 .about-cta:hover .about-cta-arrow { transform: translateX(4px); }
 

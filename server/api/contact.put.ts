@@ -3,7 +3,13 @@ import { successResponse, errorResponse } from '~/server/utils/response'
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody(event)
+    // readBody 在请求体缺失或无法解析时返回 undefined，
+    // 此前直接取 body.companyName 会抛 TypeError，导致后台保存失败（已复现两次）
+    const body = (await readBody(event)) || {}
+
+    if (!body.companyName || !body.address || !body.phone1) {
+      return errorResponse('公司名称、公司地址、客服热线为必填项，请检查后重试')
+    }
 
     let contact = await prisma.contactinfo.findFirst()
 
@@ -19,6 +25,9 @@ export default defineEventHandler(async (event) => {
           email2: body.email2,
           workHours1: body.workHours1,
           workHours2: body.workHours2,
+          latitude: body.latitude != null && body.latitude !== '' ? Number(body.latitude) : null,
+          longitude: body.longitude != null && body.longitude !== '' ? Number(body.longitude) : null,
+          updatedAt: new Date(),
         }
       })
     } else {
@@ -32,6 +41,8 @@ export default defineEventHandler(async (event) => {
           email2: body.email2 || '',
           workHours1: body.workHours1 || '',
           workHours2: body.workHours2 || '',
+          latitude: body.latitude != null && body.latitude !== '' ? Number(body.latitude) : 33.714605,
+          longitude: body.longitude != null && body.longitude !== '' ? Number(body.longitude) : 113.401646,
         }
       })
     }

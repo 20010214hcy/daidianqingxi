@@ -1,6 +1,21 @@
 import { prisma } from '~/server/utils/db'
 import { successResponse, errorResponse } from '~/server/utils/response'
 
+// 兜底数据只保留公司名，不留假地址 / 假电话 / 假邮箱。
+// 此前这里是「北京市朝阳区工业大道123号…」「400-888-8888」这类占位信息，
+// 一旦数据库读取失败，前台页脚、详情页联系卡和结构化数据就会展示
+// 与真实情况完全不符的联系方式（真实为河南平顶山 / 0375-3633369）。
+const FALLBACK = {
+  companyName: '玺铭电力',
+  address: '',
+  phone1: '',
+  phone2: '',
+  email1: '',
+  email2: '',
+  workHours1: '',
+  workHours2: '',
+}
+
 export default defineEventHandler(async () => {
   try {
     let contact = await prisma.contactinfo.findFirst()
@@ -8,14 +23,14 @@ export default defineEventHandler(async () => {
     if (!contact) {
       contact = await prisma.contactinfo.create({
         data: {
-          companyName: '玺铭电力',
-          address: '北京市朝阳区工业大道123号科技大厦A座18层',
-          phone1: '400-888-8888',
-          phone2: '010-12345678',
-          email1: 'contact@daidianqingxi.com',
-          email2: 'service@daidianqingxi.com',
-          workHours1: '周一至周五：9:00 - 18:00',
-          workHours2: '周六：9:00 - 12:00',
+          companyName: FALLBACK.companyName,
+          address: '',
+          phone1: '',
+          phone2: '',
+          email1: '',
+          email2: '',
+          workHours1: '',
+          workHours2: '',
         }
       })
     }
@@ -23,15 +38,6 @@ export default defineEventHandler(async () => {
     return successResponse(contact)
   } catch (error) {
     console.error('获取联系信息失败:', error)
-    return successResponse({
-      companyName: '玺铭电力',
-      address: '北京市朝阳区工业大道123号科技大厦A座18层',
-      phone1: '400-888-8888',
-      phone2: '010-12345678',
-      email1: 'contact@daidianqingxi.com',
-      email2: 'service@daidianqingxi.com',
-      workHours1: '周一至周五：9:00 - 18:00',
-      workHours2: '周六：9:00 - 12:00',
-    })
+    return successResponse(FALLBACK)
   }
 })

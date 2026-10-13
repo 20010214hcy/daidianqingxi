@@ -37,7 +37,7 @@ defineProps<Props>();
 .admin-page-title {
   font-size: var(--admin-page-title-size, 24px);
   font-weight: var(--admin-page-title-weight, 700);
-  color: var(--admin-text-primary, #1a1a2e);
+  color: var(--admin-text-primary, #0f172a);
   margin: 0;
   line-height: 1.3;
 }

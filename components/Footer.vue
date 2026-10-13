@@ -1,47 +1,42 @@
 <template>
   <footer class="site-footer">
-    <!-- 页脚前 CTA 转化条 -->
+    <!-- CTA -->
     <div class="footer-cta">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 footer-cta-inner">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 footer-cta-inner">
         <div class="footer-cta-text">
-          <h2 class="footer-cta-title">需要带电清洗或储能集成方案？</h2>
-          <p class="footer-cta-desc">专业团队 1 对 1 沟通，免费评估设备工况与改造路径</p>
+          <p class="footer-cta-title">
+            <span class="footer-cta-title-desktop">有设备要清洗，或准备上储能？</span>
+            <span class="footer-cta-title-mobile">要清洗 / 上储能？</span>
+          </p>
+          <p class="footer-cta-desc">电话或留言，我们在 24 小时内回复</p>
         </div>
         <div class="footer-cta-actions">
           <a v-if="contact.phone1" :href="`tel:${contact.phone1}`" class="footer-cta-btn footer-cta-btn-primary">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
             </svg>
             <span>{{ contact.phone1 }}</span>
           </a>
-          <NuxtLink to="/contact" class="footer-cta-btn footer-cta-btn-ghost">
-            在线留言
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 5l7 7-7 7"/>
-            </svg>
-          </NuxtLink>
+          <NuxtLink to="/contact" class="footer-cta-btn footer-cta-btn-ghost">在线留言</NuxtLink>
         </div>
       </div>
     </div>
 
     <!-- 主体 -->
     <div class="footer-main">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="footer-grid">
-          <!-- 品牌 -->
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- 桌面：四栏 -->
+        <div class="footer-grid desktop-only">
           <div class="footer-brand">
             <div class="footer-logo-row">
-              <div class="footer-logo-mark" aria-hidden="true">
-                <span>玺</span>
-              </div>
+              <div class="footer-logo-mark" aria-hidden="true">玺</div>
               <div>
                 <h3 class="footer-brand-name">{{ contact.companyName || '玺铭电力' }}</h3>
                 <p class="footer-brand-tag">带电清洗 · 储能集成</p>
               </div>
             </div>
             <p class="footer-brand-desc">
-              专注电力设备带电清洗与储能系统集成，服务变电站、配电室、工商业园区等场景，
-              以安全、高效、可验证的工程能力保障供电稳定。
+              专注电力设备带电清洗与储能系统集成，服务变电站、配电室、工商业园区等场景。
             </p>
             <p class="footer-brand-meta">
               <span class="footer-meta-label">服务区域</span>
@@ -49,7 +44,6 @@
             </p>
           </div>
 
-          <!-- 服务导航：双业务 -->
           <div class="footer-col">
             <h4 class="footer-col-title">带电清洗</h4>
             <ul class="footer-links">
@@ -65,13 +59,11 @@
             <ul class="footer-links">
               <li><NuxtLink to="/solutions">解决方案</NuxtLink></li>
               <li><NuxtLink to="/products">产品中心</NuxtLink></li>
-              <li><NuxtLink to="/services">全部服务</NuxtLink></li>
               <li><NuxtLink to="/news">新闻资讯</NuxtLink></li>
               <li><NuxtLink to="/about">关于我们</NuxtLink></li>
             </ul>
           </div>
 
-          <!-- 联系 -->
           <div class="footer-col footer-contact">
             <h4 class="footer-col-title">联系我们</h4>
             <ul class="footer-contact-list">
@@ -107,7 +99,7 @@
                   <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                 </svg>
                 <div>
-                  <span class="footer-contact-label">工作时间</span>
+                  <span class="footer-contact-label">时间</span>
                   <span class="footer-contact-value">{{ contact.workHours1 }}</span>
                 </div>
               </li>
@@ -115,13 +107,46 @@
           </div>
         </div>
 
-        <!-- 底栏 -->
+        <!-- 手机：精简 + 折叠（主流做法） -->
+        <div class="mobile-only footer-mobile">
+          <div class="fm-brand">
+            <div class="footer-logo-mark" aria-hidden="true">玺</div>
+            <div class="fm-brand-text">
+              <h3 class="footer-brand-name">{{ contact.companyName || '玺铭电力' }}</h3>
+              <p class="footer-brand-tag">带电清洗 · 储能集成</p>
+            </div>
+          </div>
+
+          <a v-if="contact.phone1" :href="`tel:${contact.phone1}`" class="fm-phone">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            {{ contact.phone1 }}
+          </a>
+
+          <div class="fm-nav">
+            <div v-for="group in mobileGroups" :key="group.title" class="fm-acc">
+              <button type="button" class="fm-acc-btn" :class="{ 'is-open': openGroup === group.title }" @click="toggleGroup(group.title)">
+                <span>{{ group.title }}</span>
+                <svg class="fm-acc-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <div v-show="openGroup === group.title" class="fm-acc-panel">
+                <NuxtLink v-for="link in group.links" :key="link.to" :to="link.to" class="fm-acc-link">
+                  {{ link.label }}
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
+
+          <p v-if="contact.address" class="fm-address">{{ contact.address }}</p>
+        </div>
+
         <div class="footer-bottom">
           <p class="footer-copy">
             &copy; {{ year }} {{ contact.companyName || '玺铭电力' }}. All rights reserved.
           </p>
           <p class="footer-beian">
-            <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer">豫ICP备2026028995号</a>
+            <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer">豫ICP备2026028995号-1</a>
           </p>
         </div>
       </div>
@@ -156,46 +181,77 @@ const { data: contactData } = useFetch('/api/contact', {
 })
 const contact = computed(() => contactData.value || defaultContact)
 const year = new Date().getFullYear()
+
+const mobileGroups = [
+  {
+    title: '带电清洗',
+    links: [
+      { to: '/services/1', label: '变电站带电清洗' },
+      { to: '/services/2', label: '工业设备清洗' },
+      { to: '/services/3', label: '高压清洗' },
+      { to: '/cases', label: '工程案例' },
+    ],
+  },
+  {
+    title: '储能与更多',
+    links: [
+      { to: '/solutions', label: '解决方案' },
+      { to: '/products', label: '产品中心' },
+      { to: '/news', label: '新闻资讯' },
+      { to: '/about', label: '关于我们' },
+      { to: '/contact', label: '联系我们' },
+    ],
+  },
+]
+
+const openGroup = ref<string | null>(null)
+const toggleGroup = (title: string) => {
+  openGroup.value = openGroup.value === title ? null : title
+}
 </script>
 
 <style scoped>
+.desktop-only { display: block; }
+.mobile-only { display: none; }
+
 .site-footer {
   margin-top: auto;
 }
 
-/* CTA 条 */
 .footer-cta {
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 55%, #1d4ed8 100%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .footer-cta-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  padding: 28px 0;
+  gap: 16px 24px;
+  padding: 18px 0;
   flex-wrap: wrap;
 }
 
 .footer-cta-title {
-  color: #fff;
-  font-size: 22px;
+  color: #0f172a;
+  font-size: 15px;
   font-weight: 700;
-  line-height: 1.3;
-  margin: 0 0 6px;
+  margin: 0 0 4px;
+  line-height: 1.35;
 }
 
+.footer-cta-title-mobile { display: none; }
+
 .footer-cta-desc {
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 14px;
+  color: #64748b;
+  font-size: 13px;
   margin: 0;
 }
 
 .footer-cta-actions {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-shrink: 0;
 }
 
@@ -203,95 +259,92 @@ const year = new Date().getFullYear()
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 22px;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 700;
   text-decoration: none;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
   white-space: nowrap;
 }
 
 .footer-cta-btn-primary {
-  background: #fff;
-  color: #1d4ed8;
+  background: #2563eb;
+  color: #fff;
 }
 
 .footer-cta-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  background: #1d4ed8;
 }
 
 .footer-cta-btn-ghost {
-  background: transparent;
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: #fff;
+  color: #1e293b;
+  border: 1px solid #e2e8f0;
 }
 
 .footer-cta-btn-ghost:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: #fff;
+  border-color: #93c5fd;
+  color: #1d4ed8;
 }
 
-/* 主体 */
 .footer-main {
-  background: #0b1220;
-  color: #e2e8f0;
-  padding: 56px 0 0;
+  background: #f8fafc;
+  color: #334155;
+  padding: 40px 0 0;
 }
 
 .footer-grid {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr 1.2fr;
-  gap: 40px 32px;
+  grid-template-columns: 1.4fr 1fr 1fr 1.15fr;
+  gap: 32px 28px;
 }
 
 .footer-logo-row {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .footer-logo-mark {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #2563eb, #1e40af);
+  background: linear-gradient(145deg, #3b82f6, #2563eb);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
   font-weight: 800;
-  font-size: 20px;
+  font-size: 17px;
   flex-shrink: 0;
 }
 
 .footer-brand-name {
-  color: #fff;
-  font-size: 18px;
-  font-weight: 700;
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: 800;
   margin: 0;
-  line-height: 1.3;
 }
 
 .footer-brand-tag {
-  color: #93c5fd;
+  color: #2563eb;
   font-size: 12px;
   margin: 2px 0 0;
-  letter-spacing: 0.04em;
+  font-weight: 600;
 }
 
 .footer-brand-desc {
-  color: #94a3b8;
-  font-size: 14px;
+  color: #64748b;
+  font-size: 13px;
   line-height: 1.7;
-  margin: 0 0 16px;
+  margin: 0 0 12px;
 }
 
 .footer-brand-meta {
-  color: #cbd5e1;
-  font-size: 13px;
+  color: #475569;
+  font-size: 12.5px;
   margin: 0;
 }
 
@@ -300,17 +353,17 @@ const year = new Date().getFullYear()
   margin-right: 8px;
   padding: 2px 8px;
   border-radius: 999px;
-  background: rgba(59, 130, 246, 0.15);
-  color: #93c5fd;
-  font-size: 12px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .footer-col-title {
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  margin: 0 0 16px;
-  letter-spacing: 0.02em;
+  color: #0f172a;
+  font-size: 13.5px;
+  font-weight: 700;
+  margin: 0 0 14px;
 }
 
 .footer-links {
@@ -323,14 +376,13 @@ const year = new Date().getFullYear()
 }
 
 .footer-links a {
-  color: #94a3b8;
-  font-size: 14px;
+  color: #64748b;
+  font-size: 13px;
   text-decoration: none;
-  transition: color 0.2s ease;
 }
 
 .footer-links a:hover {
-  color: #fff;
+  color: #2563eb;
 }
 
 .footer-contact-list {
@@ -339,7 +391,7 @@ const year = new Date().getFullYear()
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 .footer-contact-list li {
@@ -349,119 +401,208 @@ const year = new Date().getFullYear()
 }
 
 .footer-icon {
-  width: 18px;
-  height: 18px;
-  color: #60a5fa;
+  width: 17px;
+  height: 17px;
+  color: #94a3b8;
   flex-shrink: 0;
   margin-top: 3px;
 }
 
 .footer-contact-label {
   display: block;
-  color: #64748b;
-  font-size: 12px;
+  color: #94a3b8;
+  font-size: 11px;
   margin-bottom: 2px;
 }
 
 .footer-phone {
-  color: #fff;
-  font-size: 18px;
-  font-weight: 700;
+  color: #2563eb;
+  font-size: 17px;
+  font-weight: 800;
   text-decoration: none;
-  letter-spacing: 0.02em;
-  transition: color 0.2s ease;
-}
-
-.footer-phone:hover {
-  color: #93c5fd;
 }
 
 .footer-contact-value {
-  color: #cbd5e1;
-  font-size: 14px;
+  color: #334155;
+  font-size: 13px;
   text-decoration: none;
   word-break: break-all;
-  line-height: 1.5;
 }
 
-a.footer-contact-value:hover {
-  color: #fff;
-}
-
-/* 底栏 */
 .footer-bottom {
-  margin-top: 48px;
-  padding: 20px 0;
-  border-top: 1px solid rgba(148, 163, 184, 0.15);
+  margin-top: 28px;
+  padding: 16px 0;
+  border-top: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .footer-copy,
 .footer-beian {
   margin: 0;
-  color: #64748b;
-  font-size: 13px;
+  color: #94a3b8;
+  font-size: 12px;
 }
 
 .footer-beian a {
-  color: #64748b;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.footer-beian a:hover {
   color: #94a3b8;
+  text-decoration: none;
 }
 
-/* 响应式 */
-@media (max-width: 1024px) {
-  .footer-grid {
-    grid-template-columns: 1fr 1fr;
-  }
+/* ── 手机精简页脚（仅在 ≤640 显示） ── */
+.footer-mobile {
+  flex-direction: column;
+  gap: 14px;
+}
 
-  .footer-brand {
-    grid-column: 1 / -1;
-  }
+.fm-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fm-brand-text {
+  min-width: 0;
+}
+
+.fm-phone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 16px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.fm-nav {
+  border-top: 1px solid #e2e8f0;
+}
+
+.fm-acc {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.fm-acc-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.fm-acc-caret {
+  width: 18px;
+  height: 18px;
+  color: #94a3b8;
+  transition: transform 0.2s ease;
+}
+
+.fm-acc-btn.is-open .fm-acc-caret {
+  transform: rotate(180deg);
+  color: #2563eb;
+}
+
+.fm-acc-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 0 12px;
+}
+
+.fm-acc-link {
+  display: block;
+  padding: 10px 0;
+  color: #64748b;
+  font-size: 13.5px;
+  text-decoration: none;
+}
+
+.fm-acc-link:hover {
+  color: #2563eb;
+}
+
+.fm-address {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 12px;
+  line-height: 1.55;
 }
 
 @media (max-width: 640px) {
+  .desktop-only { display: none !important; }
+  .mobile-only { display: block !important; }
+  .footer-mobile {
+    display: flex !important;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .footer-main {
+    padding-top: 24px;
+  }
+
   .footer-cta-inner {
     flex-direction: column;
-    align-items: flex-start;
-    padding: 24px 0;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px 0 12px;
+  }
+
+  .footer-cta-text { text-align: center; }
+
+  .footer-cta-title-desktop { display: none; }
+  .footer-cta-title-mobile {
+    display: inline;
+    font-size: 15px;
   }
 
   .footer-cta-title {
-    font-size: 18px;
+    margin: 0;
+    font-size: 15px;
   }
+
+  .footer-cta-desc { display: none; }
 
   .footer-cta-actions {
     width: 100%;
-    flex-direction: column;
-    align-items: stretch;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 10px;
   }
 
   .footer-cta-btn {
     justify-content: center;
-  }
-
-  .footer-main {
-    padding-top: 40px;
-  }
-
-  .footer-grid {
-    grid-template-columns: 1fr;
-    gap: 28px;
+    min-height: 44px;
+    padding: 11px 10px;
+    font-size: 13.5px;
   }
 
   .footer-bottom {
     flex-direction: column;
     align-items: flex-start;
-    margin-top: 32px;
+    gap: 4px;
+    margin-top: 8px;
+    padding: 12px 0;
+  }
+
+  .footer-copy,
+  .footer-beian {
+    font-size: 11px;
   }
 }
 </style>

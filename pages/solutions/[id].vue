@@ -305,7 +305,7 @@ onMounted(() => {
 .com-title {
   font-size: 32px;
   font-weight: 700;
-  color: #1a1a2e;
+  color: #0f172a;
   text-align: center;
   margin-bottom: 48px;
   position: relative;
@@ -476,7 +476,7 @@ onMounted(() => {
 .view-box .name {
   font-size: 24px;
   font-weight: 600;
-  color: #1a1a2e;
+  color: #0f172a;
   margin-bottom: 20px;
 }
 
@@ -541,7 +541,7 @@ onMounted(() => {
 .adv-list .name {
   font-size: 18px;
   font-weight: 600;
-  color: #1a1a2e;
+  color: #0f172a;
   margin-bottom: 12px;
 }
 
@@ -590,7 +590,7 @@ onMounted(() => {
 .feat-content h4 {
   font-size: 18px;
   font-weight: 600;
-  color: #1a1a2e;
+  color: #0f172a;
   margin-bottom: 10px;
 }
 
@@ -651,7 +651,7 @@ onMounted(() => {
 
 .spec-table td:first-child {
   font-weight: 500;
-  color: #1a1a2e;
+  color: #0f172a;
   width: 200px;
 }
 
@@ -707,7 +707,7 @@ onMounted(() => {
 .swiper-pro .title {
   font-size: 18px;
   font-weight: 600;
-  color: #1a1a2e;
+  color: #0f172a;
   margin-bottom: 10px;
 }
 
@@ -776,7 +776,7 @@ onMounted(() => {
 .swiper-case .name {
   font-size: 16px;
   font-weight: 600;
-  color: #1a1a2e;
+  color: #0f172a;
   margin-bottom: 8px;
 }
 
@@ -840,7 +840,7 @@ onMounted(() => {
 /* 咨询区域 */
 .cta-box {
   padding: 80px 0;
-  background: linear-gradient(135deg, #0f4c81 0%, #1a73e8 100%);
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
 }
 
 .cta-content {
@@ -872,7 +872,7 @@ onMounted(() => {
   padding: 14px 36px;
   font-size: 16px;
   font-weight: 600;
-  color: #1a73e8;
+  color: #2563eb;
   background: white;
   border-radius: 8px;
   text-decoration: none;
@@ -949,7 +949,7 @@ onMounted(() => {
 
 .error-content h2 {
   font-size: 24px;
-  color: #1a1a2e;
+  color: #0f172a;
   margin-bottom: 12px;
 }
 

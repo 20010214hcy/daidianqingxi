@@ -78,12 +78,19 @@ export function useStaggerReveal(
     { flush: 'post' }
   )
 
+  let revealFallback: ReturnType<typeof setTimeout> | null = null
+
   onMounted(() => {
     if (containerRef.value) observeItems()
+    // 兜底：2s 后强制显示，防止动画导致“图片/卡片不出现”
+    revealFallback = setTimeout(() => {
+      document.querySelectorAll(selector).forEach((el) => el.classList.add('is-visible'))
+    }, 2000)
   })
 
   onUnmounted(() => {
     if (observer) { observer.disconnect(); observer = null }
+    if (revealFallback) clearTimeout(revealFallback)
   })
 
   return { prefersReducedMotion, refresh }

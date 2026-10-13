@@ -20,7 +20,7 @@
           <span class="inline-block bg-blue-50 text-blue-600 text-xs font-semibold px-3 py-1 rounded-full mb-4">
             {{ getCategoryLabel(article.category) }}
           </span>
-          <h1 class="text-2xl md:text-3xl font-bold text-slate-900 leading-tight mb-4">{{ article.title }}</h1>
+          <h1 class="text-xl md:text-2xl font-bold text-slate-900 leading-tight mb-4">{{ article.title }}</h1>
           <div class="flex items-center gap-4 text-sm text-slate-400">
             <span>{{ formatDate(article.publishedAt || article.createdAt) }}</span>
             <span class="w-1 h-1 rounded-full bg-slate-300" />
@@ -42,7 +42,7 @@
           <!-- 左侧：正文 -->
           <main class="flex-1 min-w-0">
             <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-              <img v-if="article.coverImage" :src="article.coverImage" :alt="article.title" class="w-full h-auto max-h-[480px] object-cover" loading="lazy" />
+              <img v-if="article.coverImage" :src="article.coverImage" :alt="article.title" class="w-full h-auto max-h-[480px] object-cover" />
               <div class="px-8 md:px-12 py-10">
                 <article class="prose-content" v-html="sanitizedContent" />
                 <div class="mt-10 pt-6 border-t border-slate-100 flex items-center justify-between flex-wrap gap-4">
@@ -52,10 +52,16 @@
                   </div>
                   <div class="flex items-center gap-2">
                     <span class="text-sm text-slate-400">分享：</span>
-                    <button @click="shareArticle" class="share-btn" title="分享文章">
+                    <button @click="shareArticle" class="share-btn" title="系统分享">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
                         <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/>
+                      </svg>
+                    </button>
+                    <button @click="copyArticleLink" class="share-btn" title="复制链接">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
                       </svg>
                     </button>
                   </div>
@@ -91,7 +97,7 @@
                   <NuxtLink v-for="item in relatedArticles" :key="item.id" :to="`/news/${item.id}`" class="group block">
                     <div class="flex gap-3">
                       <div v-if="item.coverImage" class="w-20 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100">
-                        <img :src="item.coverImage" :alt="item.title" class="w-full h-full object-cover" loading="lazy" />
+                        <img :src="item.coverImage" :alt="item.title" class="w-full h-full object-cover" />
                       </div>
                       <div class="min-w-0">
                         <p class="text-sm text-slate-700 line-clamp-2 group-hover:text-blue-600 transition-colors leading-snug">{{ item.title }}</p>
@@ -209,6 +215,15 @@ const showToast = (text: string) => {
   toastTimer = setTimeout(() => { toastText.value = '' }, 2200)
 }
 
+const copyArticleLink = async () => {
+  try {
+    await navigator.clipboard.writeText(window.location.href)
+    showToast('链接已复制')
+  } catch {
+    showToast('复制失败，请手动复制地址栏')
+  }
+}
+
 const shareArticle = async () => {
   const url = window.location.href
   const title = article.value.title || '玺铭电力新闻'
@@ -224,7 +239,13 @@ const shareArticle = async () => {
     await navigator.clipboard.writeText(url)
     showToast('链接已复制')
   } catch {
-    showToast('复制失败，请手动复制地址栏链接')
+    // 回退复制
+    try {
+      await navigator.clipboard.writeText(url)
+      showToast('链接已复制')
+    } catch {
+      showToast('请点右侧图标复制链接')
+    }
   }
 }
 
@@ -300,8 +321,8 @@ useHead({
   transition: all 0.2s;
 }
 .share-btn:hover {
-  border-color: #1a73e8;
-  color: #1a73e8;
+  border-color: #2563eb;
+  color: #2563eb;
 }
 
 .toast-enter-active,
@@ -312,5 +333,42 @@ useHead({
 .toast-leave-to {
   opacity: 0;
   transform: translateY(8px);
+}
+
+@media (max-width: 768px) {
+  .min-h-screen {
+    /* keep */
+  }
+
+  section.bg-white.border-b .max-w-7xl {
+    padding-top: 72px !important;
+    padding-bottom: 16px !important;
+  }
+
+  h1.text-2xl,
+  h1.md\:text-3xl {
+    font-size: 20px !important;
+    line-height: 1.35 !important;
+  }
+
+  .prose-content {
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  .px-8.md\:px-12.py-10 {
+    padding: 16px 14px 20px !important;
+  }
+
+  .mt-6.grid {
+    gap: 8px;
+  }
+
+  .fixed.bottom-8.right-8 {
+    bottom: 20px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+  }
 }
 </style>

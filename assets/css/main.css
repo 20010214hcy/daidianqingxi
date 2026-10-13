@@ -1,3 +1,4 @@
+@import './responsive-density.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -61,7 +62,7 @@
   left: 0;
   width: 100%;
   height: 3px;
-  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
   transform-origin: left;
   transform: scaleX(0);
   z-index: 9999;
@@ -94,5 +95,95 @@
   }
   .reading-progress-bar {
     display: none !important;
+  }
+}
+
+
+/* reveal-safety: 防止入场动画导致内容永久不可见 */
+@media (prefers-reduced-motion: no-preference) {
+  .stagger-reveal-item,
+  .cases-header,
+  .cases-swiper-wrap,
+  .cases-footer,
+  .animate-fade-in,
+  .about-image-col,
+  .about-text-col {
+    /* keep animations, but never trap opacity if class missing after load */
+  }
+}
+
+/* 3 秒后若仍未 is-visible / animate-in，由 JS 兜底；此处再加 CSS 兜底（无 JS 时） */
+@keyframes forceShow {
+  to { opacity: 1; transform: none; }
+}
+
+.no-js .stagger-reveal-item,
+.no-js .cases-header,
+.no-js .animate-fade-in {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+
+/* ux-reveal-safe */
+html.no-js .stagger-reveal-item,
+html.no-js .animate-fade-in,
+html.no-js .about-image-col,
+html.no-js .about-text-col,
+html.no-js .cases-header,
+html.no-js .cases-swiper-wrap,
+html.no-js .cases-footer {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stagger-reveal-item,
+  .animate-fade-in,
+  .about-image-col,
+  .about-text-col,
+  .cases-header,
+  .cases-swiper-wrap,
+  .cases-footer,
+  .advantage-card {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}
+
+
+/* md-desktop-density: 14 寸笔记本 100% 缩放防拥挤 */
+@media (min-width: 960px) and (max-width: 1440px) {
+  .max-w-7xl {
+    max-width: 1120px;
+  }
+
+  .max-w-6xl {
+    max-width: 1040px;
+  }
+
+  .section-title {
+    font-size: 1.75rem;
+  }
+
+  .section-desc {
+    font-size: 0.95rem;
+  }
+
+  /* 略增区块上下留白 */
+  .py-20 {
+    padding-top: 4.5rem;
+    padding-bottom: 4.5rem;
+  }
+}
+
+@media (min-width: 960px) and (max-width: 1280px) {
+  .max-w-7xl {
+    max-width: 1040px;
+  }
+
+  .max-w-6xl {
+    max-width: 960px;
   }
 }

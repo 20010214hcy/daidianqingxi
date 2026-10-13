@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="image-cropper-wrap" @paste="handlePaste" @dragover.prevent @drop.prevent="handleDrop">
+    <div class="paste-hint">可 Ctrl+V 粘贴图片，或拖拽 / 点击上传</div>
     <el-upload
       class="avatar-uploader"
       :show-file-list="false"
@@ -7,7 +8,7 @@
       :http-request="uploadImage"
       accept="image/*"
     >
-      <img v-if="modelValue" :src="modelValue" class="avatar"  loading="lazy" />
+      <img v-if="modelValue" :src="cacheBust(modelValue)" class="avatar"  loading="lazy" />
       <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
     </el-upload>
     <div v-if="modelValue" class="mt-3">
@@ -17,8 +18,11 @@
 </template>
 
 <script setup lang="ts">
+import { cacheBust } from '~/utils/cacheBust'
 import { ref } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { usePasteImageUpload } from '~/composables/usePasteImageUpload'
 
 const props = defineProps({
   modelValue: {
@@ -130,5 +134,14 @@ const clearImage = async () => {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.paste-hint {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+.image-cropper-wrap {
+  outline: none;
 }
 </style>

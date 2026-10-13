@@ -285,7 +285,7 @@ const copyUrl = async () => {
   transition: color 0.2s;
 }
 
-.media-name:hover { color: #1a73e8; }
+.media-name:hover { color: #2563eb; }
 
 .media-meta { font-size: 11px; color: #94a3b8; margin-top: 2px; }
 </style>
