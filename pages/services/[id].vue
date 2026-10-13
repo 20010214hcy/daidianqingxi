@@ -11,21 +11,8 @@
       :lead="service?.description"
     />
 
-    <!-- 加载状态 -->
-    <template v-if="loading">
-      <section class="loading-section">
-        <div class="container-page">
-          <div class="loading-skeleton">
-            <div class="skeleton-title"></div>
-            <div class="skeleton-text"></div>
-            <div class="skeleton-text short"></div>
-          </div>
-        </div>
-      </section>
-    </template>
-
     <!-- 内容区域 -->
-    <template v-else-if="service">
+    <template v-if="service?.id">
       <!-- 项目概述 -->
       <section class="overview-section">
         <div class="container-page">
@@ -207,59 +194,43 @@
 
 <script setup lang="ts">
 import DOMPurify from "dompurify"
+
 const route = useRoute()
-const serviceId = route.params.id
+const serviceId = computed(() => Number(route.params.id))
 
-// 状态
-const loading = ref(true)
-// XSS 防护
-const sanitizedContent = computed(() => {
-  return DOMPurify.sanitize(service.value?.content || service.value?.description || "")
-})
-const service = ref<any>(null)
-const advantages = ref<any[]>([])
-const relatedProducts = ref<any[]>([])
-const relatedCases = ref<any[]>([])
+// 服务详情走 SSR：详情页是搜索引擎最该收录的页面，不能等浏览器端再加载
+const { data: serviceRes } = await useFetch(
+  computed(() => `/api/services/${serviceId.value}`),
+  { transform: (res: any) => (res?.success ? res.data : null) }
+)
+const service = computed<any>(() => serviceRes.value || {})
 
-// 获取服务详情
-const fetchServiceDetail = async () => {
-  loading.value = true
+// 接口可能把数组字段以 JSON 字符串返回，统一解析
+const toList = (raw: any): any[] => {
+  if (!raw) return []
+  if (Array.isArray(raw)) return raw
   try {
-    const response = await $fetch(`/api/services/${serviceId}`)
-    if (response.success && response.data) {
-      service.value = response.data
-
-      // 解析优势数据
-      if (response.data.advantages) {
-        try {
-          advantages.value = typeof response.data.advantages === 'string'
-            ? JSON.parse(response.data.advantages)
-            : response.data.advantages
-        } catch (e) {
-          advantages.value = []
-        }
-      }
-
-      // 获取相关产品
-      if (response.data.relatedProducts) {
-        relatedProducts.value = response.data.relatedProducts
-      }
-
-      // 获取相关案例
-      if (response.data.relatedCases) {
-        relatedCases.value = response.data.relatedCases
-      }
-    }
-  } catch (error) {
-    console.error('获取服务详情失败:', error)
-  } finally {
-    loading.value = false
+    const parsed = JSON.parse(String(raw))
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
   }
 }
 
+const advantages = computed<any[]>(() => toList(service.value.advantages))
+const relatedProducts = computed<any[]>(() => toList(service.value.relatedProducts))
+const relatedCases = computed<any[]>(() => toList(service.value.relatedCases))
+
+// XSS 防护：DOMPurify 依赖浏览器环境，SSR 阶段输出原文，客户端再净化
+const sanitizedContent = computed(() => {
+  const raw = service.value?.content || service.value?.description || ''
+  if (import.meta.server) return raw
+  return DOMPurify.sanitize(raw)
+})
+
 // SEO
 useHead({
-  title: computed(() => service.value ? `${service.value.title} - 玺铭电力` : '服务详情 - 玺铭电力'),
+  title: computed(() => service.value?.id ? `${service.value.title} - 玺铭电力` : '服务详情 - 玺铭电力'),
   meta: [
     {
       name: 'description',
@@ -267,51 +238,11 @@ useHead({
     }
   ]
 })
-
-onMounted(() => {
-  fetchServiceDetail()
-})
 </script>
 
 <style scoped>
 /* 顶部横幅与面包屑样式已抽到 components/DetailBanner.vue，
    内容宽度统一由 main.css 的 .container-page 提供 */
-
-/* 加载状态 */
-.loading-section {
-  padding: 80px 0;
-}
-
-.loading-skeleton {
-  max-width: 800px;
-}
-
-.skeleton-title {
-  height: 32px;
-  width: 300px;
-  background: #e2e8f0;
-  border-radius: 4px;
-  margin-bottom: 24px;
-  animation: pulse 1.5s infinite;
-}
-
-.skeleton-text {
-  height: 18px;
-  width: 100%;
-  background: #e2e8f0;
-  border-radius: 4px;
-  margin-bottom: 16px;
-  animation: pulse 1.5s infinite;
-}
-
-.skeleton-text.short {
-  width: 60%;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
 
 /* 通用区块样式 */
 .section-header {

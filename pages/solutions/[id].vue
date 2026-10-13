@@ -11,22 +11,8 @@
       :lead="solution?.description"
     />
 
-    <!-- 加载状态 -->
-    <template v-if="loading">
-      <section class="loading-section">
-        <div class="container-page">
-          <div class="loading-skeleton">
-            <div class="skeleton-title"></div>
-            <div class="skeleton-block"></div>
-            <div class="skeleton-text"></div>
-            <div class="skeleton-text short"></div>
-          </div>
-        </div>
-      </section>
-    </template>
-
     <!-- 内容区域 -->
-    <template v-else-if="solution">
+    <template v-if="solution?.id">
       <!-- 项目概述 -->
       <section class="view-box">
         <div class="container-page">
@@ -213,67 +199,46 @@
 
 <script setup lang="ts">
 import DOMPurify from "dompurify"
+
 const route = useRoute()
-const solutionId = route.params.id
+const solutionId = computed(() => Number(route.params.id))
 
-const loading = ref(true)
-// XSS 防护
-const sanitizedContent = computed(() => {
-  return DOMPurify.sanitize(solution.value?.content || solution.value?.description || "")
-})
-const solution = ref(null)
-const advantages = ref([])
-const features = ref([])
-const relatedProducts = ref([])
-const relatedCases = ref([])
+// 方案详情与服务共用同一份数据（/api/services/:id），同样走 SSR 输出
+const { data: solutionRes } = await useFetch(
+  computed(() => `/api/services/${solutionId.value}`),
+  { transform: (res: any) => (res?.success ? res.data : null) }
+)
+const solution = computed<any>(() => solutionRes.value || {})
 
-const fetchSolutionDetail = async () => {
-  loading.value = true
+// 接口可能把数组字段以 JSON 字符串返回，统一解析
+const toList = (raw: any): any[] => {
+  if (!raw) return []
+  if (Array.isArray(raw)) return raw
   try {
-    const response = await $fetch(`/api/services/${solutionId}`)
-    if (response.success && response.data) {
-      solution.value = response.data
-
-      if (response.data.advantages) {
-        try {
-          advantages.value = typeof response.data.advantages === 'string'
-            ? JSON.parse(response.data.advantages)
-            : response.data.advantages
-        } catch { advantages.value = [] }
-      }
-
-      if (response.data.features) {
-        try {
-          features.value = typeof response.data.features === 'string'
-            ? JSON.parse(response.data.features)
-            : response.data.features
-        } catch { features.value = [] }
-      }
-
-      if (response.data.relatedProducts) {
-        relatedProducts.value = response.data.relatedProducts
-      }
-
-      if (response.data.relatedCases) {
-        relatedCases.value = response.data.relatedCases
-      }
-    }
-  } catch (error) {
-    console.error('获取技术方案详情失败:', error)
-  } finally {
-    loading.value = false
+    const parsed = JSON.parse(String(raw))
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
   }
 }
 
+const advantages = computed<any[]>(() => toList(solution.value.advantages))
+const features = computed<any[]>(() => toList(solution.value.features))
+const relatedProducts = computed<any[]>(() => toList(solution.value.relatedProducts))
+const relatedCases = computed<any[]>(() => toList(solution.value.relatedCases))
+
+// XSS 防护：DOMPurify 依赖浏览器环境，SSR 阶段输出原文，客户端再净化
+const sanitizedContent = computed(() => {
+  const raw = solution.value?.content || solution.value?.description || ''
+  if (import.meta.server) return raw
+  return DOMPurify.sanitize(raw)
+})
+
 useHead({
-  title: computed(() => solution.value ? `${solution.value.title} - 技术方案 - 玺铭电力` : '技术方案 - 玺铭电力'),
+  title: computed(() => solution.value?.id ? `${solution.value.title} - 技术方案 - 玺铭电力` : '技术方案 - 玺铭电力'),
   meta: [
     { name: 'description', content: computed(() => solution.value?.description || '玺铭电力专业技术方案') }
   ]
-})
-
-onMounted(() => {
-  fetchSolutionDetail()
 })
 </script>
 
@@ -300,51 +265,6 @@ onMounted(() => {
 }
 
 /* 顶部横幅与面包屑样式已抽到 components/DetailBanner.vue */
-
-/* 加载状态 */
-.loading-section {
-  padding: 80px 0;
-}
-
-.loading-skeleton {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.skeleton-title {
-  height: 36px;
-  width: 200px;
-  background: #e2e8f0;
-  border-radius: 4px;
-  margin: 0 auto 40px;
-  animation: pulse 1.5s infinite;
-}
-
-.skeleton-block {
-  height: 300px;
-  background: #e2e8f0;
-  border-radius: 8px;
-  margin-bottom: 30px;
-  animation: pulse 1.5s infinite;
-}
-
-.skeleton-text {
-  height: 18px;
-  width: 100%;
-  background: #e2e8f0;
-  border-radius: 4px;
-  margin-bottom: 16px;
-  animation: pulse 1.5s infinite;
-}
-
-.skeleton-text.short {
-  width: 60%;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
 
 /* 项目概述 */
 .view-box {

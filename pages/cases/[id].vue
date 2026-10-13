@@ -10,7 +10,7 @@
           <span>/</span>
           <NuxtLink to="/cases" class="hover:text-white transition-colors">工程案例</NuxtLink>
           <span>/</span>
-          <span class="text-white">{{ caseItem.title || '...' }}</span>
+          <span class="text-white">{{ caseItem.title || '案例详情' }}</span>
         </div>
         <div v-if="caseItem.id" class="flex items-center space-x-4 mb-4">
           <span v-if="caseItem.location" class="text-slate-300 text-sm flex items-center">
@@ -23,12 +23,12 @@
           <span v-if="caseItem.clientName" class="text-slate-300 text-sm">客户：{{ caseItem.clientName }}</span>
         </div>
         <h1 v-if="caseItem.id" class="text-3xl md:text-4xl font-bold mb-4">{{ caseItem.title }}</h1>
-        <div v-else class="text-center"><div class="animate-pulse">加载中...</div></div>
+        <p v-else class="text-center text-slate-300">未找到该案例，它可能已被删除</p>
       </div>
     </section>
 
     <!-- Case Content -->
-    <section v-if="caseItem.id && !loading" class="py-16 bg-white">
+    <section v-if="caseItem.id" class="py-16 bg-white">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- 封面图 -->
         <div v-if="caseItem.coverImage" class="mb-12">
@@ -100,16 +100,13 @@ const route = useRoute()
 const caseId = computed(() => Number(route.params.id))
 const { readProgress } = useReadingProgress()
 
-// 获取案例数据（响应路由变化）
-const caseItem = ref<any>({})
-const loading = ref(true)
-
-const fetchCase = async () => {
-  loading.value = true
-  try {
-    const res = await $fetch(`/api/cases/${caseId.value}`) as any
-    if (res?.success && res.data) {
-      const data = res.data
+// 案例详情走 SSR：详情页是搜索引擎最该收录的页面，不能等浏览器端再加载
+const { data: caseRes } = await useFetch(
+  computed(() => `/api/cases/${caseId.value}`),
+  {
+    transform: (res: any) => {
+      const data = res?.success ? res.data : null
+      if (!data) return null
       // 解析 images 字段（可能是 JSON 字符串）
       if (data.images && typeof data.images === 'string') {
         try {
@@ -118,23 +115,17 @@ const fetchCase = async () => {
           data.images = data.images ? [data.images] : []
         }
       }
-      caseItem.value = data
-    } else {
-      caseItem.value = {}
-    }
-  } catch (e) {
-    console.error('获取案例失败:', e)
-    caseItem.value = {}
-  } finally {
-    loading.value = false
+      return data
+    },
   }
-}
+)
+const caseItem = computed<any>(() => caseRes.value || {})
 
-watch(caseId, fetchCase, { immediate: true })
-
+// XSS 防护：DOMPurify 依赖浏览器环境，SSR 阶段输出原文，客户端再净化
 const sanitizedContent = computed(() => {
-  if (process.server) return caseItem.value.content || ""
-  return DOMPurify.sanitize(caseItem.value.content || '')
+  const raw = caseItem.value.content || ''
+  if (import.meta.server) return raw
+  return DOMPurify.sanitize(raw)
 })
 
 useHead({
