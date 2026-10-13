@@ -1,31 +1,20 @@
 <template>
   <div class="product-detail-page">
     <!-- 顶栏 -->
-    <section class="detail-banner">
-      <div class="detail-banner-bg" />
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 detail-banner-inner">
-        <nav class="detail-crumb">
-          <NuxtLink to="/">首页</NuxtLink>
-          <span class="detail-crumb-sep">/</span>
-          <NuxtLink to="/products">产品中心</NuxtLink>
-          <span class="detail-crumb-sep">/</span>
-          <span class="detail-crumb-current">{{ product.name || '...' }}</span>
-        </nav>
-        <div v-if="product.id" class="detail-banner-meta">
-          <span v-if="product.category" class="detail-category-pill">{{ product.category.name }}</span>
-          <h1 class="detail-title">{{ product.name }}</h1>
-          <p v-if="product.description" class="detail-lead">{{ shortDesc }}</p>
-          <ul v-if="highlights.length" class="detail-highlights">
-            <li v-for="h in highlights" :key="h">{{ h }}</li>
-          </ul>
-        </div>
-        <div v-else class="detail-banner-loading">加载中...</div>
-      </div>
-    </section>
+    <DetailBanner
+      :breadcrumb="[
+        { name: '首页', to: '/' },
+        { name: '产品中心', to: '/products' },
+      ]"
+      :tag="product.category?.name"
+      :title="product.name"
+      :lead="product.description ? shortDesc : ''"
+      :highlights="highlights"
+    />
 
     <!-- 主体 -->
     <section v-if="product.id" class="detail-body">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="container-page">
         <div class="detail-layout">
           <!-- 左：主图 + 缩略图条 -->
           <div class="detail-media">
@@ -420,110 +409,8 @@ useHead({
 </script>
 
 <style scoped>
-/* 主题色：primary-600 #2563eb / industrial-dark #0f172a */
-.detail-banner {
-  position: relative;
-  color: #fff;
-  overflow: hidden;
-}
-
-.detail-banner-bg {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(135deg, rgba(15, 23, 42, 0.94) 0%, rgba(30, 64, 175, 0.9) 55%, rgba(37, 99, 235, 0.82) 100%);
-}
-
-.detail-banner-inner {
-  position: relative;
-  z-index: 1;
-  padding: 36px 0 40px;
-}
-
-.detail-crumb {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.65);
-  margin-bottom: 20px;
-}
-
-.detail-crumb a {
-  color: rgba(255, 255, 255, 0.75);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.detail-crumb a:hover {
-  color: #fff;
-}
-
-.detail-crumb-sep {
-  opacity: 0.4;
-}
-
-.detail-crumb-current {
-  color: #fff;
-  max-width: 280px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.detail-category-pill {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: rgba(147, 197, 253, 0.2);
-  border: 1px solid rgba(147, 197, 253, 0.35);
-  color: #dbeafe;
-  font-size: 12px;
-  font-weight: 600;
-  margin-bottom: 12px;
-}
-
-.detail-title {
-  margin: 0 0 12px;
-  font-size: clamp(24px, 2.4vw, 30px);
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  line-height: 1.25;
-}
-
-.detail-lead {
-  margin: 0;
-  max-width: 640px;
-  color: rgba(255, 255, 255, 0.78);
-  font-size: 14px;
-  line-height: 1.7;
-}
-
-/* 卖点徽章：后端补 features 字段后自动出现，无字段时不渲染 */
-.detail-highlights {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 16px 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.detail-highlights li {
-  padding: 5px 13px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  color: #fff;
-  font-size: 12.5px;
-  font-weight: 600;
-}
-
-.detail-banner-loading {
-  padding: 24px 0;
-  color: rgba(255, 255, 255, 0.7);
-}
+/* 首屏横幅（面包屑 / 分类标签 / 标题 / 简介 / 卖点徽章）样式
+   已抽到 components/DetailBanner.vue，产品页只负责传数据 */
 
 .detail-body {
   padding: 40px 0 72px;

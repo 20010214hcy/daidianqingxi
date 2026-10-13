@@ -187,3 +187,48 @@ html.no-js .cases-footer {
     max-width: 960px;
   }
 }
+
+/* ===== 全站统一内容容器 =====
+ * 用途：给页面正文与页头一个唯一的宽度定义，避免各处分别用
+ * max-w-7xl / max-w-6xl / 页面自定义 .container（1200px 固定）导致
+ * 左右边缘对不齐 —— 尤其在 14 寸笔记本上，Tailwind 的 max-w-* 会被
+ * 上面的密度规则压到 1040px，而固定 1200px 的容器不受影响，两者差 160px。
+ *
+ * 用法：<div class="container-page">…</div>
+ * 注意：它自带左右内边距，不要在子元素上重复加水平 padding。
+ */
+.container-page {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (min-width: 640px) {
+  .container-page {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-page {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
+/* 沿用项目既有的「14 寸笔记本防拥挤」策略，与 max-w-* 保持同一节奏 */
+@media (min-width: 960px) and (max-width: 1440px) {
+  .container-page {
+    max-width: 1120px;
+  }
+}
+
+@media (min-width: 960px) and (max-width: 1280px) {
+  .container-page {
+    max-width: 1040px;
+  }
+}

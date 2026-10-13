@@ -1,40 +1,20 @@
 <template>
   <div class="service-detail-page">
     <!-- 顶部横幅 -->
-    <section class="detail-banner">
-      <div class="banner-bg">
-        <img           :src="service?.coverImage || '/uploads/default-service.jpg'"
-          :alt="service?.title"
-          class="banner-image"
-        />
-        <div class="banner-overlay"></div>
-      </div>
-      <div class="banner-content">
-        <div class="container">
-          <!-- 面包屑导航 -->
-          <nav class="breadcrumb">
-            <NuxtLink to="/" class="breadcrumb-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
-              </svg>
-              首页
-            </NuxtLink>
-            <span class="separator">/</span>
-            <NuxtLink to="/services" class="breadcrumb-item">服务项目</NuxtLink>
-            <span class="separator">/</span>
-            <span class="breadcrumb-current">{{ service?.title || '加载中...' }}</span>
-          </nav>
-          <!-- 标题 -->
-          <h1 class="banner-title">{{ service?.title || '加载中...' }}</h1>
-        </div>
-      </div>
-    </section>
+    <DetailBanner
+      :breadcrumb="[
+        { name: '首页', to: '/' },
+        { name: '服务项目', to: '/services' },
+      ]"
+      :tag="service?.businessunit?.name"
+      :title="service?.title"
+      :lead="service?.description"
+    />
 
     <!-- 加载状态 -->
     <template v-if="loading">
       <section class="loading-section">
-        <div class="container">
+        <div class="container-page">
           <div class="loading-skeleton">
             <div class="skeleton-title"></div>
             <div class="skeleton-text"></div>
@@ -48,7 +28,7 @@
     <template v-else-if="service">
       <!-- 项目概述 -->
       <section class="overview-section">
-        <div class="container">
+        <div class="container-page">
           <div class="section-header">
             <h2 class="section-title">项目概述</h2>
             <div class="title-line"></div>
@@ -82,7 +62,7 @@
 
       <!-- 方案优势 -->
       <section v-if="advantages && advantages.length > 0" class="advantages-section">
-        <div class="container">
+        <div class="container-page">
           <div class="section-header">
             <h2 class="section-title">方案优势</h2>
             <div class="title-line"></div>
@@ -110,7 +90,7 @@
 
       <!-- 技术参数 -->
       <section v-if="service.specs && service.specs.length > 0" class="specs-section">
-        <div class="container">
+        <div class="container-page">
           <div class="section-header">
             <h2 class="section-title">技术参数</h2>
             <div class="title-line"></div>
@@ -130,7 +110,7 @@
 
       <!-- 推荐产品 -->
       <section v-if="relatedProducts && relatedProducts.length > 0" class="products-section">
-        <div class="container">
+        <div class="container-page">
           <div class="section-header">
             <h2 class="section-title">推荐产品</h2>
             <div class="title-line"></div>
@@ -160,7 +140,7 @@
 
       <!-- 参考案例 -->
       <section v-if="relatedCases && relatedCases.length > 0" class="cases-section">
-        <div class="container">
+        <div class="container-page">
           <div class="section-header">
             <h2 class="section-title">参考案例</h2>
             <div class="title-line"></div>
@@ -187,7 +167,7 @@
 
       <!-- 底部导航 -->
       <section class="nav-section">
-        <div class="container">
+        <div class="container-page">
           <div class="nav-links">
             <NuxtLink to="/services" class="nav-back">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -209,7 +189,7 @@
     <!-- 错误状态 -->
     <template v-else>
       <section class="error-section">
-        <div class="container">
+        <div class="container-page">
           <div class="error-content">
             <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="32" cy="32" r="28"/>
@@ -232,7 +212,10 @@ const serviceId = route.params.id
 
 // 状态
 const loading = ref(true)
-n// XSS 防护const sanitizedContent = computed(() => {  return DOMPurify.sanitize(service.value?.content || service.value?.description || "")})
+// XSS 防护
+const sanitizedContent = computed(() => {
+  return DOMPurify.sanitize(service.value?.content || service.value?.description || "")
+})
 const service = ref<any>(null)
 const advantages = ref<any[]>([])
 const relatedProducts = ref<any[]>([])
@@ -291,100 +274,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 容器 */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-
-/* 顶部横幅 */
-.detail-banner {
-  position: relative;
-  height: 400px;
-  overflow: hidden;
-}
-
-.banner-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-
-.banner-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.banner-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.4) 0%,
-    rgba(0, 0, 0, 0.6) 100%
-  );
-}
-
-.banner-content {
-  position: relative;
-  z-index: 2;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding-bottom: 48px;
-}
-
-/* 面包屑 */
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.breadcrumb-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.7);
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.breadcrumb-item:hover {
-  color: white;
-}
-
-.breadcrumb-item svg {
-  width: 16px;
-  height: 16px;
-}
-
-.separator {
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 14px;
-}
-
-.breadcrumb-current {
-  font-size: 14px;
-  color: white;
-}
-
-.banner-title {
-  font-size: 42px;
-  font-weight: 700;
-  color: white;
-  letter-spacing: 2px;
-}
+/* 顶部横幅与面包屑样式已抽到 components/DetailBanner.vue，
+   内容宽度统一由 main.css 的 .container-page 提供 */
 
 /* 加载状态 */
 .loading-section {

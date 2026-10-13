@@ -1,39 +1,20 @@
 <template>
   <div class="solution-detail-page">
     <!-- 顶部横幅 -->
-    <section class="sub-banner">
-      <div class="banner-bg">
-        <img           :src="solution?.detailImage || '/uploads/default-banner.jpg'"
-          :alt="solution?.title"
-          class="banner-img"
-        />
-        <div class="banner-overlay"></div>
-      </div>
-      <div class="banner-content">
-        <div class="container">
-          <!-- 面包屑导航 -->
-          <div class="site">
-            <NuxtLink to="/" class="home">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
-              </svg>
-            </NuxtLink>
-            <span class="sep">/</span>
-            <NuxtLink to="/solutions">技术方案</NuxtLink>
-            <span class="sep">/</span>
-            <span class="current">{{ solution?.title || '加载中...' }}</span>
-          </div>
-          <!-- 标题 -->
-          <h4>{{ solution?.title || '加载中...' }}</h4>
-        </div>
-      </div>
-    </section>
+    <DetailBanner
+      :breadcrumb="[
+        { name: '首页', to: '/' },
+        { name: '技术方案', to: '/solutions' },
+      ]"
+      :tag="solution?.businessunit?.name"
+      :title="solution?.title"
+      :lead="solution?.description"
+    />
 
     <!-- 加载状态 -->
     <template v-if="loading">
       <section class="loading-section">
-        <div class="container">
+        <div class="container-page">
           <div class="loading-skeleton">
             <div class="skeleton-title"></div>
             <div class="skeleton-block"></div>
@@ -48,7 +29,7 @@
     <template v-else-if="solution">
       <!-- 项目概述 -->
       <section class="view-box">
-        <div class="container">
+        <div class="container-page">
           <div class="com-title">项目概述</div>
           <!-- 视频/图片 -->
           <div v-if="solution.videoUrl || solution.detailImage" class="video">
@@ -77,7 +58,7 @@
 
       <!-- 方案优势 -->
       <section v-if="advantages && advantages.length > 0" class="adv-box" id="adv">
-        <div class="container">
+        <div class="container-page">
           <div class="com-title">方案优势</div>
           <div class="adv-list">
             <div v-for="(adv, index) in advantages" :key="index" class="item">
@@ -99,7 +80,7 @@
 
       <!-- 技术特点 -->
       <section v-if="features && features.length > 0" class="feat-box">
-        <div class="container">
+        <div class="container-page">
           <div class="com-title">技术特点</div>
           <div class="feat-list">
             <div v-for="(feat, index) in features" :key="index" class="feat-item">
@@ -115,7 +96,7 @@
 
       <!-- 技术参数 -->
       <section v-if="solution.specs && solution.specs.length > 0" class="spec-box">
-        <div class="container">
+        <div class="container-page">
           <div class="com-title">技术参数</div>
           <div class="spec-table">
             <table>
@@ -138,7 +119,7 @@
 
       <!-- 推荐产品 -->
       <section v-if="relatedProducts && relatedProducts.length > 0" class="pro-box" id="pro">
-        <div class="container">
+        <div class="container-page">
           <div class="com-title">推荐产品</div>
           <div class="swiper-pro swiper-container">
             <div class="swiper-wrapper">
@@ -162,7 +143,7 @@
 
       <!-- 参考案例 -->
       <section v-if="relatedCases && relatedCases.length > 0" class="ref-box">
-        <div class="container">
+        <div class="container-page">
           <div class="com-title">成功案例</div>
           <div class="swiper-case">
             <div class="swiper-container">
@@ -186,7 +167,7 @@
 
       <!-- 咨询区域 -->
       <section class="cta-box">
-        <div class="container">
+        <div class="container-page">
           <div class="cta-content">
             <h3>需要专业的技术方案？</h3>
             <p>我们的技术团队将为您提供定制化的解决方案</p>
@@ -200,7 +181,7 @@
 
       <!-- 底部导航 -->
       <section class="nav-box">
-        <div class="container">
+        <div class="container-page">
           <NuxtLink to="/solutions" class="nav-back">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M19 12H5M12 19l-7-7 7-7"/>
@@ -214,7 +195,7 @@
     <!-- 错误状态 -->
     <template v-else>
       <section class="error-box">
-        <div class="container">
+        <div class="container-page">
           <div class="error-content">
             <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="32" cy="32" r="28"/>
@@ -236,7 +217,10 @@ const route = useRoute()
 const solutionId = route.params.id
 
 const loading = ref(true)
-n// XSS 防护const sanitizedContent = computed(() => {  return DOMPurify.sanitize(solution.value?.content || solution.value?.description || "")})
+// XSS 防护
+const sanitizedContent = computed(() => {
+  return DOMPurify.sanitize(solution.value?.content || solution.value?.description || "")
+})
 const solution = ref(null)
 const advantages = ref([])
 const features = ref([])
@@ -294,12 +278,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 容器 */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
+/* 内容宽度统一由 main.css 的 .container-page 提供 */
 
 /* 通用标题 */
 .com-title {
@@ -320,89 +299,7 @@ onMounted(() => {
   margin: 16px auto 0;
 }
 
-/* 顶部横幅 */
-.sub-banner {
-  position: relative;
-  height: 400px;
-  overflow: hidden;
-}
-
-.banner-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-
-.banner-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.banner-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(10, 22, 40, 0.92) 0%,
-    rgba(15, 40, 71, 0.88) 50%,
-    rgba(13, 59, 102, 0.85) 100%
-  );
-}
-
-.banner-content {
-  position: relative;
-  z-index: 2;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding-bottom: 50px;
-}
-
-.site {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.site a,
-.site span {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.7);
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.site a:hover {
-  color: white;
-}
-
-.site .home svg {
-  width: 16px;
-  height: 16px;
-}
-
-.site .sep {
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.site .current {
-  color: white;
-}
-
-.banner-content h4 {
-  font-size: 42px;
-  font-weight: 700;
-  color: white;
-  letter-spacing: 2px;
-}
+/* 顶部横幅与面包屑样式已抽到 components/DetailBanner.vue */
 
 /* 加载状态 */
 .loading-section {
