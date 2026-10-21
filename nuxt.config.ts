@@ -13,7 +13,17 @@ export default defineNuxtConfig({
     },
   },
   nitro: { compressPublicAssets: true, minify: true, routeRules: { '/api/**': {} } },
-  experimental: { payloadExtraction: true, renderJsonPayloads: true },
+  experimental: {
+    payloadExtraction: true,
+    renderJsonPayloads: true,
+    // ⚡ 性能优化：关闭「所有 .vue 组件样式全量内联进 HTML」
+    // 原因：默认策略会把每个组件的 <style> 都内联到 SSR 输出，实测首页 HTML 中
+    // 有 20 个 <style> 块、共 118KB（占 HTML 总体积 72%）。这些样式在每次页面
+    // 请求时都要重新传输、且完全无法被浏览器缓存复用。
+    // 关闭后样式改为外链 CSS 文件（带 hash、可被 nginx 长期缓存），
+    // HTML 体积大幅下降，二次访问零 CSS 传输。
+    inlineSSRStyles: false,
+  },
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
     keepalive: false,
@@ -48,12 +58,19 @@ export default defineNuxtConfig({
       ],
       script: [
         { innerHTML: '(function(){var _odp=Object.defineProperty;var _safe=["navigator","screen","location","localStorage","sessionStorage"];Object.defineProperty=function(o,p,d){if(o===window&&_safe.indexOf(p)>-1){return o}return _odp.call(Object,o,p,d)}})()', type: 'text/javascript' },
+        // 百度统计（落地页自动统计；SPA 路由翻页跟踪见 plugins/baidu-tongji.client.ts）
+        { innerHTML: 'var _hmt = _hmt || [];(function(){var hm=document.createElement("script");hm.src="https://hm.baidu.com/hm.js?f8de8b2f5977b4ffb9ddc2b81a2b847b";var s=document.getElementsByTagName("script")[0];s.parentNode.insertBefore(hm,s)})()', type: 'text/javascript' },
       ],
     }
   },
   devServer: { port: 3000, host: '::' },
   build: { transpile: ['element-plus'] },
-  vite: { build: { rollupOptions: { output: { manualChunks: { 'element-plus': ['element-plus'] } } }, cssCodeSplit: true }, css: { devSourcemap: false } },
+  // ⚡ 性能优化：不再强制把 element-plus 打成独立 chunk
+  // 原因：element-plus 全量约 997KB(原始)/327KB(gzip)，被 manualChunks 手动分包后
+  // Nuxt 会把它作为 modulepreload 预加载到**每一个页面**，包括完全用不到它的前台首页。
+  // 实际上 element-plus 只被 layouts/admin.vue 与 pages/login.vue 使用（前台 0 处引用）。
+  // 移除该配置后，Rollup 按路由自动分包：后台路由独自携带 element-plus，前台首页不再下载。
+  vite: { build: { cssCodeSplit: true }, css: { devSourcemap: false } },
   typescript: { strict: true, typeCheck: false },
   sitemap: { hostname: 'https://ximingpower.com', gzip: true, exclude: ['/admin/**', '/api/**', '/login'], sources: ['/api/sitemap'] },
   routeRules: {

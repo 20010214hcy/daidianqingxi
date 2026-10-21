@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     const id = Number(getRouterParam(event, 'id'))
 
     if (!id) {
-      return errorResponse('产品ID不能为空', 400)
+      return errorResponse('产品ID不能为空', 400, event)
     }
 
     const product = await prisma.product.findUnique({
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!product) {
-      return errorResponse('产品不存在', 404)
+      return errorResponse('产品不存在', 404, event)
     }
 
     const { productcategory, ...rest } = product as any

@@ -17,10 +17,22 @@ export default defineEventHandler(async (event) => {
       return errorResponse('无效的角色', 400)
     }
 
+    if (password.length < 6) {
+      return errorResponse('密码长度不能少于6位', 400)
+    }
+
     // 检查用户名是否已存在
     const existing = await prisma.user.findUnique({ where: { username } })
     if (existing) {
       return errorResponse('用户名已存在', 400)
+    }
+
+    // 检查邮箱是否已被占用（邮箱为可选字段）
+    if (email) {
+      const emailTaken = await prisma.user.findFirst({ where: { email } })
+      if (emailTaken) {
+        return errorResponse('该邮箱已被其他账号使用', 400)
+      }
     }
 
     const hashedPwd = await hashPassword(password)

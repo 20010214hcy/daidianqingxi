@@ -49,7 +49,8 @@ export default defineEventHandler(async (event) => {
       return errorResponse('邮件发送失败，请检查配置')
     }
   } catch (error: any) {
+    // 不把原始异常文本返回前端（避免泄露内部实现细节），只记日志
     console.error('测试邮件发送失败:', error)
-    return errorResponse(error.message || '发送失败')
+    return errorResponse('测试邮件发送失败，请检查邮件配置')
   }
 })

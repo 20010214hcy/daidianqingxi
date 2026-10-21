@@ -3,12 +3,8 @@
     <!-- Page Header -->
     <PageHeader title="服务案例" subtitle="查看我们成功完成的项目案例" />
 
-    <!-- 二级导航 -->
-    <section class="py-4 bg-white border-b border-slate-200 sticky top-20 z-40">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <UnitTabs v-model="activeUnit" />
-      </div>
-    </section>
+    <!-- 二级导航：业务板块切换 -->
+    <UnitSwitcher v-model="activeUnit" />
 
     <!-- Cases List -->
     <section class="py-20 bg-white">
@@ -72,10 +68,10 @@ definePageMeta({
 })
 
 useHead({
-  title: "服务案例",
+  title: "电力清洗与储能工程案例",
   meta: [
     { name: 'description', content: '查看玺铭电力成功完成的项目案例，涵盖带电清洗、储能系统等各类场景。' },
-    { property: 'og:title', content: '服务案例 - 河南玺铭电力科技有限公司' },
+    { property: 'og:title', content: '电力清洗与储能工程案例 - 河南玺铭电力科技有限公司' },
     { property: 'og:description', content: '带电清洗、储能系统等各类项目成功案例。' },
     { name: 'keywords', content: '带电清洗案例,电力清洗项目,储能系统案例,工业清洗工程,变电站清洗,成功案例' },
   ]

@@ -3,7 +3,6 @@ Allow: /
 Disallow: /admin
 Disallow: /login
 Disallow: /api/
-Disallow: /_nuxt/
 
 Sitemap: https://ximingpower.com/sitemap.xml
 

@@ -8,55 +8,12 @@
       </div>
     </section>
 
-    <!-- 统一筛选条：业务 + 分类，滚动后保持 sticky -->
-    <section class="filter-sticky" :class="{ 'filter-sticky-scrolled': scrolled }">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="filter-panel">
-          <div class="filter-row">
-            <span class="filter-label">业务</span>
-            <div class="filter-chips">
-              <button
-                v-for="tab in unitTabs"
-                :key="tab.value"
-                type="button"
-                class="filter-chip filter-chip-unit"
-                :class="{ 'is-active': activeUnit === tab.value }"
-                @click="switchUnit(tab.value)"
-              >
-                <span class="filter-chip-icon" v-html="tab.icon" />
-                {{ tab.label }}
-              </button>
-            </div>
-          </div>
-
-          <div class="filter-divider" />
-
-          <div class="filter-row">
-            <span class="filter-label">分类</span>
-            <div class="filter-chips">
-              <button
-                type="button"
-                class="filter-chip"
-                :class="{ 'is-active': activeCategory === null }"
-                @click="switchCategory(null)"
-              >
-                全部产品
-              </button>
-              <button
-                v-for="cat in categories"
-                :key="cat.id"
-                type="button"
-                class="filter-chip"
-                :class="{ 'is-active': activeCategory === cat.id }"
-                @click="switchCategory(cat.id)"
-              >
-                {{ cat.name }}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    <!-- 统一筛选条：业务分段控件 + 分类 chip，滚动后保持 sticky -->
+    <UnitSwitcher
+      v-model="activeUnit"
+      v-model:categoryValue="activeCategory"
+      :categories="categoryOptions"
+    />
 
     <section class="products-list-section">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -191,6 +148,8 @@ import type { Product, ProductCategory } from '~/types'
 definePageMeta({ layout: 'default' })
 
 // 面包屑 + 当前页产品清单的结构化数据
+const SITE_ORIGIN = 'https://ximingpower.com'
+
 const breadcrumbJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
@@ -212,38 +171,11 @@ const itemListJsonLd = computed(() => ({
   })),
 }))
 
-useHead({
-  title: '产品中心',
-  meta: [
-    { name: 'description', content: '玺铭电力产品中心：带电清洗设备、工商业储能、台区储能等专业电力运维产品与解决方案。' },
-    { property: 'og:title', content: '产品中心 - 河南玺铭电力科技有限公司' },
-    { property: 'og:description', content: '带电清洗设备与储能系统产品，按业务分类快速筛选。' },
-    { name: 'keywords', content: '带电清洗设备,高压清洗机,工商业储能,台区储能,清洗剂,检测仪器,安全防护' },
-  ],
-  script: [
-    { type: 'application/ld+json', innerHTML: JSON.stringify(breadcrumbJsonLd) },
-    { type: 'application/ld+json', innerHTML: itemListJsonLd },
-  ] as any,
-})
+
 
 const PAGE_SIZE = 12
 const route = useRoute()
 const router = useRouter()
-
-const unitTabs = [
-  {
-    label: '带电清洗',
-    value: 'daidianqingxi',
-    icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
-  },
-  {
-    label: '储能',
-    value: 'chuneng',
-    icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="7" width="12" height="14" rx="2"/><path d="M10 7V4h4v3"/><line x1="10" y1="14" x2="14" y2="14"/></svg>',
-  },
-]
-
-const SITE_ORIGIN = 'https://ximingpower.com'
 
 const activeUnit = ref((route.query.unit as string) || 'daidianqingxi')
 // 筛选状态支持从网址直达（如 /products?unit=chuneng&category=7&page=2）
@@ -252,13 +184,17 @@ const activeCategory = ref<number | null>(
 )
 const currentPage = ref(Math.max(1, Number(route.query.page) || 1))
 const gridRef = ref<HTMLElement | null>(null)
-const scrolled = ref(false)
 
 const { refresh: refreshStagger } = useStaggerReveal(gridRef, { delay: 50 })
 
 // 切换业务板块时重置分类与页码
 watch(activeUnit, () => {
   activeCategory.value = null
+  currentPage.value = 1
+})
+
+// 手动切换分类时回到第一页（业务切换触发的重置也走这里，结果一致）
+watch(activeCategory, () => {
   currentPage.value = 1
 })
 
@@ -283,6 +219,12 @@ const categories = computed<ProductCategory[]>(() =>
     (c: any) => Number(c?._count?.product ?? 0) > 0
   )
 )
+
+// UnitSwitcher 的分类行数据：首项恒为「全部产品」
+const categoryOptions = computed(() => [
+  { label: '全部产品', value: null },
+  ...categories.value.map((c) => ({ label: c.name, value: c.id as number | null })),
+])
 
 const { data: priceData } = useFetch('/api/price-visibility', {
   transform: (res: any) => (res?.success && res.data ? res.data.visible : true),
@@ -327,7 +269,6 @@ const productParams = computed(() => ({
 
 const { data: productsResponse, pending: loading } = useFetch('/api/products', {
   params: productParams,
-  getCachedData: () => undefined,
   transform: (res: any) => {
     if (res?.success && res.data) {
       return {
@@ -344,6 +285,21 @@ const products = computed<Product[]>(() => productsResponse.value?.list || [])
 const total = computed(() => productsResponse.value?.total || 0)
 const totalPages = computed(() => productsResponse.value?.totalPages || 1)
 
+useHead({
+  title: '带电清洗设备与储能系统产品中心',
+  meta: [
+    { name: 'description', content: '玺铭电力产品中心：带电清洗设备、工商业储能、台区储能等专业电力运维产品与解决方案。' },
+    { property: 'og:title', content: '带电清洗设备与储能系统产品中心 - 河南玺铭电力科技有限公司' },
+    { property: 'og:description', content: '带电清洗设备与储能系统产品，按业务分类快速筛选。' },
+    { name: 'keywords', content: '带电清洗设备,高压清洗机,工商业储能,台区储能,清洗剂,检测仪器,安全防护' },
+  ],
+  script: [
+    { type: 'application/ld+json', innerHTML: JSON.stringify(breadcrumbJsonLd) },
+    { type: 'application/ld+json', innerHTML: itemListJsonLd },
+  ] as any,
+})
+
+
 onMounted(() => {
   watch(
     products,
@@ -352,12 +308,6 @@ onMounted(() => {
     },
     { immediate: true }
   )
-
-  const onScroll = () => {
-    scrolled.value = window.scrollY > 120
-  }
-  window.addEventListener('scroll', onScroll, { passive: true })
-  onUnmounted(() => window.removeEventListener('scroll', onScroll))
 })
 
 const visiblePages = computed(() => {
@@ -382,17 +332,6 @@ const goToPage = (page: number) => {
   if (page < 1 || page > totalPages.value || page === currentPage.value) return
   currentPage.value = page
   window.scrollTo({ top: 0, behavior: 'smooth' })
-}
-
-const switchUnit = (value: string) => {
-  if (activeUnit.value === value) return
-  activeUnit.value = value
-}
-
-const switchCategory = (categoryId: number | null) => {
-  if (activeCategory.value === categoryId) return
-  activeCategory.value = categoryId
-  currentPage.value = 1
 }
 
 const resetFilters = () => {
@@ -440,87 +379,6 @@ const formatPrice = (price: number | string | null | undefined) => {
   margin: 0;
   color: rgba(255, 255, 255, 0.78);
   font-size: 14.5px;
-}
-
-.filter-sticky {
-  position: sticky;
-  top: 72px;
-  z-index: 40;
-  background: rgba(248, 250, 252, 0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid #e2e8f0;
-  transition: box-shadow 0.25s ease;
-}
-
-.filter-sticky-scrolled {
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-}
-
-.filter-panel {
-  padding: 14px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.filter-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-}
-
-.filter-label {
-  flex-shrink: 0;
-  width: 36px;
-  padding-top: 8px;
-  font-size: 12px;
-  color: #94a3b8;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-}
-
-.filter-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.filter-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: 999px;
-  border: 1px solid #e2e8f0;
-  background: #fff;
-  color: #475569;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.filter-chip:hover {
-  border-color: #93c5fd;
-  color: #1d4ed8;
-}
-
-.filter-chip.is-active {
-  background: #2563eb;
-  border-color: #2563eb;
-  color: #fff;
-}
-
-.filter-chip-icon {
-  display: inline-flex;
-  line-height: 0;
-}
-
-.filter-divider {
-  height: 1px;
-  background: #e2e8f0;
 }
 
 .products-list-section {
@@ -932,20 +790,7 @@ const formatPrice = (price: number | string | null | undefined) => {
     font-size: 14px;
   }
 
-  .filter-sticky {
-    top: 64px;
-  }
-
-  .filter-panel {
-    padding: 10px 0;
-  }
-
-  .filter-chip {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-
-  .products-list-section {
+        .products-list-section {
     padding: 24px 0 48px;
   }
 
@@ -1016,17 +861,7 @@ const formatPrice = (price: number | string | null | undefined) => {
     gap: 10px;
   }
 
-  .filter-row {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .filter-label {
-    width: auto;
-    padding-top: 0;
-  }
-
-  .products-banner-title {
+      .products-banner-title {
     font-size: 24px;
   }
 

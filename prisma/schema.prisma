@@ -109,6 +109,9 @@ model product {
   price           Decimal         @default(0.00) @db.Decimal(10, 2)
   categoryId      Int
   image           String?
+  gallery         Json?
+  features        Json?
+  specs           Json?
   status          String          @default("published")
   sortOrder       Int             @default(0)
   createdAt       DateTime        @default(now())
@@ -225,3 +228,13 @@ model media {
   mimeType  String?
   createdAt DateTime @default(now())
 }
+
+model rate_limit {
+  k         String    @id @db.VarChar(191)
+  cnt       Int       @default(1)
+  reset_at  DateTime  @db.DateTime(3)
+  updated_at DateTime @default(now()) @updatedAt @db.DateTime(3)
+
+  @@ignore
+}
+

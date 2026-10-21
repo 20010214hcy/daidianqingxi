@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     const id = Number(getRouterParam(event, 'id'))
 
     if (!id) {
-      return errorResponse('文章ID不能为空', 400)
+      return errorResponse('文章ID不能为空', 400, event)
     }
 
     const article = await prisma.article.findUnique({
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!article) {
-      return errorResponse('文章不存在', 404)
+      return errorResponse('文章不存在', 404, event)
     }
 
     return successResponse(article)

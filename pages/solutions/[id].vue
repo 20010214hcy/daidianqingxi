@@ -159,7 +159,7 @@
             <p>我们的技术团队将为您提供定制化的解决方案</p>
             <div class="cta-btns">
               <NuxtLink to="/contact" class="btn-primary">立即咨询</NuxtLink>
-              <a href="tel:400-888-8888" class="btn-secondary">电话咨询</a>
+              <a href="tel:0375-3633369" class="btn-secondary">电话咨询</a>
             </div>
           </div>
         </div>
@@ -209,6 +209,11 @@ const { data: solutionRes } = await useFetch(
   { transform: (res: any) => (res?.success ? res.data : null) }
 )
 const solution = computed<any>(() => solutionRes.value || {})
+// 数据不存在时返回真实 404（避免无效 ID 被搜索引擎当成有效页收录）
+if (!solution.value || !(solution.value as any).id) {
+  throw createError({ statusCode: 404, statusMessage: '方案不存在或已下架' })
+}
+
 
 // 接口可能把数组字段以 JSON 字符串返回，统一解析
 const toList = (raw: any): any[] => {

@@ -2,13 +2,22 @@
   <div>
     <JsonLd :contact-info="contactData" />
     <NuxtLayout>
-      <NuxtPage />
+      <NuxtPage :transition="pageTransition" />
     </NuxtLayout>
   </div>
 </template>
 
 <script setup lang="ts">
 const route = useRoute()
+
+/* 页面过渡按路由分叉：
+ * 前台保留 nuxt.config 里的 pageTransition（淡入淡出）；
+ * 后台关掉 —— 那个过渡是 out-in 模式，会先把整页淡出到空白再淡入，
+ * 叠上每页 .admin-page-container 的 fadeIn 和首页卡片的 stagger，
+ * 点一次菜单要 0.3s 后才看得到内容、1.2s 才停稳。
+ * NuxtPage 的 transition 传 undefined 时回退到全局配置，传 false 则关闭。 */
+const pageTransition = computed(() => (route.path.startsWith('/admin') ? false : undefined))
+
 const siteName = ref('带电清洗')
 const siteIcon = ref('')
 

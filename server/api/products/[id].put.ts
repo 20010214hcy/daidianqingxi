@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
       return errorResponse('产品ID不能为空', 400)
     }
 
-    const { name, description, price, categoryId, image, status, sortOrder } = body
+    const { name, description, price, categoryId, image, status, sortOrder, gallery, features, specs } = body
 
     const updateData: any = {}
 
@@ -21,6 +21,9 @@ export default defineEventHandler(async (event) => {
     if (image !== undefined) updateData.image = image
     if (status !== undefined) updateData.status = status
     if (sortOrder !== undefined) updateData.sortOrder = Number(sortOrder)
+    if (gallery !== undefined) updateData.gallery = gallery || null
+    if (features !== undefined) updateData.features = features || null
+    if (specs !== undefined) updateData.specs = specs || null
 
     const product = await prisma.product.update({
       where: { id },

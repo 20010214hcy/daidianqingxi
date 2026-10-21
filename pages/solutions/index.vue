@@ -3,12 +3,8 @@
     <!-- Page Header -->
     <PageHeader title="技术方案" subtitle="专业的技术解决方案" />
 
-    <!-- 二级导航 -->
-    <section class="py-4 bg-white border-b border-slate-200 sticky top-20 z-40">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <UnitTabs v-model="activeUnit" />
-      </div>
-    </section>
+    <!-- 二级导航：业务板块切换 -->
+    <UnitSwitcher v-model="activeUnit" />
 
     <!-- Services Grid -->
     <section class="py-20 bg-white">
@@ -80,10 +76,10 @@ definePageMeta({
 })
 
 useHead({
-  title: "技术方案",
+  title: "带电清洗与储能系统技术方案",
   meta: [
     { name: 'description', content: '玺铭电力技术方案，提供带电清洗、储能系统等专业技术解决方案。' },
-    { property: 'og:title", content: "技术方案 - 河南玺铭电力科技有限公司' },
+    { property: 'og:title', content: '带电清洗与储能系统技术方案 - 河南玺铭电力科技有限公司' },
     { property: 'og:description', content: '带电清洗、储能系统等专业技术解决方案。' },
     { name: 'keywords', content: '带电清洗方案,储能系统方案,电力清洗技术,工业清洗方案,专业技术方案' },
   ]

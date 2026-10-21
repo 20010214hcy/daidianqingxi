@@ -148,8 +148,8 @@
           </button>
 
           <!-- 用户头像 -->
-          <el-dropdown trigger="click" @command="handleUserCommand">
-            <div class="header-user">
+          <el-dropdown trigger="click" @command="handleUserCommand" @visible-change="onUserDropdownVisible">
+            <div class="header-user" :class="{ 'is-open': userDropdownOpen }">
               <div class="header-avatar">
                 <img
                   v-if="user?.avatar"
@@ -200,6 +200,11 @@ const { can, isSuperAdmin, roleName } = usePermission()
 
 const sidebarCollapsed = ref(false)
 const isMobile = ref(false)
+const userDropdownOpen = ref(false)
+
+const onUserDropdownVisible = (visible: boolean) => {
+  userDropdownOpen.value = visible
+}
 const searchQuery = ref('')
 const searchExpanded = ref(false)
 const isFullscreen = ref(false)
@@ -381,20 +386,26 @@ const handleLogout = () => {
 
 <style scoped>
 /* ===== 过渡动画 ===== */
+/* 遮罩淡入淡出与侧边栏滑入同节奏 */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity var(--admin-sidebar-motion) var(--admin-sidebar-ease);
 }
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
 }
 
+/* 侧边栏内的说明文字（logo 文案 / 用户信息 / 退出按钮）：
+ * 离场要快（在面板收拢到一半前就消失），入场带延迟（等面板张开一点再出现），
+ * 与菜单文字的节奏保持一致 —— 旧版入场 250ms、离场 150ms，和面板 300ms 对不齐。 */
 .slide-fade-enter-active {
-  transition: all 0.3s ease-out;
+  transition: opacity var(--admin-sidebar-fade-in) linear var(--admin-sidebar-fade-in-delay),
+    transform var(--admin-sidebar-fade-in) var(--admin-sidebar-ease) var(--admin-sidebar-fade-in-delay);
 }
 .slide-fade-leave-active {
-  transition: all 0.2s ease-in;
+  transition: opacity var(--admin-sidebar-fade-out) linear,
+    transform var(--admin-sidebar-fade-out) var(--admin-sidebar-ease);
 }
 .slide-fade-enter-from {
   opacity: 0;
@@ -433,21 +444,19 @@ const handleLogout = () => {
   background: var(--admin-bg-sidebar);
   overflow: hidden;
   z-index: 950;
-  /* 使用简单的宽度过渡 */
-  transition: width 0.3s ease;
+  /* 面板宽度过渡用统一令牌；「自然感」的关键不在这一条，
+   * 而在下面的菜单内容是否跟着面板一起动（见折叠态样式块） */
+  transition: width var(--admin-sidebar-motion) var(--admin-sidebar-ease);
 }
 
 .sidebar-collapsed {
   width: var(--admin-sidebar-collapsed-width);
 }
 
-/* 禁用 Element Plus 菜单的默认过渡 */
+/* 只关掉菜单根节点自己的过渡（宽度由外层 aside 驱动）。
+ * 旧版在这里对 .el-menu-item 也写了 transition:none !important，
+ * 结果把折叠态下我们自己声明的所有过渡一并杀掉 —— 这是「内容瞬间消失」的根源之一。 */
 .admin-sidebar .el-menu--collapse {
-  transition: none !important;
-}
-
-.admin-sidebar .el-menu--collapse .el-menu-item,
-.admin-sidebar .el-menu--collapse .el-sub-menu__title {
   transition: none !important;
 }
 
@@ -547,6 +556,29 @@ const handleLogout = () => {
   width: 100%;
 }
 
+/* ===== 菜单文字的展开方向入场 =====
+ * EP 的折叠切换是「卸旧挂新」（out-in 换元素），新挂载元素上的 transition
+ * 不会播放，所以这里用 animation 入场：延迟期间保持透明（backwards），
+ * 等面板先张开一段、边缘扫过文字位置之后，文字才淡入，不会被裁着出现。 */
+@keyframes adminLabelIn {
+  from { opacity: 0 }
+  to { opacity: 1 }
+}
+
+.sidebar-menu:not(.el-menu--collapse):not(.horizontal-collapse-transition) .el-menu-item > span,
+.sidebar-menu:not(.el-menu--collapse):not(.horizontal-collapse-transition) .el-sub-menu__title > span:not(.el-icon) {
+  animation: adminLabelIn var(--admin-sidebar-fade-in) linear var(--admin-sidebar-fade-in-delay) backwards;
+}
+
+/* 展开箭头与文字同节奏淡入：否则新菜单挂载时箭头会先在窄面板里露出来 */
+.sidebar-menu:not(.el-menu--collapse):not(.horizontal-collapse-transition) .el-sub-menu__icon-arrow {
+  animation: adminLabelIn var(--admin-sidebar-fade-in) linear var(--admin-sidebar-fade-in-delay) backwards;
+}
+/* 排除 .horizontal-collapse-transition 的原因：EP 在测量目标宽度时会给旧菜单
+ * 短暂加/摘 el-menu--collapse 类，这会让上面的 animation 在旧菜单上重新触发
+ * （delay 期间 opacity=0），旧内容的淡出就得交给 .horizontal-collapse-transition
+ * 上的菜单级 opacity 过渡（见 admin-variables.css），两者各管一段互不打架。 */
+
 /* ===== 侧边栏底部 ===== */
 .sidebar-footer {
   flex-shrink: 0;
@@ -630,7 +662,7 @@ const handleLogout = () => {
   color: var(--admin-text-white-muted);
   cursor: pointer;
   border-radius: var(--admin-radius-md);
-  transition: all var(--admin-transition-fast);
+  transition: background-color var(--admin-transition-fast), color var(--admin-transition-fast);
   flex-shrink: 0;
   white-space: nowrap;
 }
@@ -688,7 +720,7 @@ const handleLogout = () => {
   color: var(--admin-text-muted);
   cursor: pointer;
   flex-shrink: 0;
-  transition: all var(--admin-transition-fast);
+  transition: background-color var(--admin-transition-fast), color var(--admin-transition-fast);
 }
 
 .collapse-btn:hover {
@@ -753,7 +785,7 @@ const handleLogout = () => {
   background: transparent;
   color: var(--admin-text-muted);
   cursor: pointer;
-  transition: all var(--admin-transition-fast);
+  transition: background-color var(--admin-transition-fast), color var(--admin-transition-fast);
 }
 
 .header-action-btn:hover {
@@ -812,7 +844,9 @@ const handleLogout = () => {
   transition: transform var(--admin-transition-fast);
 }
 
-.header-user:hover .header-user-arrow {
+/* 箭头跟随下拉菜单的开合状态，而不是 hover —— 下拉是 click 触发的，
+ * hover 翻转会让人误以为鼠标划过就展开了 */
+.header-user.is-open .header-user-arrow {
   transform: rotate(180deg);
 }
 
@@ -869,78 +903,85 @@ const handleLogout = () => {
   border: none !important;
 }
 
-/* 所有菜单项 - 使用最高优先级 */
-.sidebar-collapsed .el-menu--collapse > .el-menu-item,
-.sidebar-collapsed .el-menu--collapse > .el-sub-menu {
-  margin: 4px 8px !important;
-  width: calc(100% - 16px) !important;
-}
+/* ===== 折叠态：让「内容跟着面板一起动」，而不是面板在动、内容瞬间变样 =====
+ *
+ * 旧版做法是折叠瞬间把文字 display:none、图标绝对定位跳到导轨中心、
+ * 行内边距/外边距换成另一套 —— 内容在第一帧就变成收起态的样子，
+ * 然后面板再用 300ms 慢慢合拢，于是看到的是「文字被拦腰裁断 + 图标瞬移」。
+ *
+ * 现在的原则：折叠态的**流内几何与展开态完全一致**（同样的 12px 外边距、
+ * 20px 内边距、图标在文字前占位），变化只有三个可过渡的量：
+ *   1. 面板宽度（.admin-sidebar 的 width 过渡）
+ *   2. 文字/箭头透明度（淡出快于面板收拢，边缘扫到前就已透明）
+ *   3. 图标 8px 的 transform 平移（补齐到导轨中心，合成层平滑过渡）
+ */
 
-/* 普通菜单项 */
+/* 菜单项：外边距/内边距与展开态一致（全局规则已是 4px 12px + EP 的 0 20px），
+ * 这里只保留高度，不再覆盖 margin/padding/display */
 .sidebar-collapsed .el-menu--collapse > .el-menu-item {
-  padding: 0 !important;
   height: 44px !important;
   line-height: 44px !important;
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
 }
 
-/* 有子菜单的一级菜单 - 关键修复 */
+/* 有子菜单的一级菜单标题：同样保持流内几何，只把 48px 收成 44px（带过渡） */
 .sidebar-collapsed .el-menu--collapse > .el-sub-menu > .el-sub-menu__title {
-  padding: 0 !important;
-  margin: 0 !important;
   height: 44px !important;
   line-height: 44px !important;
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  text-align: center !important;
-  position: relative !important;
-  left: 0 !important;
-  right: 0 !important;
+  transition: background-color var(--admin-transition-normal),
+    color var(--admin-transition-normal),
+    box-shadow var(--admin-transition-normal),
+    height var(--admin-sidebar-motion) var(--admin-sidebar-ease),
+    line-height var(--admin-sidebar-motion) var(--admin-sidebar-ease);
 }
 
-/* 图标 - 绝对定位居中 */
+/* 图标：保持展开态的流内位置不动，仅用 transform 平移 8px 补齐到导轨中心
+ * （导轨中心 = 72/2 = 36px；流内中心 = 12 外边距 + 20 内边距 + 12 半个图标 = 44px）
+ * 并恢复 EP 折叠态拿掉的 5px 右间距，保证文字的 x 与展开态逐像素一致 */
 .sidebar-collapsed .el-menu--collapse > .el-menu-item .el-icon,
 .sidebar-collapsed .el-menu--collapse > .el-sub-menu > .el-sub-menu__title > .el-icon {
-  position: absolute !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  margin: 0 !important;
+  margin: 0 5px 0 0 !important;
   width: 24px !important;
   height: 24px !important;
-  display: flex !important;
+  display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   flex-shrink: 0 !important;
+  transform: translateX(-8px);
+  transition: transform var(--admin-sidebar-motion) var(--admin-sidebar-ease);
 }
 
-/* 隐藏文字 */
+/* 文字：不再 display:none（瞬间消失），改为原地淡出 + 由面板边缘裁掉。
+ * 必须覆盖 EP 折叠态自带的 visibility:hidden / width:0 —— 那两个都是瞬间的，
+ * 是「文字凭空消失」的直接原因；visibility 用延迟过渡，等淡出播完再生效（无障碍）。 */
 .sidebar-collapsed .el-menu--collapse .el-menu-item span,
 .sidebar-collapsed .el-menu--collapse > .el-sub-menu > .el-sub-menu__title > span:not(.el-icon) {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
+  visibility: hidden !important;
+  width: auto !important;
+  height: auto !important;
   overflow: hidden !important;
+  white-space: nowrap !important;
+  flex: none !important;
   opacity: 0 !important;
+  transition: opacity var(--admin-sidebar-fade-out) linear,
+    visibility 0s linear var(--admin-sidebar-fade-out);
 }
 
-/* 隐藏箭头 - 所有可能的选择器 */
+/* 展开箭头：同样原地淡出（EP 折叠态是 display:none，会瞬间消失）。
+ * 箭头是 right:20px 的绝对定位，面板收拢时它会贴着边缘一起滑进来，配合淡出很自然。 */
 .sidebar-collapsed .el-menu--collapse .el-sub-menu__icon-arrow,
-.sidebar-collapsed .el-menu--collapse .el-sub-menu__caret,
-.sidebar-collapsed .el-menu--collapse > .el-sub-menu > .el-sub-menu__title > .el-sub-menu__icon-arrow,
-.sidebar-collapsed .el-menu--collapse > .el-sub-menu > .el-sub-menu__title > span.el-sub-menu__icon-arrow {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
-  overflow: hidden !important;
+.sidebar-collapsed .el-menu--collapse .el-sub-menu__caret {
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  overflow: visible !important;
   opacity: 0 !important;
   visibility: hidden !important;
+  transition: opacity var(--admin-sidebar-fade-out) linear,
+    visibility 0s linear var(--admin-sidebar-fade-out);
 }
 
 .sidebar-collapsed .sidebar-footer {
-  padding: 12px 8px;
+  padding: 12px 16px;
   flex-direction: column;
   gap: 8px;
   align-items: center;
@@ -967,43 +1008,10 @@ const handleLogout = () => {
   display: none !important;
 }
 
-/* ===== 移动端侧边栏 ===== */
-.sidebar-mobile-open {
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  z-index: 1000;
-  box-shadow: 4px 0 30px rgba(0, 0, 0, 0.2);
-}
-
-@media (max-width: 1023px) {
-  .admin-sidebar:not(.sidebar-mobile-open) {
-    width: 0;
-    border: none;
-    overflow: hidden;
-  }
-
-  .header-username {
-    display: none;
-  }
-
-  .header-breadcrumb {
-    display: none;
-  }
-}
-
-@media (max-width: 640px) {
-  .admin-header {
-    padding: 0 12px;
-  }
-
-  .header-left {
-    gap: 6px;
-  }
-
-  .header-search {
-    display: none;
-  }
-}
+/* ===== 移动端侧边栏 =====
+ * 这里原本还有一份 .sidebar-mobile-open / @media(max-width:1023px) / @media(640px)
+ * 的规则，与 assets/css/admin-mobile.css 完全重复。因为本文件是 <style scoped>，
+ * 同名选择器会被加上 [data-v-xxx] 而优先级更高，反而把 admin-mobile.css 里
+ * 带 !important 的 width/transform 规则压掉，导致两侧动画对不齐。
+ * 现在只保留 admin-mobile.css 一处定义，删掉这里的副本。 */
 </style>

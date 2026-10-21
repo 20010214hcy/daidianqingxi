@@ -3,25 +3,45 @@
     <!-- Page Header -->
     <PageHeader title="服务项目" subtitle="专业的工业清洗解决方案" />
 
+    <!-- 二级导航：业务板块切换 -->
+    <UnitSwitcher v-model="activeUnit" />
+
     <!-- Services Grid -->
     <section class="py-20 bg-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div ref="gridRef" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          <!-- 骨架屏 -->
-          <template v-if="loading">
-            <div v-for="n in 4" :key="'skel-'+n" class="border border-slate-200 rounded-2xl overflow-hidden">
-              <div class="aspect-[16/9] bg-slate-200 animate-pulse" />
-              <div class="p-6 space-y-3">
-                <div class="h-6 w-3/4 bg-slate-200 rounded animate-pulse" />
-                <div class="h-4 w-full bg-slate-200 rounded animate-pulse" />
-                <div class="h-4 w-2/3 bg-slate-200 rounded animate-pulse" />
-              </div>
+        <!-- 骨架屏 -->
+        <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div v-for="n in 4" :key="'skel-'+n" class="border border-slate-200 rounded-2xl overflow-hidden">
+            <div class="aspect-[16/9] bg-slate-200 animate-pulse" />
+            <div class="p-6 space-y-3">
+              <div class="h-6 w-3/4 bg-slate-200 rounded animate-pulse" />
+              <div class="h-4 w-full bg-slate-200 rounded animate-pulse" />
+              <div class="h-4 w-2/3 bg-slate-200 rounded animate-pulse" />
             </div>
-          </template>
-          <!-- 真实数据 -->
-          <div 
-            v-else
-            v-for="service in services" 
+          </div>
+        </div>
+
+        <!-- 空状态 -->
+        <div v-else-if="services.length === 0" class="text-center py-20">
+          <div class="text-6xl mb-4">🔧</div>
+          <p class="text-xl text-slate-500">该业务板块暂无服务项目</p>
+          <button
+            type="button"
+            class="mt-6 inline-flex items-center px-6 py-2.5 rounded-full border border-blue-200 text-blue-600 font-medium hover:bg-blue-50 transition-colors"
+            @click="switchToOtherUnit"
+          >
+            查看{{ otherUnitLabel }}服务
+          </button>
+        </div>
+
+        <!-- 真实数据 -->
+        <div
+          v-else
+          ref="gridRef"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+        >
+          <div
+            v-for="service in services"
             :key="service.id"
             class="service-card group border border-slate-200 rounded-2xl overflow-hidden stagger-reveal-item"
           >
@@ -78,17 +98,33 @@ definePageMeta({
 })
 
 useHead({
-  title: "服务项目",
+  title: "电力设备带电清洗与储能服务项目",
   meta: [
     { name: 'description', content: "玺铭电力服务项目，提供电力设备带电清洗、储能系统集成、化学清洗、工业设备维护等专业清洗解决方案。" },
-    { property: 'og:title', content: '服务项目 - 河南玺铭电力科技有限公司' },
+    { property: 'og:title', content: '电力设备带电清洗与储能服务项目 - 河南玺铭电力科技有限公司' },
     { property: 'og:description', content: '电力设备带电清洗、化学清洗、工业设备维护等专业清洗解决方案。' },
     { name: 'keywords', content: "带电清洗服务,化学清洗,工业设备维护,电力设备清洗,高压清洗,清洗解决方案,储能系统集成,储能设备安装,储能运维服务" },
   ]
 })
 
+// 业务板块切换（与产品/案例/方案页共用 UnitSwitcher）
+const route = useRoute()
+const router = useRouter()
+const activeUnit = ref((route.query.unit as string) || 'daidianqingxi')
+
+watch(activeUnit, (val) => {
+  router.replace({ query: { unit: val } })
+})
+
+// 空状态：一键切到另一业务板块
+const otherUnitLabel = computed(() => (activeUnit.value === 'daidianqingxi' ? '储能' : '带电清洗'))
+const switchToOtherUnit = () => {
+  activeUnit.value = activeUnit.value === 'daidianqingxi' ? 'chuneng' : 'daidianqingxi'
+}
+
 // SSR 数据获取
 const { data: servicesData, pending: loading } = useFetch('/api/services', {
+  query: computed(() => ({ businessUnit: activeUnit.value })),
   transform: (res: any) => res?.success ? (res.data || []) : []
 })
 const services = computed<Service[]>(() => servicesData.value || [])

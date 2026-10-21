@@ -33,7 +33,17 @@ export default defineEventHandler(async (event) => {
     const updateData: Record<string, unknown> = {}
 
     if (name !== undefined) updateData.name = name
-    if (email !== undefined) updateData.email = email || null
+    if (email !== undefined) {
+      if (email) {
+        const emailTaken = await prisma.user.findFirst({
+          where: { email, NOT: { id } },
+        })
+        if (emailTaken) {
+          return errorResponse('该邮箱已被其他账号使用', 400)
+        }
+      }
+      updateData.email = email || null
+    }
     if (role !== undefined) {
       if (!isValidRole(role)) {
         return errorResponse('无效的角色', 400)
@@ -45,6 +55,9 @@ export default defineEventHandler(async (event) => {
       updateData.role = role
     }
     if (password) {
+      if (password.length < 6) {
+        return errorResponse('密码长度不能少于6位', 400)
+      }
       updateData.password = await hashPassword(password)
     }
 

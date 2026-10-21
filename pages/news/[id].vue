@@ -24,7 +24,7 @@
           <div class="flex items-center gap-4 text-sm text-slate-400">
             <span>{{ formatDate(article.publishedAt || article.createdAt) }}</span>
             <span class="w-1 h-1 rounded-full bg-slate-300" />
-            <span>{{ article.viewCount || 0 }} 次阅读</span>
+            <span>{{ displayViews }} 次阅读</span>
           </div>
         </div>
         <div v-else class="animate-pulse space-y-3">
@@ -166,6 +166,11 @@ const { data: articleRes } = await useFetch(`/api/articles/${articleId.value}`, 
   transform: (res: any) => (res?.success ? res.data : null) as Article | null,
 })
 const article = computed(() => articleRes.value || ({} as Article))
+// 数据不存在时返回真实 404（避免无效 ID 被搜索引擎当成有效页收录）
+if (!article.value || !(article.value as any).id) {
+  throw createError({ statusCode: 404, statusMessage: '新闻不存在或已下架' })
+}
+
 
 // 导航列表（SSR）
 const { data: navData } = await useFetch('/api/articles', {
@@ -197,8 +202,19 @@ const relatedArticles = computed(() =>
 )
 
 // 阅读计数（仅客户端）
+// SSR 阶段 article.viewCount 是库里历史值；本次访问 +1 后本地同步，
+// 避免出现「刚看完仍显示 0 次阅读」的观感问题
+const extraViews = ref(0)
+const displayViews = computed(() => Number(article.value.viewCount || 0) + extraViews.value)
+
 onMounted(async () => {
-  try { await $fetch(`/api/articles/${articleId.value}/view`, { method: 'POST' }) } catch {}
+  if (!articleId.value) return
+  try {
+    await $fetch(`/api/articles/${articleId.value}/view`, { method: 'POST' })
+    extraViews.value = 1
+  } catch {
+    /* 计数失败不影响正常阅读 */
+  }
 })
 
 const sanitizedContent = computed(() => {

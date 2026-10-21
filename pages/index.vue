@@ -54,8 +54,7 @@ const { data: casesData } = useFetch('/api/cases', {
 const { data: newsData } = useFetch('/api/articles', {
   params: { page: 1, pageSize: 5, status: 'published' },
   transform: (res: any) => res?.success ? (res.data?.list || []) : [],
-  // 新闻需及时反映后台发布
-  getCachedData: () => undefined,
+  // 新闻需及时反映后台发布：不自定义 getCachedData，走 Nuxt 默认（hydration 用 payload、客户端导航自动重取）
 })
 const { data: certificatesData } = useFetch('/api/certificates', {
   transform: (res: any) => res?.success ? (res.data || []) : []

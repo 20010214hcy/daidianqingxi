@@ -10,3 +10,10 @@ dist
 .idea
 *.bak-*
 public/uploads/
+backup-fix*
+backup-anim*
+backup-hydr*
+backup-mobile*
+backup-pwd*
+backup-roleperm*
+db-backups/

@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
 
-    const { name, description, price, categoryId, image, status, sortOrder } = body
+    const { name, description, price, categoryId, image, status, sortOrder, gallery, features, specs } = body
 
     if (!name) {
       return errorResponse('产品名称不能为空', 400)
@@ -21,6 +21,9 @@ export default defineEventHandler(async (event) => {
         price: price !== undefined ? Number(price) : 0,
         categoryId: Number(categoryId),
         image: image || '',
+        gallery: gallery || null,
+        features: features || null,
+        specs: specs || null,
         status: status || 'published',
         sortOrder: sortOrder !== undefined ? Number(sortOrder) : 0,
         updatedAt: new Date(),

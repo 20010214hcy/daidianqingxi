@@ -2,21 +2,16 @@ import { prisma } from '~/server/utils/db'
 import { successResponse, errorResponse } from '~/server/utils/response'
 import { verifyPassword, generateToken } from '~/server/utils/auth'
 import { getRateLimitCount, incrementRateLimit, clearRateLimit } from '~/server/utils/rateLimit'
+import { realIP } from '~/server/utils/ip'
 
 // 渐进式速率限制：失败次数越多，等待越久
 const BASE_DELAY_MS = 2000
 const MAX_DELAY_MS = 60000
 const WINDOW_MS = 15 * 60 * 1000
 
-function getClientIP(event: any): string {
-  return getHeader(event, 'x-forwarded-for')?.split(',')[0]?.trim()
-    || getHeader(event, 'x-real-ip')
-    || event.node?.req?.socket?.remoteAddress
-    || 'unknown'
-}
-
 export default defineEventHandler(async (event) => {
-  const ip = getClientIP(event)
+  // 用真实客户端 IP 做限流键（XFF 第一段可伪造，见 utils/ip.ts）
+  const ip = realIP(event)
   const failKey = `login_fail:${ip}`
 
   // 渐进式延迟（跨 PM2 实例共享计数）

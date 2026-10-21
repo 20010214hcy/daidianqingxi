@@ -21,6 +21,16 @@ export default defineEventHandler(async (event) => {
       return errorResponse('用户不存在')
     }
     
+    // 检查邮箱是否已被其他账号占用（邮箱为可选字段）
+    if (email && email !== user.email) {
+      const emailTaken = await prisma.user.findFirst({
+        where: { email, NOT: { id: userId } },
+      })
+      if (emailTaken) {
+        return errorResponse('该邮箱已被其他账号使用')
+      }
+    }
+
     // 更新数据准备
     const updateData: Record<string, string> = {
       name: name !== undefined ? name : user.name,
@@ -43,6 +53,10 @@ export default defineEventHandler(async (event) => {
     if (newPassword) {
       if (!oldPassword) {
         return errorResponse('请输入旧密码')
+      }
+
+      if (newPassword.length < 6) {
+        return errorResponse('密码长度不能少于6位')
       }
       
       // 验证旧密码

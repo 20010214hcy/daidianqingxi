@@ -2,11 +2,13 @@ import { prisma } from '~/server/utils/db'
 import { successResponse, errorResponse } from '~/server/utils/response'
 import { filterText } from '~/server/utils/xss'
 import { checkRateLimit } from '~/server/utils/rateLimit'
+import { realIP } from '~/server/utils/ip'
 
 export default defineEventHandler(async (event) => {
   try {
     // 速率限制：同一 IP 每小时最多 10 条留言（跨 PM2 实例共享）
-    const ip = getRequestIP(event, { xForwardedFor: true }) || 'unknown'
+    // 用真实客户端 IP（XFF 第一段可伪造，见 utils/ip.ts）
+    const ip = realIP(event)
     if (!(await checkRateLimit(`msg:${ip}`, 10, 60 * 60 * 1000))) {
       return errorResponse('提交过于频繁，请稍后再试', 429)
     }

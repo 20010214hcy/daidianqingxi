@@ -33,7 +33,8 @@
     </el-card>
 
     <el-card>
-      <div class="desktop-table">
+      <AdminMobileList :empty="services.length === 0">
+        <!-- 桌面端表格 -->
         <el-table :data="services" style="width: 100%" stripe>
           <el-table-column prop="coverImage" label="封面" width="120">
             <template #default="{ row }">
@@ -72,30 +73,36 @@
             </template>
           </el-table-column>
         </el-table>
-      </div>
 
-      <div class="mobile-list">
-        <div v-for="item in services" :key="item.id" class="mobile-card">
-          <div class="mobile-card-header">
-            <img v-if="item.coverImage" :src="item.coverImage" class="mobile-card-image" />
-            <div v-else class="mobile-card-image-placeholder">📷</div>
-            <div class="mobile-card-info">
-              <h4 class="mobile-card-title">{{ item.title }}</h4>
-              <p class="mobile-card-subtitle">
-                {{ item.businessunit?.name || '未分配板块' }} · {{ item.description || '暂无描述' }}
-              </p>
-            </div>
-            <el-tag :type="item.status === 'published' ? 'success' : 'warning'" size="small">
-              {{ item.status === 'published' ? '已发布' : '草稿' }}
-            </el-tag>
-          </div>
-          <div class="mobile-card-actions">
-            <el-button size="small" @click="editService(item)">编辑</el-button>
-            <el-button size="small" type="danger" @click="deleteService(item.id, item.coverImage)">删除</el-button>
-          </div>
-        </div>
-        <el-empty v-if="services.length === 0" description="暂无服务数据" />
-      </div>
+        <!-- 移动端卡片列表 -->
+        <template #mobile>
+          <AdminMobileCard
+            v-for="item in services"
+            :key="item.id"
+            :title="item.title"
+            :subtitle="`${item.businessunit?.name || '未分配板块'} · ${item.description || '暂无描述'}`"
+            :image="item.coverImage"
+            image-placeholder="📷"
+            :status="item.status === 'published' ? '已发布' : '草稿'"
+            :status-type="item.status === 'published' ? 'success' : 'warning'"
+          >
+            <template #actions>
+              <el-button size="small" @click="editService(item)">
+                <el-icon class="mr-1"><Edit /></el-icon>
+                编辑
+              </el-button>
+              <el-button size="small" type="danger" @click="deleteService(item.id, item.coverImage)">
+                <el-icon class="mr-1"><Delete /></el-icon>
+                删除
+              </el-button>
+            </template>
+          </AdminMobileCard>
+        </template>
+
+        <template #empty>
+          <el-empty description="暂无服务数据" :image-size="80" />
+        </template>
+      </AdminMobileList>
     </el-card>
 
     <el-dialog
@@ -207,7 +214,7 @@
 </template>
 
 <script setup lang="ts">
-import { Plus, Delete } from '@element-plus/icons-vue'
+import { Plus, Edit, Delete } from '@element-plus/icons-vue'
 
 definePageMeta({
   layout: 'admin'
@@ -377,77 +384,3 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
-.desktop-table {
-  display: block;
-}
-
-.mobile-list {
-  display: none;
-}
-
-.mobile-card {
-  background: white;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.mobile-card-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.mobile-card-image {
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
-  object-fit: cover;
-}
-
-.mobile-card-image-placeholder {
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
-  background: #f1f5f9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-}
-
-.mobile-card-info {
-  flex: 1;
-}
-
-.mobile-card-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1e293b;
-  margin-bottom: 4px;
-}
-
-.mobile-card-subtitle {
-  font-size: 13px;
-  color: #64748b;
-}
-
-.mobile-card-actions {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-}
-
-@media (max-width: 768px) {
-  .desktop-table {
-    display: none !important;
-  }
-
-  .mobile-list {
-    display: block;
-  }
-}
-</style>

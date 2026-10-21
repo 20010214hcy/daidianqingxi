@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard admin-page-container">
+  <div class="dashboard admin-page-container" :class="{ 'animate-in': animateIn }">
     <!-- 欢迎横幅 -->
     <section class="welcome-banner">
       <div class="welcome-content">
@@ -28,9 +28,9 @@
             <div class="stat-icon" :style="{ background: card.color + '15', color: card.color }">
               <span>{{ card.icon }}</span>
             </div>
-            <div class="stat-trend" :class="card.trend > 0 ? 'trend-up' : 'trend-down'" v-if="card.trend">
-              <el-icon :size="12"><Top v-if="card.trend > 0" /><Bottom v-else /></el-icon>
-              <span>{{ Math.abs(card.trend) }}%</span>
+            <div class="stat-trend" :class="card.trendDown ? 'trend-down' : 'trend-up'" v-if="card.trendText" :title="card.trendTitle">
+              <el-icon :size="12"><Top v-if="!card.trendDown" /><Bottom v-else /></el-icon>
+              <span>{{ card.trendText }}</span>
             </div>
           </div>
           <div class="stat-value">{{ loading ? '-' : card.value }}</div>
@@ -42,7 +42,7 @@
             <div
               class="stat-bar-fill"
               :style="{
-                width: loading ? '0%' : (card.value / maxStatValue * 100) + '%',
+                transform: `scaleX(${loading ? 0 : card.value / maxStatValue})`,
                 background: card.color
               }"
             />
@@ -206,7 +206,18 @@ const router = useRouter()
 const { user } = useAuth()
 const loading = ref(true)
 
+/* 入场动画只在本次会话的第一次进入仪表盘时播一次。
+ * 卡片的 slideUp/scaleIn 是纯 CSS 声明式动画，路由切走再回来会整段重播，
+ * 点几次菜单就看几次飞入，第二次起就是纯干扰。
+ * useState 是 Nuxt 的应用级状态，跨组件挂载存活，正合适。 */
+const entrancePlayed = useState('admin:dashboard:entrancePlayed', () => false)
+const animateIn = ref(!entrancePlayed.value)
+onMounted(() => {
+  entrancePlayed.value = true
+})
+
 const counts = ref({ articles: 0, products: 0, cases: 0, services: 0, messages: 0, pendingMessages: 0 })
+const trends = ref<Record<string, { new: number; pct: number | null }>>({})
 const chartData = ref<{ label: string; value: number }[]>([])
 const recentArticles = ref<{ id: number; title: string; createdAt: string }[]>([])
 const system = ref({ uptime: '', memoryUsage: '', nodeVersion: '', status: 'healthy' })
@@ -231,12 +242,25 @@ const maxStatValue = computed(() => {
 
 const sysStatus = computed(() => system.value.status === 'healthy' ? 'healthy' : 'error')
 
+// 真实环比徽标（数据来自 dashboard/stats 的 trends：本月新增 / 月初存量）
+const trendBadge = (t?: { new: number; pct: number | null }) => {
+  if (!t || !t.new) return { trendText: '', trendDown: false, trendTitle: '' }
+  if (t.pct == null) {
+    return { trendText: '新增', trendDown: false, trendTitle: `本月新增 ${t.new} 条` }
+  }
+  return {
+    trendText: `${Math.abs(t.pct)}%`,
+    trendDown: t.pct < 0,
+    trendTitle: `本月新增 ${t.new} 条，较月初${t.pct < 0 ? '下降' : '增长'} ${Math.abs(t.pct)}%`,
+  }
+}
+
 const statCards = computed(() => [
-  { label: '产品总数', value: counts.value.products, sub: '全部产品', icon: '📦', color: '#3b82f6', trend: 12 },
-  { label: '服务项目', value: counts.value.services, sub: '服务类型', icon: '⚡', color: '#60a5fa', trend: 5 },
-  { label: '工程案例', value: counts.value.cases, sub: '成功项目', icon: '🏭', color: '#10b981', trend: 8 },
-  { label: '文章资讯', value: counts.value.articles, sub: '新闻总数', icon: '📰', color: '#f59e0b', trend: -3 },
-  { label: '待回留言', value: counts.value.pendingMessages, sub: '待处理', icon: '💬', color: '#ef4444', trend: 0 },
+  { label: '产品总数', value: counts.value.products, sub: '全部产品', icon: '📦', color: '#3b82f6', ...trendBadge(trends.value.products) },
+  { label: '服务项目', value: counts.value.services, sub: '服务类型', icon: '⚡', color: '#60a5fa', ...trendBadge(trends.value.services) },
+  { label: '工程案例', value: counts.value.cases, sub: '成功项目', icon: '🏭', color: '#10b981', ...trendBadge(trends.value.cases) },
+  { label: '文章资讯', value: counts.value.articles, sub: '新闻总数', icon: '📰', color: '#f59e0b', ...trendBadge(trends.value.articles) },
+  { label: '待回留言', value: counts.value.pendingMessages, sub: '待处理', icon: '💬', color: '#ef4444', trendText: '', trendDown: false, trendTitle: '' },
 ])
 
 const quickActions = [
@@ -260,6 +284,7 @@ const loadDashboard = async () => {
     const res = await $fetch('/api/dashboard/stats')
     if (res.success && res.data) {
       counts.value = res.data.counts
+      trends.value = res.data.trends || {}
       chartData.value = res.data.chart || []
       recentArticles.value = res.data.recentArticles || []
       system.value = res.data.system
@@ -391,7 +416,10 @@ onMounted(() => loadDashboard())
   border-radius: var(--admin-radius-xl);
   padding: 24px;
   border: 1px solid var(--admin-border);
-  transition: all var(--admin-transition-normal);
+  transition: background-color var(--admin-transition-normal),
+    border-color var(--admin-transition-normal),
+    box-shadow var(--admin-transition-normal),
+    transform var(--admin-transition-normal);
   animation: slideUp 0.5s ease-out backwards;
   animation-delay: var(--delay);
 }
@@ -474,9 +502,14 @@ onMounted(() => loadDashboard())
 
 .stat-bar-fill {
   height: 100%;
+  width: 100%;
   border-radius: 2px;
-  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: slideRight 0.5s ease-out backwards;
+  /* 用 scaleX 而不是 width：width 每帧触发 layout，scaleX 走合成层。
+   * 同时必须去掉原来的 slideRight 入场动画 —— 它也是动 transform，
+   * 会把这里写死的 scaleX 覆盖掉。 */
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ===== 主要内容网格 ===== */
@@ -582,7 +615,7 @@ onMounted(() => loadDashboard())
   white-space: nowrap;
   opacity: 0;
   transform: translateY(4px);
-  transition: all var(--admin-transition-fast);
+  transition: opacity var(--admin-transition-fast), transform var(--admin-transition-fast);
   pointer-events: none;
 }
 
@@ -649,7 +682,10 @@ onMounted(() => loadDashboard())
   border-radius: var(--admin-radius-lg);
   background: white;
   cursor: pointer;
-  transition: all var(--admin-transition-normal);
+  transition: background-color var(--admin-transition-normal),
+    border-color var(--admin-transition-normal),
+    box-shadow var(--admin-transition-normal),
+    transform var(--admin-transition-normal);
   animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
   animation-delay: var(--delay);
 }
@@ -699,6 +735,7 @@ onMounted(() => loadDashboard())
 }
 
 .status-dot {
+  position: relative;
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -707,6 +744,17 @@ onMounted(() => loadDashboard())
 .status-indicator.healthy .status-dot {
   background: #10b981;
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+/* 呼吸环放到 ::after 上用 scale/opacity 动画。
+ * 原来直接动 .status-dot 的 box-shadow（2s infinite 永不停，后台挂多久就重绘多久），
+ * 而且配色用的是蓝色 rgba(59,130,246) —— 和绿色的状态点对不上。 */
+.status-indicator.healthy .status-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.45);
   animation: pulse-glow 2s infinite;
 }
 
@@ -736,7 +784,7 @@ onMounted(() => loadDashboard())
   padding: 16px;
   background: #f8fafc;
   border-radius: var(--admin-radius-lg);
-  transition: all var(--admin-transition-fast);
+  transition: background-color var(--admin-transition-fast);
 }
 
 .status-item:hover {
@@ -823,7 +871,7 @@ onMounted(() => loadDashboard())
   gap: 16px;
   padding: 14px 16px;
   border-radius: var(--admin-radius-lg);
-  transition: all var(--admin-transition-fast);
+  transition: background-color var(--admin-transition-fast);
   animation: slideRight 0.4s ease-out backwards;
   animation-delay: var(--delay);
 }
@@ -868,6 +916,17 @@ onMounted(() => loadDashboard())
   font-size: 12px;
   color: var(--admin-text-muted);
   flex-shrink: 0;
+}
+
+/* 非首次访问不再播入场动画：直接落到最终状态。
+ * 写成一条总开关，避免每个元素各写一份 if。 */
+.dashboard:not(.animate-in) .welcome-banner,
+.dashboard:not(.animate-in) .stat-card,
+.dashboard:not(.animate-in) .panel,
+.dashboard:not(.animate-in) .bar,
+.dashboard:not(.animate-in) .quick-btn,
+.dashboard:not(.animate-in) .recent-item {
+  animation: none !important;
 }
 
 /* ===== 响应式 ===== */

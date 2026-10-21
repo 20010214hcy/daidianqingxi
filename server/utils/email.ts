@@ -84,7 +84,7 @@ export function generateReplyEmailHtml(data: {
     originalMessage,
     replyContent,
     companyName = '河南玺铭电力科技有限公司',
-    phone = '400-888-8888',
+    phone = '0375-3633369',
     website = 'https://ximingpower.com'
   } = data
 

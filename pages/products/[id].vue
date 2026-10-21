@@ -87,7 +87,7 @@
                 </dl>
               </template>
 
-              <NuxtLink to="/contact" class="detail-cta">
+              <NuxtLink :to="{ path: '/contact', query: { subject: '产品采购', ref: product.name } }" class="detail-cta">
                 立即咨询
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
@@ -124,7 +124,7 @@
               <a v-if="contactTel" :href="`tel:${contactTel}`" class="detail-contact-phone">
                 {{ contactPhone }}
               </a>
-              <NuxtLink to="/contact" class="detail-contact-btn">留言获取产品资料</NuxtLink>
+              <NuxtLink :to="{ path: '/contact', query: { subject: '产品采购', ref: product.name } }" class="detail-contact-btn">留言获取产品资料</NuxtLink>
               <div v-if="contactHours || contact.address" class="detail-contact-meta">
                 <p v-if="contactHours">{{ contactHours }}</p>
                 <p v-if="contact.address">{{ contact.address }}</p>
@@ -179,7 +179,7 @@
       <a v-if="contactTel" :href="`tel:${contactTel}`" class="detail-mobile-btn detail-mobile-btn-ghost">
         电话咨询
       </a>
-      <NuxtLink to="/contact" class="detail-mobile-btn detail-mobile-btn-primary">在线留言</NuxtLink>
+      <NuxtLink :to="{ path: '/contact', query: { subject: '产品采购', ref: product.name } }" class="detail-mobile-btn detail-mobile-btn-primary">在线留言</NuxtLink>
     </div>
   </div>
 </template>
@@ -199,10 +199,14 @@ const { data: productData } = await useFetch(
   computed(() => `/api/products/${productId.value}`),
   {
     transform: (res: any) => (res?.success ? res.data : null) as Product | null,
-    getCachedData: () => undefined,
   }
 )
 const product = computed(() => productData.value || ({} as Product))
+// 数据不存在时返回真实 404（避免无效 ID 被搜索引擎当成有效页收录）
+if (!product.value || !(product.value as any).id) {
+  throw createError({ statusCode: 404, statusMessage: '产品不存在或已下架' })
+}
+
 
 const { data: priceData } = useFetch('/api/price-visibility', {
   transform: (res: any) => (res?.success && res.data ? res.data.visible : true),

@@ -78,7 +78,7 @@
 
         <!-- CTA -->
         <div class="mt-12 text-center">
-          <NuxtLink to="/contact" class="btn-primary text-lg px-10 py-4">
+          <NuxtLink :to="{ path: '/contact', query: { ref: caseItem.title } }" class="btn-primary text-lg px-10 py-4">
             咨询类似项目
             <svg class="w-5 h-5 inline ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -120,6 +120,11 @@ const { data: caseRes } = await useFetch(
   }
 )
 const caseItem = computed<any>(() => caseRes.value || {})
+// 数据不存在时返回真实 404（避免无效 ID 被搜索引擎当成有效页收录）
+if (!caseItem.value || !(caseItem.value as any).id) {
+  throw createError({ statusCode: 404, statusMessage: '案例不存在或已下架' })
+}
+
 
 // XSS 防护：DOMPurify 依赖浏览器环境，SSR 阶段输出原文，客户端再净化
 const sanitizedContent = computed(() => {
@@ -128,10 +133,64 @@ const sanitizedContent = computed(() => {
   return DOMPurify.sanitize(raw)
 })
 
+const SITE_ORIGIN = 'https://ximingpower.com'
+
+// 结构化数据：CreativeWork + BreadcrumbList（与产品页同模式）
+const caseJsonLd = computed(() => {
+  if (!caseItem.value?.id) return null
+  const img = caseItem.value.coverImage
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CreativeWork',
+    name: caseItem.value.title,
+    headline: caseItem.value.title,
+    description: caseItem.value.description || caseItem.value.title,
+    url: `${SITE_ORIGIN}/cases/${caseItem.value.id}`,
+    image: img ? (img.startsWith('http') ? img : SITE_ORIGIN + img) : undefined,
+    datePublished: caseItem.value.startDate || undefined,
+    locationCreated: caseItem.value.location
+      ? { '@type': 'Place', name: caseItem.value.location }
+      : undefined,
+    creator: {
+      '@type': 'Organization',
+      name: '河南玺铭电力科技有限公司',
+      url: SITE_ORIGIN,
+    },
+  }
+})
+
+const breadcrumbJsonLd = computed(() => {
+  if (!caseItem.value?.id) return null
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: '首页', item: SITE_ORIGIN + '/' },
+      { '@type': 'ListItem', position: 2, name: '工程案例', item: SITE_ORIGIN + '/cases' },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: caseItem.value.title,
+        item: `${SITE_ORIGIN}/cases/${caseItem.value.id}`,
+      },
+    ],
+  }
+})
+
 useHead({
-  title: computed(() => caseItem.value.title ? `${caseItem.value.title} - 工程案例 - 玺铭电力` : '案例详情 - 玺铭电力'),
+  title: computed(() => caseItem.value.title ? `${caseItem.value.title} - 工程案例` : '案例详情'),
   meta: [
     { name: 'description', content: computed(() => caseItem.value.description || caseItem.value.title || '玺铭电力工程案例详情') },
-  ]
+  ],
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: computed(() => (caseJsonLd.value ? JSON.stringify(caseJsonLd.value) : '')),
+    },
+    {
+      type: 'application/ld+json',
+      innerHTML: computed(() => (breadcrumbJsonLd.value ? JSON.stringify(breadcrumbJsonLd.value) : '')),
+    },
+  ] as any,
 })
 </script>

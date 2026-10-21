@@ -221,6 +221,33 @@
             placeholder="请输入产品描述"
           />
         </el-form-item>
+
+        <el-form-item label="产品卖点">
+          <el-input
+            v-model="productForm.features"
+            type="textarea"
+            :rows="3"
+            placeholder="每行一条卖点，如：水气双路独立调压"
+          />
+        </el-form-item>
+
+        <el-form-item label="技术参数">
+          <el-input
+            v-model="productForm.specs"
+            type="textarea"
+            :rows="4"
+            placeholder="每行一条，格式「参数名：参数值」，如：压力范围：0-1MPa"
+          />
+        </el-form-item>
+
+        <el-form-item label="产品图集">
+          <el-input
+            v-model="productForm.gallery"
+            type="textarea"
+            :rows="3"
+            placeholder="每行一个图片地址（可选，留空则仅用主图）"
+          />
+        </el-form-item>
       </el-form>
 
       <template #footer>
@@ -296,7 +323,10 @@ const productForm = reactive({
   status: 'published',
   sortOrder: 0,
   image: '',
-  description: ''
+  description: '',
+  features: '',
+  specs: '',
+  gallery: ''
 })
 
 const rules: FormRules = {
@@ -364,7 +394,10 @@ const handleAdd = () => {
     status: 'published',
     sortOrder: 0,
     image: '',
-    description: ''
+    description: '',
+    features: '',
+    specs: '',
+    gallery: ''
   })
   dialogVisible.value = true
 }
@@ -379,7 +412,10 @@ const handleEdit = (row: Product) => {
     status: row.status,
     sortOrder: row.sortOrder,
     image: row.image || '',
-    description: row.description || ''
+    description: row.description || '',
+    features: arrayToText((row as any).features),
+    specs: pairsToText((row as any).specs),
+    gallery: arrayToText((row as any).gallery)
   })
   dialogVisible.value = true
 }
@@ -429,7 +465,10 @@ const handleSubmit = async () => {
       status: productForm.status,
       sortOrder: productForm.sortOrder,
       image: productForm.image,
-      description: productForm.description
+      description: productForm.description,
+      features: textToArray(productForm.features),
+      specs: textToPairs(productForm.specs),
+      gallery: textToArray(productForm.gallery)
     }
 
     if (isEdit.value && editingProduct.value) {
@@ -469,6 +508,52 @@ const handleSubmit = async () => {
   } finally {
     submitting.value = false
   }
+}
+
+// 文本 -> 字符串数组（每行一条）
+const textToArray = (text: string): string[] => {
+  if (!text) return []
+  return text
+    .split(/\n+/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+}
+
+// 文本 -> [{label, value}]（每行「参数名：参数值」）
+const textToPairs = (text: string): { label: string; value: string }[] => {
+  if (!text) return []
+  const result: { label: string; value: string }[] = []
+  text.split(/\n+/).forEach((line) => {
+    const s = line.trim()
+    if (!s) return
+    const idx = s.indexOf(':')
+    if (idx === -1) {
+      const idx2 = s.indexOf('：')
+      if (idx2 === -1) return
+      result.push({ label: s.slice(0, idx2).trim(), value: s.slice(idx2 + 1).trim() })
+    } else {
+      result.push({ label: s.slice(0, idx).trim(), value: s.slice(idx + 1).trim() })
+    }
+  })
+  return result
+}
+
+// 字符串数组 -> 文本（编辑回显）
+const arrayToText = (arr: any): string => {
+  if (!arr) return ''
+  if (Array.isArray(arr)) return arr.map((it) => String(it)).join('\n')
+  return String(arr)
+}
+
+// [{label, value}] -> 文本（编辑回显）
+const pairsToText = (arr: any): string => {
+  if (!arr) return ''
+  if (Array.isArray(arr)) {
+    return arr
+      .map((it) => `${it?.label ?? it?.name ?? ''}：${it?.value ?? it?.text ?? ''}`)
+      .join('\n')
+  }
+  return String(arr)
 }
 
 const formatPrice = (price: number | string) => {

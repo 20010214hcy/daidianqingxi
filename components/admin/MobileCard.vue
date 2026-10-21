@@ -5,6 +5,9 @@
       <div v-if="image" class="mobile-card-image">
         <img :src="image" :alt="title" />
       </div>
+      <div v-else-if="imagePlaceholder" class="mobile-card-image mobile-card-image--placeholder">
+        <span>{{ imagePlaceholder }}</span>
+      </div>
       <div class="mobile-card-title-area">
         <h4 class="mobile-card-title">{{ title }}</h4>
         <p v-if="subtitle" class="mobile-card-subtitle">{{ subtitle }}</p>
@@ -37,6 +40,8 @@ defineProps({
   title: { type: String, required: true },
   subtitle: { type: String, default: '' },
   image: { type: String, default: '' },
+  /** 有图位但没图时显示的占位文案（如「无封面」）；留空则不渲染图位 */
+  imagePlaceholder: { type: String, default: '' },
   status: { type: String, default: '' },
   statusType: { type: String, default: 'info' },
   tags: { type: Array, default: () => [] },
@@ -85,6 +90,14 @@ defineEmits(['click'])
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.mobile-card-image--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #9ca3af;
 }
 
 .mobile-card-title-area {

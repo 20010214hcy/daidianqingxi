@@ -1,4 +1,4 @@
-import { verifyToken } from '~/server/utils/auth'
+import { verifyToken, hasPermission, type PermissionModule } from '~/server/utils/auth'
 
 const protectedPaths = [
   '/api/articles', '/api/cases', '/api/services',
@@ -6,6 +6,7 @@ const protectedPaths = [
   '/api/products', '/api/categories', '/api/certificates',
   '/api/contact', '/api/price-visibility', '/api/dashboard',
   '/api/auth', '/api/users',
+  '/api/media', '/api/email',
 ]
 
 const publicReadPaths = [
@@ -15,8 +16,32 @@ const publicReadPaths = [
 ]
 
 // 公开的写入路径（允许未登录用户提交）
+// 注意：messages 只放行「精确路径 POST /api/messages」（提交留言），
+//       带 id 的 PUT/DELETE（管理操作）仍需登录并校验角色权限
 const publicWritePaths = [
   '/api/messages',  // 允许未登录用户提交留言
+]
+
+// 路径前缀 -> 所需权限模块（写操作才校验；读操作走 publicReadPaths 放行）
+// 与前端 layouts/admin.vue 的菜单 permission、types/permissions.ts 的 ROLE_PERMISSIONS 一一对应
+const writePermissionMap: Array<{ prefix: string; module: PermissionModule }> = [
+  { prefix: '/api/articles', module: 'articles' },
+  { prefix: '/api/cases', module: 'cases' },
+  { prefix: '/api/services', module: 'services' },
+  { prefix: '/api/products', module: 'products' },
+  { prefix: '/api/categories', module: 'categories' },
+  { prefix: '/api/certificates', module: 'certificates' },
+  { prefix: '/api/messages', module: 'messages' },
+  { prefix: '/api/contact', module: 'contact' },
+  { prefix: '/api/settings', module: 'settings' },
+  { prefix: '/api/dashboard', module: 'dashboard' },
+  { prefix: '/api/users', module: 'users' },
+  // 价格可见性开关属于产品管理；邮件测试/清缓存属于网站设置
+  { prefix: '/api/price-visibility', module: 'products' },
+  { prefix: '/api/email', module: 'settings' },
+  // 媒体资源：上传/管理归属于内容编辑（articles 权限）
+  { prefix: '/api/upload', module: 'articles' },
+  { prefix: '/api/media', module: 'articles' },
 ]
 
 export default defineEventHandler(async (event) => {
@@ -28,7 +53,16 @@ export default defineEventHandler(async (event) => {
   if (event.method === 'GET' && publicReadPaths.some(p => path.startsWith(p))) return
 
   // 允许公开的写入请求（如提交留言）
-  if (event.method === "POST" && publicWritePaths.some(p => path.startsWith(p))) return
+  // messages 仅精确路径 POST /api/messages 公开；带 id 的管理操作需登录
+  const isPublicWrite = publicWritePaths.some(p => {
+    if (p === '/api/messages') return path === '/api/messages'
+    return path.startsWith(p)
+  })
+  if (event.method === "POST" && isPublicWrite) return
+
+  // 精确放行：文章阅读计数（只把 viewCount 加 1，不读取也不修改内容）
+  // 前端每次打开新闻详情页会 POST 到这里；若不放行会返回 401，导致浏览量永远为 0
+  if (event.method === 'POST' && /^\/api\/articles\/\d+\/view$/.test(path)) return
 
   // 允许登录和初始化请求
   if (path === '/api/auth/login' || path === '/api/auth/init') return
@@ -53,4 +87,12 @@ export default defineEventHandler(async (event) => {
   }
 
   event.context.auth = payload
+
+  // 写操作（POST/PUT/DELETE）做角色权限校验：防止 editor 绕过前端直接调 API 越权
+  if (event.method === 'POST' || event.method === 'PUT' || event.method === 'DELETE') {
+    const rule = writePermissionMap.find((r) => path.startsWith(r.prefix))
+    if (rule && !hasPermission(payload.role, rule.module)) {
+      throw createError({ statusCode: 403, statusMessage: '权限不足：当前角色无权执行此操作' })
+    }
+  }
 })

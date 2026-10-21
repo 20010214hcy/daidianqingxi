@@ -34,8 +34,8 @@
     </el-card>
 
     <el-card>
-      <!-- 桌面端表格 -->
-      <div class="desktop-table">
+      <AdminMobileList :empty="categories.length === 0">
+        <!-- 桌面端表格 -->
         <el-table :data="categories" stripe style="width: 100%">
           <el-table-column prop="name" label="分类名称" min-width="180" />
           <el-table-column label="所属板块" width="150">
@@ -63,26 +63,36 @@
             </template>
           </el-table-column>
         </el-table>
-      </div>
 
-      <!-- 移动端卡片列表 -->
-      <div class="mobile-list">
-        <div v-for="item in categories" :key="item.id" class="mobile-card">
-          <div class="mobile-card-header">
-            <div class="mobile-card-info">
-              <h4 class="mobile-card-title">{{ item.name }}</h4>
-              <p class="mobile-card-subtitle">
-                {{ item.businessunit?.name || '未分配板块' }} · {{ item._count?.product || 0 }} 个产品
-              </p>
-            </div>
-          </div>
-          <div class="mobile-card-actions">
-            <el-button size="small" @click="handleEdit(item)">编辑</el-button>
-            <el-button size="small" type="danger" @click="handleDelete(item)">删除</el-button>
-          </div>
-        </div>
-        <el-empty v-if="categories.length === 0" description="暂无分类数据" />
-      </div>
+        <!-- 移动端卡片列表 -->
+        <template #mobile>
+          <AdminMobileCard
+            v-for="item in categories"
+            :key="item.id"
+            :title="item.name"
+            :subtitle="`${item.businessunit?.name || '未分配板块'} · ${item._count?.product || 0} 个产品`"
+            :tags="[
+              { label: '排序', value: item.sortOrder },
+              { label: '创建时间', value: formatDate(item.createdAt) }
+            ]"
+          >
+            <template #actions>
+              <el-button size="small" @click="handleEdit(item)">
+                <el-icon class="mr-1"><Edit /></el-icon>
+                编辑
+              </el-button>
+              <el-button size="small" type="danger" @click="handleDelete(item)">
+                <el-icon class="mr-1"><Delete /></el-icon>
+                删除
+              </el-button>
+            </template>
+          </AdminMobileCard>
+        </template>
+
+        <template #empty>
+          <el-empty description="暂无分类数据" :image-size="80" />
+        </template>
+      </AdminMobileList>
     </el-card>
 
     <!-- 新增/编辑弹窗 -->
@@ -130,7 +140,7 @@
 import { formatDate } from '~/utils/format'
 import { ref, reactive } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
+import { Plus, Edit, Delete } from '@element-plus/icons-vue'
 
 interface Category {
   id: number
@@ -289,44 +299,3 @@ const handleSubmit = async () => {
 }
 </script>
 
-<style scoped>
-.desktop-table { display: block; }
-.mobile-list { display: none; }
-.mobile-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e5e7eb;
-}
-.mobile-card-header {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-.mobile-card-info { flex: 1; min-width: 0; }
-.mobile-card-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0 0 4px 0;
-}
-.mobile-card-subtitle {
-  font-size: 13px;
-  color: #64748b;
-  margin: 0;
-}
-.mobile-card-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding-top: 12px;
-  border-top: 1px solid #f1f5f9;
-}
-@media (max-width: 768px) {
-  .desktop-table { display: none !important; }
-  .mobile-list { display: block; }
-}
-</style>

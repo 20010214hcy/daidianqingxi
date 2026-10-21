@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     const id = Number(getRouterParam(event, 'id'))
     
     if (!id) {
-      return errorResponse('案例ID不能为空', 400)
+      return errorResponse('案例ID不能为空', 400, event)
     }
     
     const projectCase = await prisma.projectcase.findUnique({
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     })
     
     if (!projectCase) {
-      return errorResponse('案例不存在', 404)
+      return errorResponse('案例不存在', 404, event)
     }
     
     return successResponse(projectCase)

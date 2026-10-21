@@ -96,6 +96,8 @@
             <span v-if="errors.password" class="field-error">{{ errors.password }}</span>
           </label>
 
+          <p v-if="errors.form" class="form-error" role="alert">{{ errors.form }}</p>
+
           <div class="form-row">
             <label class="remember">
               <input v-model="rememberMe" type="checkbox" class="remember-input" />
@@ -125,7 +127,7 @@ const loading = ref(false)
 const showPassword = ref(false)
 const focused = ref('')
 const rememberMe = ref(false)
-const errors = reactive({ username: '', password: '' })
+const errors = reactive({ username: '', password: '', form: '' })
 const loginForm = reactive({ username: '', password: '' })
 const year = new Date().getFullYear()
 
@@ -143,6 +145,7 @@ onMounted(() => {
 const validate = (): boolean => {
   errors.username = ''
   errors.password = ''
+  errors.form = ''
   let valid = true
   if (!loginForm.username.trim()) {
     errors.username = '请输入账号'
@@ -167,13 +170,11 @@ const handleSubmit = async () => {
       if (rememberMe.value) localStorage.setItem('remembered_username', loginForm.username)
       else localStorage.removeItem('remembered_username')
       await navigateTo('/admin')
-    } else if (result.message?.includes('用户')) {
-      errors.username = result.message
     } else {
-      errors.password = result.message || '登录失败'
+      errors.form = result.message || '账号或密码错误'
     }
   } catch {
-    errors.password = '登录异常，请重试'
+    errors.form = '登录异常，请重试'
   } finally {
     loading.value = false
   }
@@ -483,6 +484,18 @@ const handleSubmit = async () => {
   margin-top: 6px;
   font-size: 12px;
   color: #ef4444;
+}
+
+.form-error {
+  display: block;
+  margin-top: 4px;
+  padding: 9px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #ef4444;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
 }
 
 .form-row {

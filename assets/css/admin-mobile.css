@@ -5,23 +5,11 @@
 
 /* ===== 中等屏幕 (平板竖屏) ===== */
 @media (max-width: 1023px) {
-  /* 侧边栏默认隐藏（不占空间） */
-  .admin-sidebar:not(.sidebar-mobile-open) {
-    width: 0 !important;
-    min-width: 0 !important;
-    border: none;
-    overflow: hidden;
-    transition: none !important;
-  }
-
-  /* 隐藏用户名和面包屑 */
-  .header-username,
-  .header-breadcrumb {
-    display: none;
-  }
-
-  /* 移动端侧边栏打开时 - 使用 fixed 定位 */
-  .sidebar-mobile-open {
+  /* 移动端侧边栏是「覆盖层」：无论收起还是展开都必须固定定位（脱离文档流）。
+   * 上一版只在展开态写了 position:fixed，收起态还是 relative + 280px 宽，
+   * 结果整块 280px 的不可见侧栏占着布局空间，把内容挤成一条窄列，
+   * 展开瞬间再从 relative 跳成 fixed —— 内容先跳位、侧栏再滑入，非常突兀。 */
+  .admin-sidebar {
     position: fixed !important;
     left: 0;
     top: 0;
@@ -29,9 +17,38 @@
     z-index: 1000;
     width: 280px !important;
     min-width: 280px !important;
-    box-shadow: 4px 0 30px rgba(0, 0, 0, 0.3);
-    /* 使用 transform 滑入，比宽度变化更流畅 */
+    border: none;
+  }
+
+  /* 收起：位移到屏幕外 + 阴影收掉。visibility 延迟到滑出结束后再生效。
+   * 用 .admin-layout 前缀提高特异度：layouts/admin.vue 是 scoped 样式，
+   * .admin-sidebar 会被编译成 .admin-sidebar[data-v-xxx]（0,2,0），
+   * 同为 .admin-sidebar 的全局规则按加载顺序不一定赢，这里直接 (0,3,0) 稳压。 */
+  .admin-layout .admin-sidebar:not(.sidebar-mobile-open) {
+    transform: translateX(-100%);
+    visibility: hidden;
+    pointer-events: none;
+    box-shadow: none;
+    transition: transform var(--admin-sidebar-motion) var(--admin-sidebar-ease),
+      box-shadow var(--admin-sidebar-motion) var(--admin-sidebar-ease),
+      visibility 0s linear var(--admin-sidebar-motion);
+  }
+
+  /* 打开：滑入 + 阴影渐显；visibility 立即恢复，动画全程可见可交互 */
+  .admin-layout .admin-sidebar.sidebar-mobile-open {
     transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
+    box-shadow: 4px 0 30px rgba(0, 0, 0, 0.3);
+    transition: transform var(--admin-sidebar-motion) var(--admin-sidebar-ease),
+      box-shadow var(--admin-sidebar-motion) var(--admin-sidebar-ease),
+      visibility 0s;
+  }
+
+  /* 隐藏用户名和面包屑 */
+  .header-username,
+  .header-breadcrumb {
+    display: none;
   }
 
   /* 优化侧边栏菜单项触摸区域 */
@@ -137,30 +154,83 @@
     font-size: 12px;
   }
 
-  /* 弹窗优化 - 移动端全屏 */
+  /* 弹窗优化 - 移动端全屏、内容在 body 内滚动
+   * 旧实现只有 min-height:100vh：flex 子项默认 min-height:auto 不会被压缩，
+   * 内容一长 dialog 就被撑到 1000px+ 超出屏幕，底部按钮被顶出屏幕外且
+   * 用户找不到滚动位置。改成固定 100dvh + body 内部滚动（min-height:0
+   * 是让 flex 子项允许收缩的关键），header/footer 常驻可见。 */
   .el-dialog {
     --el-dialog-width: 100% !important;
+    width: 100% !important;
     margin: 0 !important;
+    top: 0 !important;
     border-radius: 0 !important;
-    min-height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
   }
 
   .el-dialog__header {
     padding: 16px;
+    padding-bottom: 12px;
     flex-shrink: 0;
   }
 
   .el-dialog__body {
     padding: 16px;
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .el-dialog__footer {
-    padding: 12px 16px;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
     flex-shrink: 0;
+    border-top: 1px solid #f1f5f9;
+    background: #fff;
+  }
+
+  /* 弹窗内表单在窄屏改单列：双列 el-col 在 390px 下每个输入框只剩约 60px。
+   * label 从左侧固定宽（el-form 的 label-width 是内联样式，需 !important
+   * 覆盖）改为顶部整行左对齐，输入控件拿回全部宽度。
+   * 注意带 body 前缀：EP 自己的 .el-form--label-right .el-form-item__label
+   * 在按需 chunk 里注入更晚，同特异度会赢（与消息弹层是同一类坑）。 */
+  body .el-dialog .el-row {
+    display: block;
+  }
+
+  body .el-dialog .el-col {
+    max-width: 100%;
+    flex: 0 0 100%;
+  }
+
+  body .el-dialog .el-form-item {
+    display: block;
+  }
+
+  body .el-dialog .el-form-item__label {
+    display: block;
+    width: auto !important;
+    text-align: left;
+    justify-content: flex-start;
+    padding-bottom: 6px;
+    height: auto;
+    line-height: 1.5;
+  }
+
+  body .el-dialog .el-input-number {
+    width: 100%;
+  }
+
+  /* 首页面板网格：grid 轨道默认 min-width:auto，会被图表柱条的
+   * min-content 撑到 458px 撕破 390px 视口，让整个页面横向溢出 */
+  .dashboard-main-grid > .panel,
+  .dashboard-bottom-grid > .panel,
+  .stats-grid > .stat-card {
+    min-width: 0;
   }
 
   /* 表单优化 */

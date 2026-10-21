@@ -28,7 +28,18 @@ export default defineEventHandler(async (event) => {
     const [articles, total] = await Promise.all([
       prisma.article.findMany({
         where,
-        include: {
+        select: {
+          id: true,
+          title: true,
+          summary: true,
+          content: true,
+          coverImage: true,
+          category: true,
+          status: true,
+          viewCount: true,
+          publishedAt: true,
+          createdAt: true,
+          updatedAt: true,
           user: {
             select: {
               id: true,

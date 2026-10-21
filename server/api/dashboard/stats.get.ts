@@ -11,6 +11,10 @@ export default defineEventHandler(async (event) => {
       return successResponse(cache.data)
     }
 
+    const monthStart = new Date(now)
+    monthStart.setDate(1)
+    monthStart.setHours(0, 0, 0, 0)
+
     const [
       articleCount,
       productCount,
@@ -18,6 +22,10 @@ export default defineEventHandler(async (event) => {
       serviceCount,
       messageCount,
       pendingMessageCount,
+      newArticles,
+      newProducts,
+      newCases,
+      newServices,
       categories,
       recentArticles,
     ] = await Promise.all([
@@ -27,6 +35,10 @@ export default defineEventHandler(async (event) => {
       prisma.service.count(),
       prisma.message.count(),
       prisma.message.count({ where: { status: 'pending' } }),
+      prisma.article.count({ where: { createdAt: { gte: monthStart } } }),
+      prisma.product.count({ where: { createdAt: { gte: monthStart } } }),
+      prisma.projectcase.count({ where: { createdAt: { gte: monthStart } } }),
+      prisma.service.count({ where: { createdAt: { gte: monthStart } } }),
       prisma.productcategory.findMany({
         include: { _count: { select: { product: true } } },
         orderBy: { sortOrder: 'asc' },
@@ -37,6 +49,15 @@ export default defineEventHandler(async (event) => {
         select: { id: true, title: true, createdAt: true },
       }),
     ])
+
+    // 真实环比：本月新增 / 月初存量。base=0 且有新增时 pct=null（前端显示「新增」）
+    const trend = (newCount: number, total: number) => {
+      const base = total - newCount
+      return {
+        new: newCount,
+        pct: newCount === 0 ? 0 : base > 0 ? Math.round((newCount / base) * 100) : null,
+      }
+    }
 
     const chartData = categories.map((c) => ({
       label: c.name,
@@ -58,6 +79,12 @@ export default defineEventHandler(async (event) => {
         services: serviceCount,
         messages: messageCount,
         pendingMessages: pendingMessageCount,
+      },
+      trends: {
+        articles: trend(newArticles, articleCount),
+        products: trend(newProducts, productCount),
+        cases: trend(newCases, caseCount),
+        services: trend(newServices, serviceCount),
       },
       chart: chartData,
       recentArticles,

@@ -57,6 +57,9 @@
                 <template v-if="activeSubject">已选择：<strong>{{ activeSubject }}</strong></template>
                 <template v-else>也可不选卡片，直接填写下面表单</template>
               </p>
+              <p v-if="contextRef" class="cp-form-desc cp-ref">
+                来自：<strong>{{ contextRef }}</strong>，提交时会一并带给客服
+              </p>
             </div>
 
             <form @submit.prevent="submitForm" class="cp-form">
@@ -90,7 +93,7 @@
                     :key="opt"
                     class="cp-subject"
                     :class="{ 'is-on': formData.subject === opt }"
-                    @click.prevent="formData.subject = formData.subject === opt ? '' : opt"
+                    @click.prevent="pickSubject(opt)"
                   >
                     {{ opt }}
                   </span>
@@ -103,7 +106,7 @@
                   v-model="formData.content"
                   required
                   rows="5"
-                  placeholder="设备类型、现场情况、期望时间…"
+                  :placeholder="contentPlaceholder"
                   class="cp-input cp-textarea"
                 />
               </label>
@@ -188,7 +191,6 @@ const defaultContact: ContactInfo = {
 
 const { data: contactData } = useFetch('/api/contact', {
   transform: (res: any) => (res?.success && res.data ? res.data : defaultContact),
-  getCachedData: () => undefined,
 })
 const contact = computed<ContactInfo>(() => contactData.value || defaultContact)
 
@@ -244,6 +246,38 @@ const formData = ref({
   content: '',
 })
 
+// CTA 深链预填：/contact?subject=产品采购&ref=215Kwh储能柜
+// 详情页「立即咨询/咨询服务/咨询类似项目」跳过来时自动预选需求类型并带来源
+const route = useRoute()
+const qSubject = typeof route.query.subject === 'string' ? route.query.subject : ''
+const qRef = typeof route.query.ref === 'string' ? route.query.ref : ''
+const contextRef = ref(qRef.slice(0, 60))
+if (subjectOptions.includes(qSubject)) {
+  activeSubject.value = qSubject
+  formData.value.subject = qSubject
+}
+
+// chips 与分流卡共用同一状态，避免两处不同步
+const pickSubject = (opt: string) => {
+  const next = formData.value.subject === opt ? '' : opt
+  formData.value.subject = next
+  activeSubject.value = next
+}
+
+// 需求描述提示随需求类型变化，引导更精准的留言
+const contentPlaceholder = computed(() => {
+  switch (formData.value.subject) {
+    case '带电清洗':
+      return '设备类型、电压等级、现场情况、期望时间…'
+    case '储能集成':
+      return '用电规模、峰谷电价情况、场地条件、期望投运时间…'
+    case '产品采购':
+      return '产品名称、数量、使用场景…'
+    default:
+      return '设备类型、现场情况、期望时间…'
+  }
+})
+
 const selectCard = (card: { subject: string }) => {
   activeSubject.value = card.subject
   formData.value.subject = card.subject
@@ -296,15 +330,40 @@ onMounted(async () => {
   }
 })
 
+// 手机 / 带区号座机 / 本地号码，宽松校验只为拦住明显无效的询盘
+const PHONE_RE = /^(1[3-9]\d{9}|0\d{2,3}-?\d{7,8}|\d{7,8})$/
+
 const submitForm = async () => {
-  isSubmitting.value = true
   submitMessage.value = ''
   submitOk.value = false
+  const phoneRaw = formData.value.phone.replace(/[\s-]/g, '')
+  if (!PHONE_RE.test(phoneRaw)) {
+    submitMessage.value = '请填写有效的联系电话（手机号或带区号座机号）'
+    return
+  }
+  isSubmitting.value = true
   try {
-    const res = await $fetch('/api/messages', { method: 'POST', body: formData.value })
+    // 来源上下文一并带给客服（如【关注：215Kwh储能柜】）
+    const payload = {
+      ...formData.value,
+      content: contextRef.value
+        ? `【关注：${contextRef.value}】` + formData.value.content
+        : formData.value.content,
+    }
+    const res = await $fetch('/api/messages', { method: 'POST', body: payload })
     if (res.success) {
       submitOk.value = true
       submitMessage.value = '提交成功，我们会尽快与您联系。'
+      // 询盘漏斗埋点：表单提交成功 = 转化达成
+      const w = window as any
+      if (w._hmt) {
+        w._hmt.push([
+          '_trackEvent',
+          '询盘',
+          '提交表单',
+          (activeSubject.value || '联系页') + (contextRef.value ? '·' + contextRef.value : ''),
+        ])
+      }
       formData.value = { name: '', phone: '', email: '', company: '', subject: '', content: '' }
       activeSubject.value = ''
     } else {
@@ -578,6 +637,11 @@ const submitForm = async () => {
 .cp-form-desc strong {
   color: #2563eb;
   font-weight: 700;
+}
+
+/* 来源徽标：紧跟在上一条 desc 后面，收一点间距 */
+.cp-ref {
+  margin: -14px 0 22px;
 }
 
 .cp-form {

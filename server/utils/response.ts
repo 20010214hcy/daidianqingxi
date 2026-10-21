@@ -1,6 +1,7 @@
 /**
  * 统一 API 响应格式工具
  */
+import { setResponseStatus, type H3Event } from 'h3'
 
 // 响应状态码
 export const ResponseCode = {
@@ -34,7 +35,15 @@ export function successResponse<T>(data: T, message = '操作成功') {
  * @param code 状态码
  * @returns 标准化响应对象
  */
-export function errorResponse(message = '操作失败', code = ResponseCode.INTERNAL_ERROR) {
+export function errorResponse(message = '操作失败', code = ResponseCode.INTERNAL_ERROR, event?: H3Event) {
+  // 可选：把业务错误码同步到 HTTP 状态码，让搜索引擎与爬虫看到真实的 404/400
+  if (event) {
+    try {
+      setResponseStatus(event, code)
+    } catch {
+      /* 状态码设置失败不影响响应体 */
+    }
+  }
   return {
     code,
     success: false,

@@ -13,5 +13,6 @@
     </main>
     <Footer />
     <LazyMobileStickyBar />
+    <LazyFloatingCta />
   </div>
 </template>

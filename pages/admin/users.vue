@@ -10,33 +10,69 @@
     </AdminPageHeader>
 
     <el-card>
-      <el-table :data="users" v-loading="loading" stripe style="width: 100%">
-        <el-table-column prop="id" label="ID" width="60" />
-        <el-table-column prop="username" label="用户名" width="150" />
-        <el-table-column prop="name" label="姓名" width="140" />
-        <el-table-column prop="email" label="邮箱" min-width="200" />
-        <el-table-column label="角色" width="130">
-          <template #default="{ row }">
-            <el-tag :type="roleTagType(row.role)" size="small">
-              {{ roleLabel(row.role) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="创建时间" width="180">
-          <template #default="{ row }">
-            {{ formatDate(row.createdAt) }}
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="120" fixed="right" align="center">
-          <template #default="{ row }">
-            <AdminActionButtons
-              :show-delete="row.role !== 'superadmin'"
-              @edit="handleEdit(row)"
-              @delete="handleDelete(row)"
-            />
-          </template>
-        </el-table-column>
-      </el-table>
+      <AdminMobileList :empty="!loading && users.length === 0" v-loading="loading">
+        <!-- 桌面端表格 -->
+        <el-table :data="users" stripe style="width: 100%">
+          <el-table-column prop="id" label="ID" width="60" />
+          <el-table-column prop="username" label="用户名" width="150" />
+          <el-table-column prop="name" label="姓名" width="140" />
+          <el-table-column prop="email" label="邮箱" min-width="200" />
+          <el-table-column label="角色" width="130">
+            <template #default="{ row }">
+              <el-tag :type="roleTagType(row.role)" size="small">
+                {{ roleLabel(row.role) }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="创建时间" width="180">
+            <template #default="{ row }">
+              {{ formatDate(row.createdAt) }}
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="120" fixed="right" align="center">
+            <template #default="{ row }">
+              <AdminActionButtons
+                :show-delete="row.role !== 'superadmin'"
+                @edit="handleEdit(row)"
+                @delete="handleDelete(row)"
+              />
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <!-- 移动端卡片列表：7 列表格在手机上会被压成 3 列（其余列被挤出可视区），
+             用与留言页一致的双插槽结构在窄屏换成卡片 -->
+        <template #mobile>
+          <AdminMobileCard
+            v-for="u in users"
+            :key="u.id"
+            :title="u.name || u.username"
+            :subtitle="'@' + u.username"
+            :status="roleLabel(u.role)"
+            :status-type="roleTagType(u.role)"
+            :tags="[
+              { label: '邮箱', value: u.email || '-' },
+              { label: '创建时间', value: formatDate(u.createdAt) }
+            ]"
+          >
+            <template #actions>
+              <el-button size="small" @click="handleEdit(u)">
+                <el-icon class="mr-1"><Edit /></el-icon>
+                编辑
+              </el-button>
+              <el-button
+                v-if="u.role !== 'superadmin'"
+                size="small"
+                type="danger"
+                @click="handleDelete(u)"
+              >
+                <el-icon class="mr-1"><Delete /></el-icon>
+                删除
+              </el-button>
+            </template>
+          </AdminMobileCard>
+        </template>
+      </AdminMobileList>
     </el-card>
 
     <!-- 创建/编辑弹窗 -->
@@ -82,7 +118,7 @@
 
 <script setup lang="ts">
 import { formatDate } from '~/utils/format'
-import { Plus } from '@element-plus/icons-vue'
+import { Plus, Edit, Delete } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
 
 definePageMeta({ layout: 'admin' })
@@ -108,7 +144,10 @@ const form = reactive({
 
 const rules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' },
+  ],
   role: [{ required: true, message: '请选择角色', trigger: 'change' }],
 }
 
@@ -170,6 +209,8 @@ const handleSubmit = async () => {
         ElMessage.success('用户更新成功')
         dialogVisible.value = false
         fetchUsers()
+      } else {
+        ElMessage.error(res.message || '更新失败')
       }
     } else {
       const res = await $fetch('/api/users', {
@@ -180,6 +221,8 @@ const handleSubmit = async () => {
         ElMessage.success('用户创建成功')
         dialogVisible.value = false
         fetchUsers()
+      } else {
+        ElMessage.error(res.message || '创建失败')
       }
     }
   } catch (error: any) {

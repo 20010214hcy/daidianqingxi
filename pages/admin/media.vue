@@ -11,12 +11,12 @@
 
     <!-- 搜索 -->
     <el-card class="mb-4">
-      <div class="flex gap-4 items-center">
-        <el-input v-model="searchQuery" placeholder="搜索文件名..." clearable class="w-64" @clear="fetchMedia" @keyup.enter="fetchMedia">
+      <div class="flex flex-wrap gap-3 md:gap-4 items-center">
+        <el-input v-model="searchQuery" placeholder="搜索文件名..." clearable class="w-full md:w-64" @clear="fetchMedia" @keyup.enter="fetchMedia">
           <template #prefix><el-icon><Search /></el-icon></template>
         </el-input>
         <el-button @click="fetchMedia">搜索</el-button>
-        <span class="text-sm text-slate-400 ml-4">共 {{ total }} 张图片</span>
+        <span class="text-sm text-slate-400 md:ml-4">共 {{ total }} 张图片</span>
       </div>
     </el-card>
 

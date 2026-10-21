@@ -162,7 +162,16 @@
               </svg>
               返回服务列表
             </NuxtLink>
-            <NuxtLink to="/contact" class="nav-contact">
+            <NuxtLink
+              :to="{
+                path: '/contact',
+                query: {
+                  subject: service.businessUnitId === 2 ? '储能集成' : '带电清洗',
+                  ref: service.title,
+                },
+              }"
+              class="nav-contact"
+            >
               咨询服务
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -204,6 +213,11 @@ const { data: serviceRes } = await useFetch(
   { transform: (res: any) => (res?.success ? res.data : null) }
 )
 const service = computed<any>(() => serviceRes.value || {})
+// 数据不存在时返回真实 404（避免无效 ID 被搜索引擎当成有效页收录）
+if (!service.value || !(service.value as any).id) {
+  throw createError({ statusCode: 404, statusMessage: '服务不存在或已下架' })
+}
+
 
 // 接口可能把数组字段以 JSON 字符串返回，统一解析
 const toList = (raw: any): any[] => {
@@ -229,14 +243,63 @@ const sanitizedContent = computed(() => {
 })
 
 // SEO
+const SITE_ORIGIN = 'https://ximingpower.com'
+
+// 结构化数据：Service + BreadcrumbList（与产品页同模式）
+const serviceJsonLd = computed(() => {
+  if (!service.value?.id) return null
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: service.value.title,
+    description: service.value.description || service.value.title,
+    url: `${SITE_ORIGIN}/services/${service.value.id}`,
+    serviceType: service.value.businessunit?.name || service.value.title,
+    areaServed: { '@type': 'Country', name: 'CN' },
+    provider: {
+      '@type': 'Organization',
+      name: '河南玺铭电力科技有限公司',
+      url: SITE_ORIGIN,
+    },
+  }
+})
+
+const breadcrumbJsonLd = computed(() => {
+  if (!service.value?.id) return null
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: '首页', item: SITE_ORIGIN + '/' },
+      { '@type': 'ListItem', position: 2, name: '服务项目', item: SITE_ORIGIN + '/services' },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: service.value.title,
+        item: `${SITE_ORIGIN}/services/${service.value.id}`,
+      },
+    ],
+  }
+})
+
 useHead({
-  title: computed(() => service.value?.id ? `${service.value.title} - 玺铭电力` : '服务详情 - 玺铭电力'),
+  title: computed(() => service.value?.id ? `${service.value.title} - 服务项目` : '服务详情'),
   meta: [
     {
       name: 'description',
       content: computed(() => service.value?.description || '玺铭电力专业服务')
     }
-  ]
+  ],
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: computed(() => (serviceJsonLd.value ? JSON.stringify(serviceJsonLd.value) : '')),
+    },
+    {
+      type: 'application/ld+json',
+      innerHTML: computed(() => (breadcrumbJsonLd.value ? JSON.stringify(breadcrumbJsonLd.value) : '')),
+    },
+  ] as any,
 })
 </script>
 

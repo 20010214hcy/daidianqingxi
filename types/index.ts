@@ -50,6 +50,10 @@ export interface Product {
   description?: string
   content?: string
   coverImage?: string
+  image?: string
+  gallery?: string[]
+  features?: string[]
+  specs?: { label: string; value: string }[]
   price: number | null
   categoryId: number
   category?: ProductCategory

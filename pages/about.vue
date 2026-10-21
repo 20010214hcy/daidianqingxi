@@ -10,7 +10,7 @@
           <div>
             <h2 class="text-3xl font-bold text-slate-800 mb-6">玺铭电力</h2>
             <p class="text-slate-600 text-lg leading-relaxed mb-6">
-              玺铭电力设备清洗有限公司是一家专注于电力设备带电清洗的专业服务商。公司成立以来，始终坚持以技术创新为驱动，以安全质量为核心，为各类电力设施提供专业、高效、安全的清洗维护服务。
+              河南玺铭电力科技有限公司是一家专注于电力设备带电清洗的专业服务商。公司成立以来，始终坚持以技术创新为驱动，以安全质量为核心，为各类电力设施提供专业、高效、安全的清洗维护服务。
             </p>
             <p class="text-slate-600 text-lg leading-relaxed mb-6">
               公司拥有一支经验丰富的专业技术团队，配备先进的带电清洗设备，服务范围覆盖变电站、配电室、发电厂、工业厂房等各类电力设施。我们始终坚持"安全第一、质量为本"的服务理念，赢得了广大客户的信赖与好评。
@@ -112,7 +112,7 @@ definePageMeta({ layout: 'default' })
 useHead({
   title: "关于我们",
   meta: [
-    { name: 'description', content: '了解玺铭电力设备清洗有限公司，专注电力设备带电清洗领域，20年行业经验，500+成功案例。' },
+    { name: 'description', content: '了解河南玺铭电力科技有限公司，专注电力设备带电清洗领域，20年行业经验，500+成功案例。' },
     { name: 'keywords', content: '玺铭电力,带电清洗,电力设备清洗,工业清洗公司,电力清洗服务商,带电清洗技术' },
     { property: 'og:title', content: '关于我们 - 玺铭电力' },
     { property: 'og:description', content: '专注电力设备带电清洗20余年，500+成功案例，全国覆盖。' },
@@ -128,7 +128,7 @@ const { data: certificatesData } = useFetch('/api/certificates', {
 const certificates = computed<Certificate[]>(() => certificatesData.value || [])
 
 const milestones = [
-  { year: '2004', title: '公司成立', desc: '玺铭电力设备清洗有限公司正式成立，开始电力设备清洗服务' },
+  { year: '2004', title: '公司成立', desc: '河南玺铭电力科技有限公司正式成立，开始电力设备清洗服务' },
   { year: '2008', title: '技术突破', desc: '引进先进带电清洗设备，实现不停电清洗作业' },
   { year: '2012', title: '业务扩展', desc: '服务范围扩展至全国，客户数量突破 100 家' },
   { year: '2016', title: '资质升级', desc: '获得多项行业资质认证，团队规模扩大至 50 人' },

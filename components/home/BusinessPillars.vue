@@ -39,7 +39,7 @@
               </li>
               <li v-if="!cleanServices.length" class="business-point-empty">服务陆续上线中</li>
             </ul>
-            <NuxtLink to="/services" class="business-cta">
+            <NuxtLink to="/services?unit=daidianqingxi" class="business-cta">
               查看清洗服务
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
             </NuxtLink>
@@ -49,7 +49,7 @@
         <article class="business-card business-card-storage">
           <div class="business-visual">
             <NuxtImg
-              src="/uploads/default-service.jpg"
+              src="/uploads/8cdfe3f4-2d8f-4208-b98c-87378a2ccb31.webp"
               alt=""
               class="business-img"
               sizes="xs:100vw sm:100vw md:50vw lg:50vw xl:640px"
@@ -68,16 +68,17 @@
               工商业储能、台区储能系统集成与交付，覆盖方案设计、设备选型到并网运维。
             </p>
             <ul class="business-points">
-              <li v-for="p in storagePoints" :key="p.label">
-                <NuxtLink :to="p.to" class="business-point-link">
+              <li v-for="s in storageServices" :key="s.id">
+                <NuxtLink :to="`/services/${s.id}`" class="business-point-link">
                   <span class="point-dot point-dot-emerald" />
-                  <span>{{ p.label }}</span>
+                  <span>{{ s.title }}</span>
                   <svg class="point-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
                 </NuxtLink>
               </li>
+              <li v-if="!storageServices.length" class="business-point-empty">服务陆续上线中</li>
             </ul>
-            <NuxtLink to="/products" class="business-cta">
-              查看储能方案
+            <NuxtLink to="/services?unit=chuneng" class="business-cta">
+              查看储能服务
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
             </NuxtLink>
           </div>
@@ -101,11 +102,12 @@ const cleanServices = computed(() =>
     .slice(0, 4)
 )
 
-const storagePoints = [
-  { label: '工商业储能', to: '/products' },
-  { label: '台区储能', to: '/products' },
-  { label: '系统集成方案', to: '/solutions' },
-]
+// 储能服务同样动态取自服务表（businessunitId=2），后台增删改服务自动同步
+const storageServices = computed(() =>
+  (props.services || [])
+    .filter((s) => s.businessUnitId === 2)
+    .slice(0, 4)
+)
 </script>
 
 <style scoped>

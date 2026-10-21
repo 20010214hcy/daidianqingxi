@@ -33,7 +33,8 @@
     </el-card>
 
     <el-card>
-      <div class="desktop-table">
+      <AdminMobileList :empty="cases.length === 0">
+        <!-- 桌面端表格 -->
         <el-table :data="cases" style="width: 100%" stripe>
           <el-table-column label="封面" width="120">
             <template #default="{ row }">
@@ -65,30 +66,36 @@
             </template>
           </el-table-column>
         </el-table>
-      </div>
 
-      <div class="mobile-list">
-        <div v-for="item in cases" :key="item.id" class="mobile-card">
-          <div class="mobile-card-header">
-            <img v-if="item.coverImage" :src="item.coverImage" class="mobile-card-image" />
-            <div v-else class="mobile-card-image-placeholder">无封面</div>
-            <div class="mobile-card-info">
-              <h4 class="mobile-card-title">{{ item.title }}</h4>
-              <p class="mobile-card-subtitle">
-                {{ item.businessunit?.name || '未分配板块' }} · {{ item.location || '未知地点' }}
-              </p>
-            </div>
-            <el-tag :type="item.status === 'published' ? 'success' : 'warning'" size="small">
-              {{ item.status === 'published' ? '已发布' : '草稿' }}
-            </el-tag>
-          </div>
-          <div class="mobile-card-actions">
-            <el-button size="small" @click="handleEdit(item)">编辑</el-button>
-            <el-button size="small" type="danger" @click="handleDelete(item)">删除</el-button>
-          </div>
-        </div>
-        <el-empty v-if="cases.length === 0" description="暂无案例数据" />
-      </div>
+        <!-- 移动端卡片列表 -->
+        <template #mobile>
+          <AdminMobileCard
+            v-for="item in cases"
+            :key="item.id"
+            :title="item.title"
+            :subtitle="`${item.businessunit?.name || '未分配板块'} · ${item.location || '未知地点'}`"
+            :image="item.coverImage"
+            image-placeholder="无封面"
+            :status="item.status === 'published' ? '已发布' : '草稿'"
+            :status-type="item.status === 'published' ? 'success' : 'warning'"
+          >
+            <template #actions>
+              <el-button size="small" @click="handleEdit(item)">
+                <el-icon class="mr-1"><Edit /></el-icon>
+                编辑
+              </el-button>
+              <el-button size="small" type="danger" @click="handleDelete(item)">
+                <el-icon class="mr-1"><Delete /></el-icon>
+                删除
+              </el-button>
+            </template>
+          </AdminMobileCard>
+        </template>
+
+        <template #empty>
+          <el-empty description="暂无案例数据" :image-size="80" />
+        </template>
+      </AdminMobileList>
     </el-card>
 
     <!-- 新增/编辑弹窗 -->
@@ -154,7 +161,7 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
+import { Plus, Edit, Delete } from '@element-plus/icons-vue'
 
 useHead({ title: '案例管理 - 后台管理' })
 definePageMeta({ layout: 'admin' })
@@ -286,67 +293,3 @@ onMounted(async () => {
   await fetchCases()
 })
 </script>
-
-<style scoped>
-.desktop-table { display: block; }
-.mobile-list { display: none; }
-.mobile-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e5e7eb;
-}
-.mobile-card-header {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-.mobile-card-image {
-  width: 60px;
-  height: 40px;
-  object-fit: cover;
-  border-radius: 8px;
-  flex-shrink: 0;
-}
-.mobile-card-image-placeholder {
-  width: 60px;
-  height: 40px;
-  background: #f3f4f6;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  color: #9ca3af;
-  flex-shrink: 0;
-}
-.mobile-card-info { flex: 1; min-width: 0; }
-.mobile-card-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0 0 4px 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.mobile-card-subtitle {
-  font-size: 13px;
-  color: #64748b;
-  margin: 0;
-}
-.mobile-card-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding-top: 12px;
-  border-top: 1px solid #f1f5f9;
-}
-@media (max-width: 768px) {
-  .desktop-table { display: none !important; }
-  .mobile-list { display: block; }
-}
-</style>
