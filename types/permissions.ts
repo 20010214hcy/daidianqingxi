@@ -11,7 +11,7 @@ export type PermissionModule =
   | 'dashboard'
   | 'articles' | 'cases' | 'services'
   | 'products' | 'categories' | 'certificates'
-  | 'contact' | 'messages'
+  | 'contact' | 'messages' | 'chat'
   | 'settings' | 'users'
   | 'profile'
 
@@ -21,7 +21,7 @@ export const ROLE_PERMISSIONS: Record<Role, PermissionModule[]> = {
     'dashboard',
     'articles', 'cases', 'services',
     'products', 'categories', 'certificates',
-    'contact', 'messages',
+    'contact', 'messages', 'chat',
     'settings', 'users',
     'profile',
   ],
@@ -29,7 +29,7 @@ export const ROLE_PERMISSIONS: Record<Role, PermissionModule[]> = {
     'dashboard',
     'articles', 'cases', 'services',
     'products', 'categories', 'certificates',
-    'contact', 'messages',
+    'contact', 'messages', 'chat',
     'profile',
   ],
   editor: [

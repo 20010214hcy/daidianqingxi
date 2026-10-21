@@ -309,6 +309,7 @@ const allMenuGroups = [
     permission: 'messages' as const,
     items: [
       { path: '/admin/messages', title: '留言管理', icon: Message, permission: 'messages' as const },
+      { path: '/admin/chat', title: '在线客服', icon: ChatDotRound, permission: 'chat' as const },
       { path: '/admin/contact', title: '联系信息', icon: Phone, permission: 'contact' as const }
     ]
   },

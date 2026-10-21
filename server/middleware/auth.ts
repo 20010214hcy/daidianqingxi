@@ -7,19 +7,23 @@ const protectedPaths = [
   '/api/contact', '/api/price-visibility', '/api/dashboard',
   '/api/auth', '/api/users',
   '/api/media', '/api/email',
+  '/api/chat', '/api/admin',
 ]
 
 const publicReadPaths = [
   '/api/articles', '/api/cases', '/api/services', '/api/certificates',
   '/api/products', '/api/categories', '/api/settings', '/api/contact',
   '/api/price-visibility',  // 价格可见性允许公开读取
+  '/api/chat',              // 访客轮询自己的会话消息（凭 visitorId）
 ]
 
 // 公开的写入路径（允许未登录用户提交）
 // 注意：messages 只放行「精确路径 POST /api/messages」（提交留言），
 //       带 id 的 PUT/DELETE（管理操作）仍需登录并校验角色权限
+// chat：访客创建会话 / 发送消息，凭浏览器生成的 visitorId
 const publicWritePaths = [
   '/api/messages',  // 允许未登录用户提交留言
+  '/api/chat',      // 允许未登录访客发起咨询
 ]
 
 // 路径前缀 -> 所需权限模块（写操作才校验；读操作走 publicReadPaths 放行）
@@ -32,6 +36,7 @@ const writePermissionMap: Array<{ prefix: string; module: PermissionModule }> = 
   { prefix: '/api/categories', module: 'categories' },
   { prefix: '/api/certificates', module: 'certificates' },
   { prefix: '/api/messages', module: 'messages' },
+  { prefix: '/api/admin/chat', module: 'chat' },
   { prefix: '/api/contact', module: 'contact' },
   { prefix: '/api/settings', module: 'settings' },
   { prefix: '/api/dashboard', module: 'dashboard' },

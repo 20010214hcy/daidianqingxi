@@ -14,5 +14,6 @@
     <Footer />
     <LazyMobileStickyBar />
     <LazyFloatingCta />
+    <LazyChatWidget />
   </div>
 </template>

@@ -1,6 +1,15 @@
 <template>
-  <!-- 桌面端右侧悬浮咨询条：电话 / 留言 / 回到顶部 -->
+  <!-- 桌面端右侧悬浮咨询条：在线客服 / 电话 / 留言 / 回到顶部 -->
   <aside v-if="!isContactPage" class="floating-cta" :class="{ 'is-show': visible }" aria-label="快捷咨询">
+    <!-- 在线客服（站内实时聊天） -->
+    <button type="button" class="fcta-btn fcta-btn-primary fcta-btn-chat" @click="openChatFromBar">
+      <svg class="fcta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+      </svg>
+      <span class="fcta-label">在线</span>
+      <i v-if="unread > 0" class="fcta-badge" aria-label="有新回复"></i>
+    </button>
+
     <!-- 电话咨询（hover/点击弹出号码卡片） -->
     <div class="fcta-phone-wrap" @mouseenter="phoneOpen = true" @mouseleave="phoneOpen = false">
       <transition name="fcta-pop">
@@ -12,7 +21,7 @@
           <p class="fcta-phone-hours">工作时间 8:30 - 17:30</p>
         </div>
       </transition>
-      <button type="button" class="fcta-btn fcta-btn-primary" @click="togglePhone" @focus="phoneOpen = true">
+      <button type="button" class="fcta-btn fcta-btn-plain" @click="togglePhone" @focus="phoneOpen = true">
         <svg class="fcta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
         </svg>
@@ -51,6 +60,8 @@ const visible = ref(false)
 const showTop = ref(false)
 const phoneOpen = ref(false)
 
+const { unread, openChat } = useChat()
+
 const { data: contactData } = useFetch('/api/contact', {
   transform: (res: any) => (res?.success && res.data ? res.data : null),
   server: false,
@@ -69,6 +80,11 @@ const track = (label: string) => {
 const togglePhone = () => {
   phoneOpen.value = !phoneOpen.value
   track('悬浮-电话')
+}
+
+const openChatFromBar = () => {
+  openChat()
+  track('悬浮-在线客服')
 }
 
 const scrollToTop = () => {
@@ -165,6 +181,22 @@ onMounted(() => {
     line-height: 1;
     font-weight: 600;
     letter-spacing: 0.02em;
+  }
+
+  /* 在线客服：新回复红点 */
+  .fcta-btn-chat {
+    position: relative;
+  }
+
+  .fcta-badge {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ef4444;
+    box-shadow: 0 0 0 2px #2563eb;
   }
 
   /* 回到顶部：默认收起不占交互 */
