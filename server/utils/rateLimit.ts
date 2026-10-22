@@ -29,8 +29,8 @@ export async function checkRateLimit(key: string, maxRequests: number, windowMs:
     INSERT INTO rate_limit (k, cnt, reset_at)
     VALUES (${key}, 1, ${resetAt})
     ON DUPLICATE KEY UPDATE
-      cnt = IF(reset_at < NOW(), 1, cnt + 1),
-      reset_at = IF(reset_at < NOW(), VALUES(reset_at), reset_at)
+      cnt = IF(reset_at < ${now}, 1, cnt + 1),
+      reset_at = IF(reset_at < ${now}, VALUES(reset_at), reset_at)
   `
 
   const rows = await prisma.$queryRaw<{ cnt: number; reset_at: Date }[]>`
@@ -57,13 +57,14 @@ export async function getRateLimitCount(key: string): Promise<number> {
 /** 递增计数并返回递增后的值（窗口过期则重置为 1） */
 export async function incrementRateLimit(key: string, windowMs: number): Promise<number> {
   await ensureTable()
-  const resetAt = new Date(Date.now() + windowMs)
+  const now = new Date()
+  const resetAt = new Date(now.getTime() + windowMs)
   await prisma.$executeRaw`
     INSERT INTO rate_limit (k, cnt, reset_at)
     VALUES (${key}, 1, ${resetAt})
     ON DUPLICATE KEY UPDATE
-      cnt = IF(reset_at < NOW(), 1, cnt + 1),
-      reset_at = IF(reset_at < NOW(), VALUES(reset_at), reset_at)
+      cnt = IF(reset_at < ${now}, 1, cnt + 1),
+      reset_at = IF(reset_at < ${now}, VALUES(reset_at), reset_at)
   `
   return getRateLimitCount(key)
 }
@@ -76,5 +77,5 @@ export async function clearRateLimit(key: string): Promise<void> {
 /** 清理过期记录（可在任意实例调用，幂等） */
 export async function cleanupRateLimit(): Promise<void> {
   await ensureTable()
-  await prisma.$executeRaw`DELETE FROM rate_limit WHERE reset_at < NOW()`
+  await prisma.$executeRaw`DELETE FROM rate_limit WHERE reset_at < ${new Date()}`
 }

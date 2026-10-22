@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     // 用真实客户端 IP（XFF 第一段可伪造，见 utils/ip.ts）
     const ip = realIP(event)
     if (!(await checkRateLimit(`msg:${ip}`, 10, 60 * 60 * 1000))) {
-      return errorResponse('提交过于频繁，请稍后再试', 429)
+      return errorResponse('提交过于频繁，请稍后再试', 429, event)
     }
 
     const body = await readBody(event)
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     const { name, phone, email, company, subject, content } = body
 
     if (!name || !phone || !content) {
-      return errorResponse('姓名、电话和留言内容不能为空', 400)
+      return errorResponse('姓名、电话和留言内容不能为空', 400, event)
     }
 
     const message = await prisma.message.create({
