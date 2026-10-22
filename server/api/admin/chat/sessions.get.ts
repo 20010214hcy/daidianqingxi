@@ -15,7 +15,12 @@ export default defineEventHandler(async (event) => {
     const pageSize = Math.min(50, Math.max(1, Number(query.pageSize) || 20))
     const status = typeof query.status === 'string' ? query.status : ''
 
-    const where = status && status !== 'all' ? { status } : {}
+    // 只显示「真实咨询」：至少有一条消息，或访客留了手机号/姓名（有效线索）
+    // 仅点开聊天窗但没发消息的访客不进工作台列表
+    const where: Record<string, unknown> = {
+      OR: [{ chatmessage: { some: {} } }, { phone: { not: null } }, { name: { not: null } }],
+    }
+    if (status && status !== 'all') where.status = status
 
     const [total, sessions, unreadAgg] = await Promise.all([
       prisma.chatsession.count({ where }),

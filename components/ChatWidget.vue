@@ -173,7 +173,7 @@ const lastId = computed(() => {
   return ids.length ? Math.max(...ids) : 0
 })
 
-async function ensureSession() {
+async function ensureSession(lookupOnly = false) {
   if (!import.meta.client) return
   try {
     const res: any = await $fetch('/api/chat/session', {
@@ -182,6 +182,9 @@ async function ensureSession() {
         visitorId: getVisitorId(),
         pageUrl: route.fullPath,
         referrer: document.referrer || '',
+        // lookup 模式：只恢复已有会话，服务端绝不创建
+        // （访客仅点开聊天窗/浏览页面时不产生会话，不发消息就不打扰后台）
+        ...(lookupOnly ? { lookup: true } : {}),
       },
     })
     if (res?.success && res.data) {
@@ -306,8 +309,8 @@ function onKeydown(e: KeyboardEvent) {
 onMounted(async () => {
   getVisitorId()
   window.addEventListener('keydown', onKeydown)
-  // 页面加载后静默恢复会话，便于在悬浮入口上显示未读
-  await ensureSession()
+  // 页面加载后静默恢复已有会话（只查不建），便于在悬浮入口上显示未读
+  await ensureSession(true)
   startIdlePolling()
 })
 
@@ -320,7 +323,8 @@ onUnmounted(() => {
 watch(open, async (isOpen) => {
   if (isOpen) {
     unread.value = 0
-    await ensureSession()
+    // 点开聊天窗只恢复已有会话；首次发消息时才会真正创建
+    await ensureSession(true)
     await poll()
     startPolling()
     scrollToBottom()

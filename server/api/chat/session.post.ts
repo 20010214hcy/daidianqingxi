@@ -35,21 +35,32 @@ export default defineEventHandler(async (event) => {
       return errorResponse('手机号格式不正确', 400, event)
     }
 
+    // lookup=true：只恢复已有会话（页面加载/点开聊天窗时），不创建新会话
+    const lookup = body?.lookup === true
+
     const userAgent = getHeader(event, 'user-agent')?.slice(0, 500) || null
 
     const existing = await prisma.chatsession.findUnique({ where: { visitorId } })
     let session
 
     if (existing) {
-      // 只补充信息，不覆盖已有值；关闭的会话重新打开
-      const data: Record<string, unknown> = {}
-      if (pageUrl && pageUrl !== existing.pageUrl) data.pageUrl = pageUrl
-      if (name && name !== existing.name) data.name = name
-      if (phone && phone !== existing.phone) data.phone = phone
-      if (existing.status === 'closed') data.status = 'open'
-      session = Object.keys(data).length
-        ? await prisma.chatsession.update({ where: { visitorId }, data })
-        : existing
+      if (lookup) {
+        // 纯恢复模式：不做任何写操作（不更新页面路径、不重开已关闭会话、不清未读）
+        session = existing
+      } else {
+        // 只补充信息，不覆盖已有值；关闭的会话重新打开
+        const data: Record<string, unknown> = {}
+        if (pageUrl && pageUrl !== existing.pageUrl) data.pageUrl = pageUrl
+        if (name && name !== existing.name) data.name = name
+        if (phone && phone !== existing.phone) data.phone = phone
+        if (existing.status === 'closed') data.status = 'open'
+        session = Object.keys(data).length
+          ? await prisma.chatsession.update({ where: { visitorId }, data })
+          : existing
+      }
+    } else if (lookup) {
+      // 从未有过会话：返回空壳，绝不创建（访客没发消息就不进后台工作台）
+      return successResponse({ sessionId: 0, status: 'open', name: null, phone: null, messages: [] })
     } else {
       session = await prisma.chatsession.create({
         data: {
@@ -73,7 +84,7 @@ export default defineEventHandler(async (event) => {
     })
     const messages = recent.reverse()
 
-    if (session.unreadVisitor > 0) {
+    if (!lookup && session.unreadVisitor > 0) {
       await prisma.chatsession.update({ where: { id: session.id }, data: { unreadVisitor: 0 } })
     }
 
