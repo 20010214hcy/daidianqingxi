@@ -193,25 +193,32 @@
     background: #fff;
   }
 
-  /* 弹窗内表单在窄屏改单列：双列 el-col 在 390px 下每个输入框只剩约 60px。
+  /* 表单在窄屏改单列：双列 el-col 在 390px 下每个输入框只剩约 60px
+   * （文章编辑页曾实测 分类/状态/发布日期 三个下拉被压成 0/0/46px）。
    * label 从左侧固定宽（el-form 的 label-width 是内联样式，需 !important
    * 覆盖）改为顶部整行左对齐，输入控件拿回全部宽度。
+   * 选择器同时覆盖弹窗内表单和页面级表单（.admin-page-container 内），
+   * 之前只写了 .el-dialog，文章编辑页这种独立页面表单漏掉了。
    * 注意带 body 前缀：EP 自己的 .el-form--label-right .el-form-item__label
    * 在按需 chunk 里注入更晚，同特异度会赢（与消息弹层是同一类坑）。 */
-  body .el-dialog .el-row {
+  body .el-dialog .el-row,
+  body .admin-page-container .el-row {
     display: block;
   }
 
-  body .el-dialog .el-col {
+  body .el-dialog .el-col,
+  body .admin-page-container .el-col {
     max-width: 100%;
     flex: 0 0 100%;
   }
 
-  body .el-dialog .el-form-item {
+  body .el-dialog .el-form-item,
+  body .admin-page-container .el-form-item {
     display: block;
   }
 
-  body .el-dialog .el-form-item__label {
+  body .el-dialog .el-form-item__label,
+  body .admin-page-container .el-form-item__label {
     display: block;
     width: auto !important;
     text-align: left;
@@ -221,7 +228,14 @@
     line-height: 1.5;
   }
 
-  body .el-dialog .el-input-number {
+  body .el-dialog .el-input-number,
+  body .admin-page-container .el-input-number {
+    width: 100%;
+  }
+
+  /* 日期/下拉等固定宽度控件在窄屏撑满可用宽度 */
+  body .admin-page-container .el-date-editor {
+    --el-date-editor-width: 100%;
     width: 100%;
   }
 

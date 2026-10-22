@@ -208,6 +208,14 @@ const clearImage = () => { emit('update:modelValue', '') }
 .media-picker-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .media-picker-empty { display: flex; align-items: center; flex-wrap: wrap; gap: 0; }
 
+/* 窄屏：按钮换行后「或」分隔字会悬挂在行首行尾，直接隐藏并用 gap 拉开间距 */
+@media (max-width: 640px) {
+  .media-picker-empty { gap: 8px; }
+  .media-picker-empty > span { display: none; }
+  .media-picker-preview { flex-direction: column; }
+  .media-picker-img { width: 100%; max-width: 240px; height: 140px; }
+}
+
 .paste-area {
   display: inline-flex;
   align-items: center;

@@ -361,4 +361,21 @@ const { handlePaste: handleEditorPaste } = usePasteImageUpload({
 .tiptap-content .tiptap a:hover { color: #66b1ff; }
 
 .w-e-text-container { display: none; }
+
+/* 移动端：工具栏按钮 32px 低于 44px 触摸标准，放大点击区（图标不变），
+ * 编辑区高度也随视口收敛，避免首屏只剩工具栏 */
+@media (max-width: 768px) {
+  .tiptap-toolbar { gap: 4px; padding: 8px; }
+  .tiptap-btn {
+    width: 40px;
+    height: 40px;
+  }
+  .tiptap-btn[title=""] {
+    width: 1px;
+    height: 24px;
+    margin: 0 2px;
+  }
+  .tiptap-content { min-height: 300px; max-height: 70vh; }
+  .tiptap-content .tiptap { min-height: 280px; padding: 12px 14px; }
+}
 </style>
