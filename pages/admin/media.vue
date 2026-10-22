@@ -140,6 +140,7 @@ const fetchMedia = async () => {
     }
   } catch (err) {
     console.error('获取媒体列表失败:', err)
+    ElMessage.error(apiErrorMessage(err, '加载媒体列表失败'))
   } finally {
     loading.value = false
   }
@@ -157,7 +158,7 @@ const beforeUpload = (file: File) => {
 
 const handleUploadSuccess = async (response: any, file: any) => {
   const url = response?.data?.url || response?.url
-  if (!url) { ElMessage.error('上传失败'); return }
+  if (!url) { ElMessage.error(response?.message || '上传失败'); return }
 
   // 上传成功后弹出编辑框，让用户修改名称
   editForm.id = 0
@@ -168,7 +169,7 @@ const handleUploadSuccess = async (response: any, file: any) => {
   showEditor.value = true
 }
 
-const handleUploadError = () => { ElMessage.error('上传失败') }
+const handleUploadError = (err: any) => { ElMessage.error(apiErrorMessage(err, '上传失败')) }
 
 const handleEdit = (item: any) => {
   editForm.id = item.id
@@ -198,7 +199,7 @@ const handleSave = async () => {
     showEditor.value = false
     fetchMedia()
   } catch (err) {
-    ElMessage.error('保存失败')
+    ElMessage.error(apiErrorMessage(err, '保存失败'))
   } finally {
     saving.value = false
   }
@@ -211,7 +212,7 @@ const handleDelete = async (item: any) => {
     ElMessage.success('删除成功')
     fetchMedia()
   } catch (err) {
-    if (err !== 'cancel') ElMessage.error('删除失败')
+    if (err !== 'cancel') ElMessage.error(apiErrorMessage(err, '删除失败'))
   }
 }
 

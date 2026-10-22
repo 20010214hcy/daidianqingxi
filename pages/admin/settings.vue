@@ -159,6 +159,7 @@ const loadSetting = async () => {
     }
   } catch (error) {
     console.error('加载设置失败', error)
+    ElMessage.error(apiErrorMessage(error, '加载设置失败'))
   }
 }
 
@@ -178,7 +179,7 @@ const handleSave = async () => {
     }
   } catch (error) {
     console.error('保存失败', error)
-    ElMessage.error('保存失败')
+    ElMessage.error(apiErrorMessage(error, '保存失败'))
   } finally {
     saving.value = false
   }
@@ -207,7 +208,7 @@ const handleSaveEmail = async () => {
     }
   } catch (error) {
     console.error('保存失败', error)
-    ElMessage.error('保存失败')
+    ElMessage.error(apiErrorMessage(error, '保存失败'))
   } finally {
     savingEmail.value = false
   }

@@ -160,6 +160,7 @@ const fetchArticles = async () => {
     }
   } catch (error) {
     console.error('获取文章列表失败:', error)
+    ElMessage.error(apiErrorMessage(error, '加载文章列表失败'))
   } finally {
     loading.value = false
   }
@@ -194,7 +195,7 @@ const handleDelete = async (row: Article) => {
     ElMessage.success('删除成功')
     await fetchArticles()
   } catch (error) {
-    if (error !== 'cancel') ElMessage.error('删除文章失败')
+    if (error !== 'cancel') ElMessage.error(apiErrorMessage(error, '删除文章失败'))
   }
 }
 

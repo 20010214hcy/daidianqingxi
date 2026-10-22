@@ -117,7 +117,6 @@
 </template>
 
 <script setup lang="ts">
-import { formatDate } from '~/utils/format'
 import { Plus, Edit, Delete } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
 
@@ -170,6 +169,7 @@ const fetchUsers = async () => {
     }
   } catch (error) {
     console.error('获取用户列表失败:', error)
+    ElMessage.error(apiErrorMessage(error, '加载用户列表失败'))
   } finally {
     loading.value = false
   }

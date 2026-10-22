@@ -214,6 +214,7 @@ const fetchCases = async () => {
     }
   } catch (error) {
     console.error('获取案例列表失败:', error)
+    ElMessage.error(apiErrorMessage(error, '加载案例列表失败'))
   }
 }
 
@@ -256,7 +257,7 @@ const handleDelete = async (item) => {
   } catch (error) {
     if (error !== 'cancel') {
       console.error('删除案例失败:', error)
-      ElMessage.error('删除失败')
+      ElMessage.error(apiErrorMessage(error, '删除失败'))
     }
   }
 }
@@ -282,7 +283,7 @@ const handleSubmit = async () => {
         await fetchCases()
       } catch (error) {
         console.error('保存案例失败:', error)
-        ElMessage.error('保存失败')
+        ElMessage.error(apiErrorMessage(error, '保存失败'))
       }
     }
   })

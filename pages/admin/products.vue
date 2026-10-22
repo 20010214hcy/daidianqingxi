@@ -262,7 +262,6 @@
 
 <script setup lang="ts">
 import { cacheBust } from '~/utils/cacheBust'
-import { formatDate } from '~/utils/format'
 import { ref, computed, reactive, watch } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { Plus, Search } from '@element-plus/icons-vue'
@@ -367,6 +366,7 @@ const fetchProducts = async () => {
     }
   } catch (error) {
     console.error('获取产品列表失败:', error)
+    ElMessage.error(apiErrorMessage(error, '加载产品列表失败'))
   } finally {
     loading.value = false
   }
@@ -446,7 +446,7 @@ const handleDelete = async (row: Product) => {
   } catch (error) {
     if (error !== 'cancel') {
       console.error('删除产品失败:', error)
-      ElMessage.error('删除产品失败')
+      ElMessage.error(apiErrorMessage(error, '删除产品失败'))
     }
   }
 }
@@ -503,7 +503,7 @@ const handleSubmit = async () => {
   } catch (error) {
     if (error !== false) {
       console.error('保存产品失败:', error)
-      ElMessage.error('保存产品失败')
+      ElMessage.error(apiErrorMessage(error, '保存产品失败'))
     }
   } finally {
     submitting.value = false
@@ -572,7 +572,7 @@ const handlePriceToggle = async (val: boolean) => {
     ElMessage.success(val ? '前台价格已显示' : '前台价格已隐藏')
   } catch (error) {
     priceVisible.value = !val
-    ElMessage.error('状态切换失败')
+    ElMessage.error(apiErrorMessage(error, '状态切换失败'))
   } finally {
     priceSwitching.value = false
   }

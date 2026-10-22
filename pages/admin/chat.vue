@@ -315,7 +315,7 @@ async function reply() {
       ElMessage.error(res?.message || '发送失败')
     }
   } catch (e: any) {
-    ElMessage.error(e?.statusMessage || '发送失败')
+    ElMessage.error(apiErrorMessage(e, '发送失败'))
   } finally {
     replying.value = false
   }

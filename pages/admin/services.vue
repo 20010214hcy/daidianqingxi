@@ -254,6 +254,7 @@ const fetchServices = async () => {
     }
   } catch (error) {
     console.error('获取服务失败:', error)
+    ElMessage.error(apiErrorMessage(error, '加载服务列表失败'))
   }
 }
 
@@ -337,7 +338,7 @@ const handleSubmit = async () => {
     resetForm()
     fetchServices()
   } catch (error) {
-    ElMessage.error('操作失败')
+    ElMessage.error(apiErrorMessage(error, '操作失败'))
   }
 }
 
@@ -353,7 +354,7 @@ const deleteService = async (id, coverImage) => {
     fetchServices()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      ElMessage.error(apiErrorMessage(error, '删除失败'))
     }
   }
 }

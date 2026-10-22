@@ -140,7 +140,7 @@ const loadProfile = async () => {
     }
   } catch (error) {
     console.error('加载用户信息失败', error)
-    ElMessage.error('加载用户信息失败')
+    ElMessage.error(apiErrorMessage(error, '加载用户信息失败'))
   }
 }
 
@@ -177,7 +177,7 @@ const handleAvatarUpload = async (options: { file: File }) => {
     }
   } catch (error) {
     console.error('头像上传失败', error)
-    ElMessage.error('头像上传失败')
+    ElMessage.error(apiErrorMessage(error, '头像上传失败'))
   }
 }
 

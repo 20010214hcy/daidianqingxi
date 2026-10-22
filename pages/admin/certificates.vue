@@ -96,7 +96,6 @@
 </template>
 
 <script setup lang="ts">
-import { formatDate } from '~/utils/format'
 import { ref, reactive } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
@@ -145,6 +144,7 @@ const fetchCertificates = async () => {
     certificates.value = res?.success ? (res.data || []) : []
   } catch (error) {
     console.error('获取证书列表失败:', error)
+    ElMessage.error(apiErrorMessage(error, '加载证书列表失败'))
   } finally {
     loading.value = false
   }
@@ -191,7 +191,7 @@ const handleDelete = async (row: Certificate) => {
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      ElMessage.error(apiErrorMessage(error, '删除失败'))
     }
   }
 }
@@ -224,7 +224,7 @@ const handleSubmit = async () => {
       }
     }
   } catch (error) {
-    ElMessage.error('操作失败')
+    ElMessage.error(apiErrorMessage(error, '操作失败'))
   } finally {
     submitting.value = false
   }

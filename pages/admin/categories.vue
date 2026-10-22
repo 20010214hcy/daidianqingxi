@@ -137,7 +137,6 @@
 </template>
 
 <script setup lang="ts">
-import { formatDate } from '~/utils/format'
 import { ref, reactive } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { Plus, Edit, Delete } from '@element-plus/icons-vue'
@@ -204,6 +203,7 @@ const fetchCategories = async () => {
     categories.value = response?.success ? (response.data || []) : []
   } catch (error) {
     console.error('获取分类列表失败:', error)
+    ElMessage.error(apiErrorMessage(error, '加载分类列表失败'))
   } finally {
     loading.value = false
   }
@@ -255,7 +255,7 @@ const handleDelete = async (row: Category) => {
   } catch (error) {
     if (error !== 'cancel') {
       console.error('删除分类失败:', error)
-      ElMessage.error('删除分类失败')
+      ElMessage.error(apiErrorMessage(error, '删除分类失败'))
     }
   }
 }
@@ -291,7 +291,7 @@ const handleSubmit = async () => {
   } catch (error) {
     if (error !== false) {
       console.error('保存分类失败:', error)
-      ElMessage.error('保存分类失败')
+      ElMessage.error(apiErrorMessage(error, '保存分类失败'))
     }
   } finally {
     submitting.value = false

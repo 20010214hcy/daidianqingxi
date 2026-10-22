@@ -110,7 +110,7 @@ const loadArticle = async () => {
       })
     }
   } catch (err) {
-    ElMessage.error('加载文章失败')
+    ElMessage.error(apiErrorMessage(err, '加载文章失败'))
     goBack()
   } finally {
     pageLoading.value = false
@@ -145,7 +145,7 @@ const handleSubmit = async () => {
     ElMessage.success('保存成功')
     goBack()
   } catch (err) {
-    if (err !== false) ElMessage.error('保存文章失败')
+    if (err !== false) ElMessage.error(apiErrorMessage(err, '保存文章失败'))
   } finally {
     submitting.value = false
   }

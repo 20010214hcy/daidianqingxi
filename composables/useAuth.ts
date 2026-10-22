@@ -7,6 +7,15 @@ export interface User {
   role: string
 }
 
+// 定时器与监听器必须是模块级单例：
+// 之前写在 useAuth() 函数体内，每个组件调用一次就新建一个 setInterval
+// 和一个 beforeunload 监听器，开多个后台页面会泄漏出十几个并行定时器。
+let refreshTimer: ReturnType<typeof setInterval> | null = null
+let unloadListenerBound = false
+
+// Token 刷新间隔（5天，token 有效期为 7天）
+const REFRESH_INTERVAL = 5 * 24 * 60 * 60 * 1000
+
 export const useAuth = () => {
   const { logError } = useApiError()
 
@@ -27,17 +36,31 @@ export const useAuth = () => {
   // 服务端 API 中间件通过 cookie header 自动验证 token
   const isAuthenticated = computed(() => !!user.value)
 
-  // 记录登录时间，用于判断是否需要刷新 token
-  const loginTime = useState<number>('auth_login_time', () => 0)
+  // 记录登录时间，用于判断是否需要刷新 token。
+  // 必须持久化到 cookie：之前存 useState，页面一刷新就归 0，
+  // checkAndRefreshToken 永远早退，token 自动续期实为死代码。
+  const loginTimeCookie = useCookie<string | null>('auth_login_time', {
+    maxAge: 60 * 60 * 24 * 7,
+    path: '/',
+    sameSite: 'lax',
+  })
 
+  const loginTime = useState<number>('auth_login_time', () => {
+    const stored = Number(loginTimeCookie.value)
+    return Number.isFinite(stored) && stored > 0 ? stored : 0
+  })
+
+  const setLoginTime = (time: number) => {
+    loginTime.value = time
+    loginTimeCookie.value = time > 0 ? String(time) : null
+  }
+
+  // 与服务端 auth_token 的 sameSite 保持一致（服务端为 lax）
   const cookieOptions = {
     maxAge: 60 * 60 * 24 * 7,
     path: '/',
-    sameSite: 'strict' as const,
+    sameSite: 'lax' as const,
   }
-
-  // Token 刷新间隔（5天，token 有效期为 7天）
-  const REFRESH_INTERVAL = 5 * 24 * 60 * 60 * 1000
 
   const login = async (username: string, password: string) => {
     try {
@@ -48,7 +71,7 @@ export const useAuth = () => {
 
       if (response.success) {
         user.value = response.data.user
-        loginTime.value = Date.now()
+        setLoginTime(Date.now())
         // auth_token 由服务端通过 httpOnly cookie 设置
         // 仅在客户端设置 auth_user cookie（用于 UI 状态判断）
         useCookie('auth_user', cookieOptions).value = encodeURIComponent(JSON.stringify(response.data.user))
@@ -65,7 +88,7 @@ export const useAuth = () => {
 
   const logout = async () => {
     user.value = null
-    loginTime.value = 0
+    setLoginTime(0)
     // 清除客户端 auth_user cookie
     useCookie('auth_user').value = null
     try {
@@ -88,7 +111,7 @@ export const useAuth = () => {
     try {
       const response = await $fetch('/api/auth/refresh', { method: 'POST' })
       if (response.success) {
-        loginTime.value = Date.now()
+        setLoginTime(Date.now())
         return true
       }
       return false
@@ -142,7 +165,7 @@ export const useAuth = () => {
           // token 无效，清除登录状态
           user.value = null
           useCookie('auth_user').value = null
-          loginTime.value = 0
+          setLoginTime(0)
         } else {
           // token 有效，检查是否需要刷新
           await checkAndRefreshToken()
@@ -154,9 +177,7 @@ export const useAuth = () => {
     }
   }
 
-  // 设置定期检查 token 的定时器
-  let refreshTimer: ReturnType<typeof setInterval> | null = null
-
+  // 设置定期检查 token 的定时器（模块级单例，重复调用不会叠加）
   const startRefreshTimer = () => {
     if (refreshTimer) return
     // 每小时检查一次是否需要刷新 token
@@ -183,8 +204,11 @@ export const useAuth = () => {
     // 启动定时器
     startRefreshTimer()
 
-    // 页面卸载时停止定时器
-    window.addEventListener('beforeunload', stopRefreshTimer)
+    // 页面卸载时停止定时器（只绑一次）
+    if (!unloadListenerBound) {
+      unloadListenerBound = true
+      window.addEventListener('beforeunload', stopRefreshTimer)
+    }
   }
 
   return {

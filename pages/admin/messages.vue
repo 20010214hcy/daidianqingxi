@@ -134,7 +134,6 @@
 </template>
 
 <script setup lang="ts">
-import { formatDate } from '~/utils/format'
 import { ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { View, Delete } from '@element-plus/icons-vue'
@@ -184,6 +183,7 @@ const fetchMessages = async () => {
     }
   } catch (error) {
     console.error('获取留言列表失败:', error)
+    ElMessage.error(apiErrorMessage(error, '加载留言列表失败'))
   } finally {
     loading.value = false
   }
@@ -224,7 +224,7 @@ const deleteMessage = async (row: Message) => {
   } catch (error) {
     if (error !== 'cancel') {
       console.error('删除留言失败:', error)
-      ElMessage.error('删除失败')
+      ElMessage.error(apiErrorMessage(error, '删除失败'))
     }
   }
 }
@@ -234,7 +234,7 @@ const handleReply = async () => {
 
   replying.value = true
   try {
-    await $fetch(`/api/messages/${currentMessage.value.id}`, {
+    const res: any = await $fetch(`/api/messages/${currentMessage.value.id}`, {
       method: 'PUT',
       body: {
         reply: replyContent.value,
@@ -243,12 +243,12 @@ const handleReply = async () => {
     })
 
     showViewModal.value = false
-    const emailSent = response?.data?.emailSent
+    const emailSent = res?.data?.emailSent
     ElMessage.success(emailSent ? '回复成功，已发送邮件通知用户' : '回复成功')
     await fetchMessages()
   } catch (error) {
     console.error('回复留言失败:', error)
-    ElMessage.error('回复失败')
+    ElMessage.error(apiErrorMessage(error, '回复失败'))
   } finally {
     replying.value = false
   }

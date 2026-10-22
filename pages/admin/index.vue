@@ -291,6 +291,7 @@ const loadDashboard = async () => {
     }
   } catch (err) {
     console.error('仪表盘数据加载失败:', err)
+    ElMessage.error(apiErrorMessage(err, '仪表盘数据加载失败'))
   } finally {
     loading.value = false
   }
