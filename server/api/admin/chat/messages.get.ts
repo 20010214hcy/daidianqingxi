@@ -1,6 +1,7 @@
 import { prisma } from '~/server/utils/db'
 import { successResponse, errorResponse } from '~/server/utils/response'
 import { requirePermission } from '~/server/utils/auth'
+import { ipLocation } from '~/server/utils/ipLocation'
 
 /**
  * 客服工作台：拉取某个会话的消息
@@ -45,6 +46,7 @@ export default defineEventHandler(async (event) => {
         pageUrl: session.pageUrl,
         referrer: session.referrer,
         ip: session.ip,
+        ipLocation: ipLocation(session.ip),
         userAgent: session.userAgent,
         status: session.status,
         createdAt: session.createdAt,

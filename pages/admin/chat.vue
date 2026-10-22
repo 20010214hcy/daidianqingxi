@@ -32,6 +32,7 @@
             <div class="cs-meta">
               <el-tag v-if="s.status === 'closed'" size="small" type="info">已结束</el-tag>
               <span v-if="s.phone" class="cs-phone">{{ s.phone }}</span>
+              <span v-if="s.ipLocation && s.ipLocation !== '未知'" class="cs-loc">{{ s.ipLocation }}</span>
               <el-badge v-if="s.unreadAdmin > 0" :value="s.unreadAdmin" class="cs-badge" />
             </div>
           </li>
@@ -48,8 +49,8 @@
               <p class="cm-name">{{ displayName(active) }}</p>
               <p class="cm-sub">
                 <span v-if="active.phone" class="cm-phone">{{ active.phone }}</span>
-                <span v-if="active.pageUrl" class="cm-page">来源：{{ shortUrl(active.pageUrl) }}</span>
-                <span v-if="active.ip" class="cm-ip">IP：{{ active.ip }}</span>
+                <span v-if="active.pageUrl" class="cm-page" :title="shortUrl(active.pageUrl)">来源：{{ pageLabel(active.pageUrl) }}</span>
+                <span v-if="active.ip" class="cm-ip">IP：{{ ipText(active) }}</span>
               </p>
             </div>
             <el-button size="small" :type="active.status === 'open' ? 'default' : 'primary'" @click="toggleStatus">
@@ -108,6 +109,8 @@ interface SessionItem {
   name: string | null
   phone: string | null
   pageUrl: string | null
+  ip?: string | null
+  ipLocation?: string | null
   status: string
   unreadAdmin: number
   lastMessageAt: string
@@ -173,6 +176,43 @@ const shortUrl = (url: string) => {
   } catch {
     return url
   }
+}
+
+/** 站内路径 → 中文页面名 */
+const PAGE_NAMES: Record<string, string> = {
+  '/': '首页',
+  '/products': '产品中心',
+  '/services': '服务项目',
+  '/cases': '工程案例',
+  '/articles': '新闻资讯',
+  '/news': '新闻资讯',
+  '/solutions': '技术方案',
+  '/certificates': '资质证书',
+  '/contact': '联系我们',
+  '/about': '关于我们',
+}
+
+const PAGE_DETAILS: Record<string, string> = {
+  products: '产品详情',
+  services: '服务详情',
+  cases: '案例详情',
+  articles: '文章详情',
+  news: '新闻详情',
+  solutions: '方案详情',
+}
+
+const pageLabel = (url: string) => {
+  const path = shortUrl(url).split('?')[0]
+  if (PAGE_NAMES[path]) return PAGE_NAMES[path]
+  const seg = path.split('/').filter(Boolean)
+  if (seg.length >= 2 && PAGE_DETAILS[seg[0]]) return PAGE_DETAILS[seg[0]]
+  return path
+}
+
+/** 「IP + 归属地」组合展示，如 114.106.x.x（河南平顶山） */
+const ipText = (s: SessionItem | null) => {
+  if (!s?.ip) return ''
+  return s.ipLocation && s.ipLocation !== '未知' ? `${s.ip}（${s.ipLocation}）` : s.ip
 }
 
 /** 有新咨询时闪烁标题（页面在后台时最容易漏掉） */
@@ -449,6 +489,11 @@ onUnmounted(() => {
 .cs-phone {
   font-size: 11px;
   color: #2563eb;
+}
+
+.cs-loc {
+  font-size: 11px;
+  color: #94a3b8;
 }
 
 .cs-badge {

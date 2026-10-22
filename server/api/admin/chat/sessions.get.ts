@@ -1,6 +1,7 @@
 import { prisma } from '~/server/utils/db'
 import { successResponse, errorResponse } from '~/server/utils/response'
 import { requirePermission } from '~/server/utils/auth'
+import { ipLocation } from '~/server/utils/ipLocation'
 
 /**
  * 客服工作台：会话列表
@@ -42,6 +43,8 @@ export default defineEventHandler(async (event) => {
       name: s.name,
       phone: s.phone,
       pageUrl: s.pageUrl,
+      ip: s.ip,
+      ipLocation: ipLocation(s.ip),
       status: s.status,
       unreadAdmin: s.unreadAdmin,
       lastMessageAt: s.lastMessageAt,

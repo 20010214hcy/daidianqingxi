@@ -17,3 +17,6 @@ backup-mobile*
 backup-pwd*
 backup-roleperm*
 db-backups/
+
+# ip2region 离线库数据文件（大文件不入库）
+data/*.db

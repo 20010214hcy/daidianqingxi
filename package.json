@@ -37,6 +37,7 @@
     "devalue": "^6.0.3",
     "dompurify": "^3.4.7",
     "element-plus": "^2.13.7",
+    "ip2region": "^2.3.0",
     "jsonwebtoken": "^9.0.3",
     "nodemailer": "^10.1.7",
     "nuxt": "^3.21.10",
