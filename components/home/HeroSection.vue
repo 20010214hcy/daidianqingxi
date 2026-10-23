@@ -58,7 +58,7 @@ useHead({
     {
       rel: 'preload',
       as: 'image',
-      href: '/uploads/hero-bg.webp',
+      href: '/uploads/hero-bg-v2.webp',
       type: 'image/webp',
       fetchpriority: 'high',
     },
@@ -88,7 +88,7 @@ const scrollToNext = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('/uploads/hero-bg.webp');
+  background-image: url('/uploads/hero-bg-v2.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

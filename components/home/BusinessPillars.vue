@@ -11,7 +11,7 @@
         <article class="business-card business-card-clean">
           <div class="business-visual">
             <NuxtImg
-              src="/uploads/hero-bg.webp"
+              src="/uploads/hero-bg-v2.webp"
               alt=""
               class="business-img"
               sizes="xs:100vw sm:100vw md:50vw lg:50vw xl:640px"

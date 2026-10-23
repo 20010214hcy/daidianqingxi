@@ -173,7 +173,7 @@ useHead({
 <style scoped>
 .news-banner { position: relative; height: 320px; overflow: hidden; }
 .news-banner-bg { position: absolute; inset: 0; background: linear-gradient(135deg, #0f172a 0%, #1a3a5c 50%, #0f172a 100%); }
-.news-banner-overlay { position: absolute; inset: 0; background: url('/uploads/hero-bg.jpg') center/cover no-repeat; opacity: 0.15; }
+.news-banner-overlay { position: absolute; inset: 0; background: url('/uploads/hero-bg-v2.jpg') center/cover no-repeat; opacity: 0.15; }
 .news-banner-content { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 100%; display: flex; flex-direction: column; justify-content: center; }
 .breadcrumb { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
 .breadcrumb-link { color: rgba(255, 255, 255, 0.6); transition: color 0.2s; }

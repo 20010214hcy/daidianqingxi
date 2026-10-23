@@ -3,7 +3,7 @@
     <!-- 左：品牌 / 场景 -->
     <aside class="login-visual">
       <div class="visual-bg">
-        <img src="/uploads/hero-bg.webp" alt="" class="visual-img" />
+        <img src="/uploads/hero-bg-v2.webp" alt="" class="visual-img" />
         <div class="visual-shade" />
         <div class="visual-grid" />
       </div>

@@ -358,7 +358,7 @@ const formatPrice = (price: number | string | null | undefined) => {
   inset: 0;
   background:
     linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 58, 138, 0.88) 100%),
-    url('/uploads/hero-bg.webp') center/cover no-repeat;
+    url('/uploads/hero-bg-v2.webp') center/cover no-repeat;
 }
 
 .products-banner-inner {
