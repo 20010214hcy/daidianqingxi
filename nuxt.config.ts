@@ -79,8 +79,11 @@ export default defineNuxtConfig({
     '/contact': { swr: 30 },
     '/services': { swr: 600 },
     '/services/**': { swr: 600 },
-    '/cases': { swr: 600 },
-    '/cases/**': { swr: 600 },
+    // 案例页后台可频繁增改，600s 缓存 + PM2 4 实例各自独立内存缓存，
+    // 会导致更新后最长 10 分钟内刷新时新旧内容随机出现（「闪一下」）。
+    // 与新闻/产品页一致降到 30s。
+    '/cases': { swr: 30 },
+    '/cases/**': { swr: 30 },
     '/news': { swr: 30 },
     '/news/**': { swr: 30 },
     '/products': { swr: 30 },
