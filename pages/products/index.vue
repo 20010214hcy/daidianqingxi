@@ -45,9 +45,15 @@
           </div>
 
           <div class="product-grid-fade" :key="`${activeUnit}-${activeCategory}-${currentPage}`">
-            <div ref="gridRef" class="product-grid">
+            <div ref="gridRef">
+              <section v-for="group in productGroups" :key="group.key" class="product-group">
+                <div v-if="groupingEnabled" class="product-group-head">
+                  <h2 class="product-group-title">{{ group.title }}</h2>
+                  <span v-if="group.sub" class="product-group-sub">{{ group.sub }}</span>
+                </div>
+                <div class="product-grid" :class="group.gridClass">
               <article
-                v-for="product in products"
+                v-for="product in group.items"
                 :key="product.id"
                 class="product-card group"
               >
@@ -67,6 +73,7 @@
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
                         <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
                       </svg>
+                      <span class="placeholder-model">{{ product.name }}</span>
                     </div>
                   </div>
 
@@ -97,6 +104,8 @@
                   </NuxtLink>
                 </div>
               </article>
+                </div>
+              </section>
             </div>
           </div>
 
@@ -284,6 +293,57 @@ const { data: productsResponse, pending: loading } = useFetch('/api/products', {
 const products = computed<Product[]>(() => productsResponse.value?.list || [])
 const total = computed(() => productsResponse.value?.total || 0)
 const totalPages = computed(() => productsResponse.value?.totalPages || 1)
+
+// ===== 分组布局：设备类大卡 + 耗材类紧凑卡 =====
+// 设备/系统类是企业核心产品，用 2 列大图卡；清洗剂等耗材用 4 列紧凑卡。
+// 按分类名自动分组（不硬编码分类 id）；选定单个分类筛选时退化为单组、不显示组标题。
+const DEVICE_PATTERN = /(设备|储能|检测|仪器|机柜|系统)/
+
+const deviceProducts = computed(() =>
+  products.value.filter((p: any) => DEVICE_PATTERN.test(p?.category?.name || ''))
+)
+const consumableProducts = computed(() =>
+  products.value.filter((p: any) => !DEVICE_PATTERN.test(p?.category?.name || ''))
+)
+
+const groupingEnabled = computed(() =>
+  activeCategory.value === null &&
+  deviceProducts.value.length > 0 &&
+  consumableProducts.value.length > 0
+)
+
+const groupTitle = (items: any[]) =>
+  [...new Set(items.map((p: any) => p?.category?.name).filter(Boolean))].join('、') || '产品'
+
+// 单分类视图下按内容选网格密度：全是设备 → 大卡，全是耗材 → 紧凑卡
+const singleGridClass = computed(() => {
+  if (products.value.length === 0) return ''
+  if (consumableProducts.value.length === 0) return 'product-grid-device'
+  if (deviceProducts.value.length === 0) return 'product-grid-compact'
+  return ''
+})
+
+const productGroups = computed(() => {
+  if (groupingEnabled.value) {
+    return [
+      {
+        key: 'device',
+        title: groupTitle(deviceProducts.value),
+        sub: '核心设备 · 大图详情',
+        gridClass: 'product-grid-device',
+        items: deviceProducts.value,
+      },
+      {
+        key: 'consumable',
+        title: groupTitle(consumableProducts.value),
+        sub: '支持批量采购询价',
+        gridClass: 'product-grid-compact',
+        items: consumableProducts.value,
+      },
+    ].filter((g) => g.items.length > 0)
+  }
+  return [{ key: 'all', title: '', sub: '', gridClass: singleGridClass.value, items: products.value }]
+})
 
 useHead({
   title: '带电清洗设备与储能系统产品中心',
@@ -645,6 +705,121 @@ const formatPrice = (price: number | string | null | undefined) => {
 
 .product-cta:hover {
   background: #1d4ed8;
+}
+
+/* ===== 分组布局（设备区 + 耗材区）===== */
+.product-group {
+  margin-bottom: 36px;
+}
+.product-group:last-child {
+  margin-bottom: 0;
+}
+
+.product-group-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.product-group-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.product-group-sub {
+  font-size: 12.5px;
+  color: #94a3b8;
+}
+
+/* 设备区：2 列大卡（双类名提高特异度，避免被下方媒体查询的单类名规则覆盖） */
+.product-grid.product-grid-device {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+.product-grid-device .product-card-body {
+  padding: 20px 20px 16px;
+}
+.product-grid-device .product-name {
+  font-size: 17.5px;
+}
+.product-grid-device .product-desc {
+  font-size: 13.5px;
+  -webkit-line-clamp: 3;
+}
+.product-grid-device .product-spec-tag {
+  font-size: 12.5px;
+  padding: 3px 9px;
+}
+
+/* 耗材区：3 列紧凑卡（当前 6 款清洗剂正好 3+3 排满，不留尾巴空位） */
+.product-grid.product-grid-compact {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.product-grid-compact .product-image-wrapper {
+  aspect-ratio: 1 / 1;
+}
+.product-grid-compact .product-cat-line {
+  display: none;
+}
+.product-grid-compact .product-card-body {
+  padding: 12px 12px 10px;
+}
+.product-grid-compact .product-name {
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.product-grid-compact .product-desc {
+  font-size: 12px;
+}
+.product-grid-compact .product-card-foot {
+  padding: 9px 12px 12px;
+}
+.product-grid-compact .product-cta {
+  padding: 6px 11px;
+  font-size: 12px;
+}
+
+/* 无图占位：品牌深蓝渐变 + 型号字样，替代突兀的灰底图标 */
+.product-image-placeholder {
+  flex-direction: column;
+  gap: 10px;
+  background: linear-gradient(145deg, #0f172a, #1e3a8a);
+  color: rgba(255, 255, 255, 0.9);
+}
+.placeholder-model {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* 分组网格的响应式：双类名特异度高于单类名媒体查询，需单独覆盖 */
+@media (max-width: 1280px) {
+  .product-grid.product-grid-compact {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 800px) {
+  .product-grid.product-grid-device {
+    grid-template-columns: 1fr;
+  }
+  .product-grid.product-grid-compact {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .product-group {
+    margin-bottom: 26px;
+  }
+  .product-group-title {
+    font-size: 17px;
+  }
+  .product-grid-device .product-card-body {
+    padding: 14px 14px 12px;
+  }
 }
 
 .pagination-wrapper {
