@@ -28,6 +28,7 @@ export default defineNuxtConfig({
     pageTransition: { name: 'page', mode: 'out-in' },
     keepalive: false,
     head: {
+      htmlAttrs: { lang: 'zh-CN' },
       // titleTemplate 统一在 app.vue 里定义（config 内的函数模板在 SSR 不生效）
       link: [
         // 注意：canonical 已移除硬编码，改由 app.vue 按当前路径动态生成
