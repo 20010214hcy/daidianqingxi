@@ -7,82 +7,76 @@
         <p class="business-desc">带电清洗保障供电安全，储能集成助力绿色用能</p>
       </div>
 
-      <div class="business-grid">
-        <article class="business-card business-card-clean">
-          <div class="business-visual">
-            <NuxtImg
-              src="/uploads/hero-bg-v2.webp"
-              alt=""
-              class="business-img"
-              sizes="xs:100vw sm:100vw md:50vw lg:50vw xl:640px"
-              format="webp"
-              quality="74"
-              loading="lazy"
-              decoding="async"
-            />
-            <div class="business-img-mask" />
-          </div>
-          <div class="business-card-body">
-            <div class="business-accent business-accent-blue" />
-            <div class="business-badge">业务一</div>
-            <h3 class="business-name">带电清洗</h3>
-            <p class="business-summary">
-              变电站、配电室、工业厂房带电清洗与高压清洗，不停电作业，降低闪络与停电风险。
-            </p>
-            <ul class="business-points">
-              <li v-for="s in cleanServices" :key="s.id">
-                <NuxtLink :to="`/services/${s.id}`" class="business-point-link">
-                  <span class="point-dot" />
-                  <span>{{ s.title }}</span>
-                  <svg class="point-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
-                </NuxtLink>
-              </li>
-              <li v-if="!cleanServices.length" class="business-point-empty">服务陆续上线中</li>
-            </ul>
-            <NuxtLink to="/services?unit=daidianqingxi" class="business-cta">
-              查看清洗服务
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
-            </NuxtLink>
-          </div>
-        </article>
+      <div class="business-frame">
+        <aside class="business-rail" aria-label="业务板块切换">
+          <button
+            v-for="unit in units"
+            :key="unit.id"
+            type="button"
+            class="rail-item"
+            :class="{ active: activeUnit === unit.id }"
+            :data-unit="unit.id"
+            :aria-pressed="activeUnit === unit.id"
+            @click="activeUnit = unit.id"
+          >
+            <span class="rail-cnt">{{ unitServices(unit.id).length }} 项服务</span>
+            <span class="rail-en">{{ unit.en }}</span>
+            <span class="rail-name">{{ unit.name }}</span>
+            <span class="rail-desc">{{ unit.tagline }}</span>
+          </button>
 
-        <article class="business-card business-card-storage">
-          <div class="business-visual">
+          <div class="rail-tip">
+            <b>选型拿不准？</b>
+            <span>提供电压等级与现场工况，工程师 1 小时内给出方案建议。</span>
+            <NuxtLink to="/contact" class="rail-tip-link">免费技术咨询 →</NuxtLink>
+          </div>
+        </aside>
+
+        <div :key="activeUnit" class="business-panel" :class="`panel-unit-${activeUnit}`">
+          <div class="panel-hero">
             <NuxtImg
-              src="/uploads/8cdfe3f4-2d8f-4208-b98c-87378a2ccb31.webp"
+              :src="activeUnitData.img"
               alt=""
-              class="business-img"
-              sizes="xs:100vw sm:100vw md:50vw lg:50vw xl:640px"
+              class="panel-img"
+              sizes="xs:100vw sm:100vw md:100vw lg:940px"
               format="webp"
               quality="74"
               loading="lazy"
               decoding="async"
             />
-            <div class="business-img-mask" />
+            <div class="panel-mask" />
+            <div class="hero-text">
+              <div class="hero-kicker">{{ activeUnitData.kicker }}</div>
+              <h3 class="hero-title">{{ activeUnitData.title }}</h3>
+              <p class="hero-desc">{{ activeUnitData.desc }}</p>
+            </div>
           </div>
-          <div class="business-card-body">
-            <div class="business-accent business-accent-emerald" />
-            <div class="business-badge">业务二</div>
-            <h3 class="business-name">储能集成</h3>
-            <p class="business-summary">
-              工商业储能、台区储能系统集成与交付，覆盖方案设计、设备选型到并网运维。
-            </p>
-            <ul class="business-points">
-              <li v-for="s in storageServices" :key="s.id">
-                <NuxtLink :to="`/services/${s.id}`" class="business-point-link">
-                  <span class="point-dot point-dot-emerald" />
-                  <span>{{ s.title }}</span>
-                  <svg class="point-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
-                </NuxtLink>
-              </li>
-              <li v-if="!storageServices.length" class="business-point-empty">服务陆续上线中</li>
-            </ul>
-            <NuxtLink to="/services?unit=chuneng" class="business-cta">
-              查看储能服务
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
-            </NuxtLink>
+
+          <div class="panel-body">
+            <div class="body-head">
+              <h4>核心服务</h4>
+              <NuxtLink :to="activeUnitData.moreLink" class="body-more">查看全部服务 →</NuxtLink>
+            </div>
+            <div class="svc-grid">
+              <NuxtLink
+                v-for="s in activeServices"
+                :key="s.id"
+                :to="`/services/${s.id}`"
+                class="svc"
+              >
+                <span class="svc-dot" />
+                <span class="svc-name">{{ s.title }}</span>
+                <span v-if="serviceBrief(s)" class="svc-brief">{{ serviceBrief(s) }}</span>
+              </NuxtLink>
+              <div v-if="!activeServices.length" class="svc-empty">服务陆续上线中</div>
+            </div>
+
+            <div class="panel-cta">
+              <NuxtLink :to="activeUnitData.moreLink" class="cta-main">{{ activeUnitData.cta }}</NuxtLink>
+              <NuxtLink to="/contact" class="cta-ghost">获取报价</NuxtLink>
+            </div>
           </div>
-        </article>
+        </div>
       </div>
     </div>
   </section>
@@ -96,18 +90,49 @@ interface Props {
 }
 const props = defineProps<Props>()
 
-const cleanServices = computed(() =>
-  (props.services || [])
-    .filter((s) => !s.businessUnitId || s.businessUnitId === 1)
-    .slice(0, 4)
-)
+const activeUnit = ref<1 | 2>(1)
 
-// 储能服务同样动态取自服务表（businessunitId=2），后台增删改服务自动同步
-const storageServices = computed(() =>
-  (props.services || [])
-    .filter((s) => s.businessUnitId === 2)
-    .slice(0, 4)
-)
+const units = [
+  {
+    id: 1 as const,
+    name: '带电清洗',
+    en: 'LIVE-LINE CLEANING',
+    tagline: '不停电清除设备积污，消除污闪隐患',
+    kicker: '带电清洗 · 供电保障',
+    title: '0–1000kV 全电压等级带电清洗',
+    desc: '变电站、配电室、输电线路与工业厂房带电清洗，不停电作业，消除污闪与放电隐患，保障供电可靠性。',
+    img: '/uploads/hero-bg-v2.webp',
+    cta: '查看清洗服务',
+    moreLink: '/services?unit=daidianqingxi',
+  },
+  {
+    id: 2 as const,
+    name: '储能集成',
+    en: 'ENERGY STORAGE',
+    tagline: '工商业储能 EPC 与智能运维交付',
+    kicker: '储能集成 · 绿色用能',
+    title: '工商业储能一站式 EPC 交付',
+    desc: '工商业储能、台区储能系统集成与交付，覆盖方案设计、设备选型、建设施工到并网投运与智能运维。',
+    img: '/uploads/8cdfe3f4-2d8f-4208-b98c-87378a2ccb31.webp',
+    cta: '查看储能服务',
+    moreLink: '/services?unit=chuneng',
+  },
+]
+
+const activeUnitData = computed(() => units.find((u) => u.id === activeUnit.value) ?? units[0])
+
+const unitServices = (unitId: number) =>
+  (props.services || []).filter((s: any) =>
+    unitId === 1 ? !s.businessUnitId || s.businessUnitId === 1 : s.businessUnitId === 2,
+  )
+
+const activeServices = computed(() => unitServices(activeUnit.value).slice(0, 8))
+
+const serviceBrief = (s: Service) => {
+  const text = (s.description || '').trim()
+  if (!text) return ''
+  return text.length > 34 ? text.slice(0, 34) + '…' : text
+}
 </script>
 
 <style scoped>
@@ -119,7 +144,7 @@ const storageServices = computed(() =>
 
 .business-header {
   text-align: center;
-  margin-bottom: 48px;
+  margin-bottom: 44px;
 }
 
 .business-title {
@@ -136,228 +161,430 @@ const storageServices = computed(() =>
   margin: 0;
 }
 
-.business-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 28px;
+.business-frame {
+  display: flex;
+  gap: 22px;
+  align-items: stretch;
 }
 
-.business-card {
+/* ===== 左侧竖排切换器 ===== */
+.business-rail {
+  width: 232px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  border-radius: 18px;
-  overflow: hidden;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  gap: 12px;
 }
 
-.business-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+.rail-item {
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 20px 18px;
+  cursor: pointer;
+  background: #fff;
+  font-family: inherit;
+  transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+  overflow: hidden;
+}
+
+.rail-item:hover {
   border-color: #cbd5e1;
 }
 
-.business-visual {
-  position: relative;
-  height: 180px;
-  overflow: hidden;
-  flex-shrink: 0;
+.rail-item.active {
+  border-color: #1d4ed8;
+  background: #f6faff;
+  box-shadow: 0 8px 22px rgba(29, 78, 216, 0.08);
 }
 
-.business-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s ease;
-}
-
-.business-card:hover .business-img {
-  transform: scale(1.04);
-}
-
-.business-img-mask {
+.rail-item.active::before {
+  content: '';
   position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.15) 0%, rgba(15, 23, 42, 0.45) 100%);
+  left: 0;
+  top: 14px;
+  bottom: 14px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: #1d4ed8;
 }
 
-.business-card-body {
-  position: relative;
-  padding: 28px 28px 32px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+.rail-item[data-unit='2'].active {
+  border-color: #059669;
+  background: #f4fdf9;
+  box-shadow: 0 8px 22px rgba(5, 150, 105, 0.08);
 }
 
-.business-accent {
-  position: absolute;
-  top: 0;
-  left: 28px;
-  right: 28px;
-  height: 3px;
-  border-radius: 0 0 3px 3px;
-  transform: translateY(-1px);
+.rail-item[data-unit='2'].active::before {
+  background: #059669;
 }
 
-.business-accent-blue {
-  background: linear-gradient(90deg, #2563eb, #60a5fa);
+.rail-en {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #94a3b8;
+  margin-bottom: 5px;
 }
 
-.business-accent-emerald {
-  background: linear-gradient(90deg, #059669, #34d399);
-}
-
-.business-badge {
-  display: inline-block;
-  align-self: flex-start;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: #f1f5f9;
-  color: #475569;
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  margin-bottom: 12px;
-  font-weight: 600;
-}
-
-.business-name {
-  font-size: clamp(18px, 1.6vw, 22px);
-  font-weight: 800;
-  color: #0f172a;
-  margin: 0 0 12px;
-  letter-spacing: 0.02em;
-}
-
-.business-summary {
-  margin: 0 0 20px;
-  color: #64748b;
-  font-size: 13.5px;
-  line-height: 1.7;
-}
-
-.business-points {
-  list-style: none;
-  margin: 0 0 24px;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
-}
-
-.business-point-link {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 11px 14px;
-  border-radius: 10px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  color: #1e293b;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.business-point-link:hover {
-  background: #eff6ff;
-  border-color: #bfdbfe;
+.rail-item.active .rail-en {
   color: #1d4ed8;
 }
 
-.business-card-storage .business-point-link:hover {
-  background: #ecfdf5;
-  border-color: #a7f3d0;
-  color: #047857;
+.rail-item[data-unit='2'].active .rail-en {
+  color: #059669;
 }
 
-.point-dot {
-  width: 7px;
-  height: 7px;
+.rail-name {
+  display: block;
+  font-size: 17px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 5px;
+}
+
+.rail-desc {
+  display: block;
+  font-size: 11.5px;
+  color: #64748b;
+  line-height: 1.55;
+}
+
+.rail-cnt {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.rail-item.active .rail-cnt {
+  color: #1d4ed8;
+}
+
+.rail-item[data-unit='2'].active .rail-cnt {
+  color: #059669;
+}
+
+.rail-tip {
+  margin-top: auto;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #0f172a;
+  color: #fff;
+}
+
+.rail-tip b {
+  display: block;
+  font-size: 12.5px;
+  margin-bottom: 4px;
+}
+
+.rail-tip span {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.6;
+  display: block;
+}
+
+.rail-tip-link {
+  display: inline-block;
+  margin-top: 9px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  padding: 5px 14px;
+  transition: background 0.2s ease;
+}
+
+.rail-tip-link:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ===== 右侧主面板 ===== */
+.business-panel {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #fff;
+  animation: panelIn 0.4s ease;
+}
+
+@keyframes panelIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.panel-hero {
+  position: relative;
+  height: 250px;
+  overflow: hidden;
+}
+
+.panel-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.business-panel:hover .panel-img {
+  transform: scale(1.03);
+}
+
+.panel-mask {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, rgba(15, 23, 42, 0.82) 0%, rgba(15, 23, 42, 0.45) 55%, rgba(15, 23, 42, 0.1) 100%);
+}
+
+.hero-text {
+  position: absolute;
+  left: 34px;
+  bottom: 28px;
+  right: 34px;
+  color: #fff;
+}
+
+.hero-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #93c5fd;
+  margin-bottom: 7px;
+}
+
+.panel-unit-2 .hero-kicker {
+  color: #6ee7b7;
+}
+
+.hero-title {
+  font-size: clamp(22px, 2vw, 28px);
+  font-weight: 800;
+  margin: 0 0 8px;
+  letter-spacing: 0.02em;
+}
+
+.hero-desc {
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.82);
+  max-width: 560px;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.panel-body {
+  padding: 22px 28px 28px;
+}
+
+.body-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.body-head h4 {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.body-more {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1d4ed8;
+}
+
+.panel-unit-2 .body-more {
+  color: #059669;
+}
+
+.svc-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.svc {
+  border: 1px solid #e9eef4;
+  border-radius: 11px;
+  padding: 13px 13px 14px;
+  background: #fbfcfe;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-decoration: none;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.svc:hover {
+  border-color: #bfdbfe;
+  background: #f4f8ff;
+  transform: translateY(-2px);
+}
+
+.panel-unit-2 .svc:hover {
+  border-color: #a7f3d0;
+  background: #f2fdf7;
+}
+
+.svc-dot {
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: #3b82f6;
   flex-shrink: 0;
 }
 
-.point-dot-emerald {
+.panel-unit-2 .svc-dot {
   background: #10b981;
 }
 
-.point-arrow {
-  width: 14px;
-  height: 14px;
-  margin-left: auto;
-  opacity: 0.45;
+.svc-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a2433;
+  line-height: 1.45;
 }
 
-.business-point-empty {
+.svc-brief {
+  font-size: 11px;
+  color: #8a95a5;
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.svc-empty {
   color: #94a3b8;
-  font-size: 14px;
+  font-size: 13px;
   padding: 8px 4px;
+  grid-column: 1 / -1;
 }
 
-.business-cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 22px;
-  border-radius: 10px;
-  background: #0f172a;
-  color: #fff;
-  font-size: 14px;
+.panel-cta {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.cta-main {
+  flex: 1;
+  text-align: center;
+  font-size: 13.5px;
   font-weight: 700;
+  color: #fff;
+  background: #1d4ed8;
+  border-radius: 999px;
+  padding: 12px 0;
   text-decoration: none;
-  transition: background 0.2s ease, transform 0.2s ease;
-  align-self: flex-start;
+  transition: background 0.2s ease;
 }
 
-.business-cta:hover {
-  background: #1e293b;
-  transform: translateY(-1px);
+.cta-main:hover {
+  background: #1e40af;
 }
 
-.business-card-storage .business-cta:hover {
-  background: #064e3b;
+.panel-unit-2 .cta-main {
+  background: #059669;
 }
 
-/* md-desktop-density */
-@media (min-width: 960px) and (max-width: 1440px) {
-  .business-section {
-    padding: 64px 0;
-  }
+.panel-unit-2 .cta-main:hover {
+  background: #047857;
+}
 
-  .business-title {
-    font-size: 30px;
-  }
+.cta-ghost {
+  flex: 1;
+  text-align: center;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1d4ed8;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 999px;
+  padding: 11px 0;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
 
-  .business-card {
-    min-height: 380px;
-  }
+.cta-ghost:hover {
+  background: #eff6ff;
+}
 
-  .business-card-body {
-    padding: 28px 24px 26px;
-  }
+.panel-unit-2 .cta-ghost {
+  color: #059669;
+  border-color: #a7f3d0;
+}
 
-  .business-name {
-    font-size: 24px;
-  }
+.panel-unit-2 .cta-ghost:hover {
+  background: #ecfdf5;
+}
 
-  .business-points {
-    margin-bottom: 18px;
+@media (prefers-reduced-motion: reduce) {
+  .business-panel {
+    animation: none;
   }
 }
 
-@media (max-width: 900px) {
-  .business-grid {
-    grid-template-columns: 1fr;
+@media (max-width: 960px) {
+  .business-frame {
+    flex-direction: column;
   }
 
-  .business-title {
-    font-size: 28px;
+  .business-rail {
+    width: 100%;
+    flex-direction: row;
+  }
+
+  .rail-item {
+    flex: 1;
+    padding: 14px;
+  }
+
+  .rail-desc,
+  .rail-tip,
+  .rail-cnt {
+    display: none;
+  }
+
+  .rail-name {
+    margin-bottom: 0;
+  }
+
+  .svc-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .panel-hero {
+    height: 200px;
+  }
+
+  .hero-text {
+    left: 20px;
+    right: 20px;
+    bottom: 18px;
+  }
+
+  .panel-body {
+    padding: 18px 16px 20px;
   }
 }
 
@@ -370,61 +597,17 @@ const storageServices = computed(() =>
     margin-bottom: 24px;
   }
 
-  .business-title {
-    font-size: 22px;
-  }
-
-  .business-desc {
-    font-size: 13px;
-  }
-
-  .business-visual {
-    height: 120px;
-  }
-
-  .business-card-body {
-    padding: 16px 14px 18px;
-  }
-
-  .business-accent {
-    left: 14px;
-    right: 14px;
-  }
-
-  .business-badge {
-    font-size: 11px;
-    margin-bottom: 8px;
-  }
-
-  .business-name {
-    font-size: 18px;
-    margin-bottom: 8px;
-  }
-
-  .business-summary {
+  .hero-desc {
     font-size: 12px;
-    margin-bottom: 12px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
 
-  .business-points {
-    margin-bottom: 14px;
-    gap: 6px;
-  }
-
-  .business-point-link {
-    padding: 8px 10px;
-    font-size: 12px;
-  }
-
-  .business-cta {
-    padding: 10px 16px;
-    font-size: 13px;
-    width: 100%;
-    justify-content: center;
+  .panel-cta {
+    flex-direction: column;
+    gap: 8px;
   }
 }
 </style>
