@@ -1,12 +1,9 @@
 <template>
   <div>
-    <section class="products-banner">
-      <div class="products-banner-bg" />
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 products-banner-inner">
-        <h1 class="products-banner-title">产品中心</h1>
-        <p class="products-banner-desc">带电清洗设备 · 储能系统产品，按业务与分类快速筛选</p>
-      </div>
-    </section>
+    <PageHeader
+      title="产品中心"
+      subtitle="带电清洗设备 · 储能系统产品，按业务与分类快速筛选"
+    />
 
     <!-- 统一筛选条：业务分段控件 + 分类 chip，滚动后保持 sticky -->
     <UnitSwitcher
@@ -407,40 +404,6 @@ const formatPrice = (price: number | string | null | undefined) => {
 </script>
 
 <style scoped>
-.products-banner {
-  position: relative;
-  overflow: hidden;
-  color: #fff;
-}
-
-.products-banner-bg {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 58, 138, 0.88) 100%),
-    url('/uploads/hero-bg-v2.webp') center/cover no-repeat;
-}
-
-.products-banner-inner {
-  position: relative;
-  z-index: 1;
-  padding: 64px 0 56px;
-  text-align: center;
-}
-
-.products-banner-title {
-  font-size: clamp(26px, 2.6vw, 34px);
-  font-weight: 800;
-  margin: 0 0 12px;
-  letter-spacing: 0.04em;
-}
-
-.products-banner-desc {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.78);
-  font-size: 14.5px;
-}
-
 .products-list-section {
   padding: 40px 0 72px;
   background: #f8fafc;
@@ -923,10 +886,6 @@ const formatPrice = (price: number | string | null | undefined) => {
 
 /* md-desktop-density */
 @media (min-width: 960px) and (max-width: 1440px) {
-  .products-banner-inner {
-    padding: 52px 0 44px;
-  }
-
   .products-list-section {
     padding: 32px 0 64px;
   }
@@ -953,19 +912,7 @@ const formatPrice = (price: number | string | null | undefined) => {
     gap: 12px;
   }
 
-  .products-banner-inner {
-    padding: 40px 0 32px;
-  }
-
-  .products-banner-title {
-    font-size: 28px;
-  }
-
-  .products-banner-desc {
-    font-size: 14px;
-  }
-
-        .products-list-section {
+  .products-list-section {
     padding: 24px 0 48px;
   }
 
@@ -1034,10 +981,6 @@ const formatPrice = (price: number | string | null | undefined) => {
   .products-loading {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
-  }
-
-      .products-banner-title {
-    font-size: 24px;
   }
 
   /* 原先直接 display:none，卡片只剩型号与价格；保留两行更能说明这是什么产品 */

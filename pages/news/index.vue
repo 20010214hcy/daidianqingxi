@@ -1,21 +1,11 @@
 <template>
   <div>
-    <!-- Banner 区 -->
-    <section class="news-banner">
-      <div class="news-banner-bg">
-        <div class="news-banner-overlay" />
-      </div>
-      <div class="news-banner-content">
-        <nav class="breadcrumb">
-          <NuxtLink to="/" class="breadcrumb-link">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          </NuxtLink>
-          <span class="breadcrumb-sep">/</span>
-          <span class="breadcrumb-current">新闻中心</span>
-        </nav>
-        <h1 class="news-banner-title">新闻中心</h1>
-      </div>
-    </section>
+    <!-- Banner 区（与其他列表页统一走 PageHeader） -->
+    <PageHeader
+      title="新闻中心"
+      subtitle="行业动态 · 技术洞察 · 公司资讯"
+      breadcrumb="新闻中心"
+    />
 
     <!-- 分类筛选 -->
     <section class="sticky top-20 z-30 bg-white border-b border-slate-100">
@@ -171,17 +161,6 @@ useHead({
 </script>
 
 <style scoped>
-.news-banner { position: relative; height: 320px; overflow: hidden; }
-.news-banner-bg { position: absolute; inset: 0; background: linear-gradient(135deg, #0f172a 0%, #1a3a5c 50%, #0f172a 100%); }
-.news-banner-overlay { position: absolute; inset: 0; background: url('/uploads/hero-bg-v2.jpg') center/cover no-repeat; opacity: 0.15; }
-.news-banner-content { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 100%; display: flex; flex-direction: column; justify-content: center; }
-.breadcrumb { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
-.breadcrumb-link { color: rgba(255, 255, 255, 0.6); transition: color 0.2s; }
-.breadcrumb-link:hover { color: #fff; }
-.breadcrumb-sep { color: rgba(255, 255, 255, 0.3); font-size: 14px; }
-.breadcrumb-current { color: rgba(255, 255, 255, 0.8); font-size: 14px; }
-.news-banner-title { font-size: clamp(26px, 2.6vw, 34px); font-weight: 800; color: #fff; letter-spacing: 2px; }
-
 .news-list-section { padding: 40px 0 80px; background: #f8fafc; min-height: 60vh; }
 .news-list { display: flex; flex-direction: column; gap: 20px; }
 
@@ -213,8 +192,6 @@ useHead({
 .page-btn-active:hover { background: #1d4ed8; color: #fff; }
 
 @media (max-width: 768px) {
-  .news-banner { height: 240px; }
-  .news-banner-title { font-size: 28px; }
   .news-item { flex-direction: column; gap: 16px; padding: 16px; }
   .news-item-img { width: 100%; height: 200px; }
   .news-item-title { font-size: 17px; }
@@ -224,8 +201,6 @@ useHead({
 }
 
 @media (max-width: 480px) {
-  .news-banner { height: 200px; }
-  .news-banner-title { font-size: 24px; }
   .news-item-img { height: 160px; }
 }
 </style>
