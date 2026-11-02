@@ -280,14 +280,22 @@ const plainDescription = computed(() => {
   return text.slice(0, 160)
 })
 
+// 分享元信息：相对路径补全为绝对地址（微信/社交平台抓取 og:image 必须是完整 URL）
+const SITE_URL = 'https://ximingpower.com'
+const absUrl = (p?: string | null) => {
+  if (!p) return ''
+  return /^https?:\/\//i.test(p) ? p : `${SITE_URL}${p.startsWith('/') ? '' : '/'}${p}`
+}
+const shareDescription = computed(() => (article.value as any).summary || plainDescription.value || '')
+
 const articleJsonLd = computed(() => {
   if (!article.value.id) return null
   return {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: article.value.title,
-    description: plainDescription.value,
-    image: article.value.coverImage ? [article.value.coverImage] : undefined,
+    description: shareDescription.value,
+    image: article.value.coverImage ? [absUrl(article.value.coverImage)] : undefined,
     datePublished: article.value.publishedAt || article.value.createdAt,
     dateModified: article.value.updatedAt || article.value.publishedAt || article.value.createdAt,
     inLanguage: 'zh-CN',
@@ -307,11 +315,15 @@ const articleJsonLd = computed(() => {
 useHead({
   title: computed(() => (article.value.title ? `${article.value.title} - 玺铭电力` : '新闻详情 - 玺铭电力')),
   meta: [
-    { name: 'description', content: computed(() => plainDescription.value || article.value.title || '玺铭电力新闻详情') },
+    { name: 'description', content: computed(() => shareDescription.value || article.value.title || '玺铭电力新闻详情') },
     { property: 'og:title', content: computed(() => article.value.title || '新闻详情 - 玺铭电力') },
-    { property: 'og:description', content: computed(() => plainDescription.value || '') },
+    { property: 'og:description', content: computed(() => shareDescription.value || '') },
     { property: 'og:type', content: 'article' },
-    { property: 'og:image', content: computed(() => article.value.coverImage || '') },
+    { property: 'og:image', content: computed(() => absUrl(article.value.coverImage)) },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: computed(() => article.value.title || '新闻详情 - 玺铭电力') },
+    { name: 'twitter:description', content: computed(() => shareDescription.value || '') },
+    { name: 'twitter:image', content: computed(() => absUrl(article.value.coverImage)) },
   ],
   script: [
     {
